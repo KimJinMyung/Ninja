@@ -10,7 +10,7 @@ public enum State
     Run,
     Crounch,
     Jump,
-    Flling,
+    Falling,
     Climbing,
     Hide,
     Detection,
