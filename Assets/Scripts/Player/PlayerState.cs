@@ -135,7 +135,10 @@ public class FallingState : PlayerState
         }
     }
     public override void LateUpdate() { }
-    public override void FixedUpdate() { }
+    public override void FixedUpdate() 
+    {
+
+    }
     public override void Exit() { }
 }
 public class ClimbingState : PlayerState

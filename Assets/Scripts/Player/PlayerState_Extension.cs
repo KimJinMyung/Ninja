@@ -5,14 +5,19 @@ namespace Player_State.Extension
 {
     public static class PlayerState_Extension
     {
-        public static void RegisterMoveVelocity(this Player_Input input, bool isRegister)
+        public static void RegisterMoveVelocity(this InputViewModel input, bool isRegister)
         {
-            ActorLogicManager._instance.RegisterMoveVelocityChangedCallback(input.OnResponseMoveVelocityChangedEvent, isRegister);
+            ActorLogicManager._instance.RegisterMoveVelocityChangedCallback(input.OnResponseMoveVelocityChangedEvent, isRegister);            
         }
 
-        public static void OnResponseMoveVelocityChangedEvent(this Player_Input input, InputAction.CallbackContext context)
+        public static void RequestMoveOnInput(this InputViewModel input, float x, float y)
         {
-            input.Move = context.ReadValue<Vector2>();
+            ActorLogicManager._instance.OnMoveInput(x,y);
+        }
+
+        public static void OnResponseMoveVelocityChangedEvent(this InputViewModel input, float contextValueX, float contextValueY)
+        {
+            input.Move = new Vector2(contextValueX, contextValueY);
         }
     }
 }

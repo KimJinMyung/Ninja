@@ -1,3 +1,4 @@
+using Player_State.Extension;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,7 +10,9 @@ public class Player : MonoBehaviour
     [SerializeField] private float maxDistance;
     [SerializeField] private LayerMask groundLayer;
 
-    private Player_Input _player_Input;
+    [SerializeField] private float moveSpeed;
+
+    private InputViewModel _inputVm;
 
     public float MaxDistance
     {
@@ -100,6 +103,8 @@ public class Player : MonoBehaviour
     {
         _stateMachine.OnUpdate();
 
+        Movement();
+        Rotation();
         Debug.Log(PlayerState);
     }
 
@@ -120,13 +125,27 @@ public class Player : MonoBehaviour
         Gizmos.DrawRay(transform.position + new Vector3(0, maxDistance * 0.5f, 0), -transform.up * maxDistance);
     }
 
-
     private void OnEnable()
     {
-        if (_player_Input == null)
+        Cursor.lockState = CursorLockMode.Locked;
+
+        if (_inputVm == null)
         {
-            _player_Input = new Player_Input();
-            _player_Input.PropertyChanged += OnPropertyChanged;
+            _inputVm = new InputViewModel();
+            _inputVm.PropertyChanged += OnPropertyChanged;
+            _inputVm.RegisterMoveVelocity(true);
+        }
+    }
+
+    private void OnDisable()
+    {
+        Cursor.lockState = CursorLockMode.None;
+
+        if ( _inputVm != null )
+        {
+            _inputVm.RegisterMoveVelocity(false);
+            _inputVm.PropertyChanged -= OnPropertyChanged;
+            _inputVm = null;
         }
     }
 
@@ -134,9 +153,36 @@ public class Player : MonoBehaviour
     {
         switch (e.PropertyName)
         {
-            case nameof(_player_Input.Move):
-                //플레이어 무브 메서드
-                break;
+            
+        }
+    }
+
+    public void OnMove(InputAction.CallbackContext context)
+    {
+        if (_inputVm == null) return;
+
+
+        _inputVm.RequestMoveOnInput(context.ReadValue<Vector2>().x, context.ReadValue<Vector2>().y);
+
+        //ActorLogicManager._instance.OnMoveInput(context.ReadValue<Vector2>());
+    }
+
+    private void Movement()
+    {
+        if(_inputVm.Move.magnitude >= 0.1f)
+        {
+            Vector3 _moveDir = Quaternion.Euler(0, _inputVm.TargetAngle, 0) * Vector3.forward;
+
+            _characterController.Move(_moveDir.normalized * moveSpeed * Time.deltaTime);
+        }        
+    }
+
+    private void Rotation()
+    {
+        if(_inputVm.Move.magnitude >= 0.1f)
+        {
+            Quaternion targetRotation = Quaternion.Euler(0, _inputVm.TargetAngle, 0);
+            transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, 10f * Time.deltaTime);
         }
     }
 }

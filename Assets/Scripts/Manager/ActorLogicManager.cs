@@ -1,9 +1,13 @@
 using System;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class ActorLogicManager : MonoBehaviour
 {
     public static ActorLogicManager _instance = null;
+
+    private Action<float, float> _moveVelocityChangedCallback;
+    private Action<float, float> _targetAngleChangedCallback;
 
     private void Awake()
     {
@@ -13,9 +17,42 @@ public class ActorLogicManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
-    public void RegisterMoveVelocityChangedCallback(Action<Vector2> moveVelocityCallback, bool isRegister)
+    public void RegisterMoveVelocityChangedCallback(Action<float, float> moveVelocityChangedCallback, bool isRegister)
     {
+        if (isRegister)
+        {
+            _moveVelocityChangedCallback += moveVelocityChangedCallback;
+        }
+        else
+        {
+            _moveVelocityChangedCallback -= moveVelocityChangedCallback;
+        }
+    }
 
+    public void RegisterTargetAngleChangedCallback(Action<float, float> targetAngleChangedCallback, bool isRegister)
+    {
+        if (isRegister)
+        {
+            _targetAngleChangedCallback += targetAngleChangedCallback;
+        }
+        else
+        {
+            _targetAngleChangedCallback -= targetAngleChangedCallback;
+        }
+    }
+
+    public void OnMoveInput(float x, float y)
+    {
+        if (_moveVelocityChangedCallback == null) return;
+
+        _moveVelocityChangedCallback.Invoke(x,y);
+    }
+
+    public void OnMoveDir(float x, float y)
+    {
+        if (_targetAngleChangedCallback == null) return;
+
+        _targetAngleChangedCallback.Invoke(x, y);
     }
 
     public bool OnChangedStateFalling(Transform target,float maxDistance, LayerMask groundLayer)
