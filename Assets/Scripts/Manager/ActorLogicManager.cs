@@ -1,13 +1,12 @@
 using System;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class ActorLogicManager : MonoBehaviour
 {
     public static ActorLogicManager _instance = null;
 
     private Action<float, float> _moveVelocityChangedCallback;
-    private Action<float, float> _targetAngleChangedCallback;
+    private Action<float, float, float> _targetAngleChangedCallback;
 
     private void Awake()
     {
@@ -29,7 +28,7 @@ public class ActorLogicManager : MonoBehaviour
         }
     }
 
-    public void RegisterTargetAngleChangedCallback(Action<float, float> targetAngleChangedCallback, bool isRegister)
+    public void RegisterActorRotateChangedCallback(Action<float, float, float> targetAngleChangedCallback, bool isRegister)
     {
         if (isRegister)
         {
@@ -48,11 +47,11 @@ public class ActorLogicManager : MonoBehaviour
         _moveVelocityChangedCallback.Invoke(x,y);
     }
 
-    public void OnMoveDir(float x, float y)
+    public void OnActorRotate(float x, float y, float z)
     {
         if (_targetAngleChangedCallback == null) return;
 
-        _targetAngleChangedCallback.Invoke(x, y);
+        _targetAngleChangedCallback.Invoke(x, y, z);
     }
 
     public bool OnChangedStateFalling(Transform target,float maxDistance, LayerMask groundLayer)

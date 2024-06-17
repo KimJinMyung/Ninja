@@ -11,17 +11,18 @@ public class InputViewModel
         {
             _move = value;
             OnPropertyChanged(nameof(Move));
-            OnPropertyChanged(nameof(TargetAngle));
         }
     }
-    private float _targetAngle; 
-    public float TargetAngle
+
+    private Quaternion _rotation;
+    public Quaternion Rotation
     {
-        get
+        get { return _rotation; }
+        set
         {
-            return Mathf.Atan2(_move.x, _move.y) * Mathf.Rad2Deg + Camera.main.transform.eulerAngles.y;
+            _rotation = value;    
+            OnPropertyChanged(nameof(Rotation));
         }
-        
     }
 
     #region propertyEvent

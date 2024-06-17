@@ -13,7 +13,17 @@ public class PlayerState : ActorState
         this.owner = owner;
     }
 
+    protected float _playerMoveAnimation;
 
+    protected readonly int hashMoveZ = Animator.StringToHash("Z_Value");
+    protected readonly int hashMoveX = Animator.StringToHash("X_Value");
+
+    public override void Update()
+    {
+        base.Update();
+        owner.Animator.SetFloat(hashMoveZ, Mathf.Lerp(owner.Animator.GetFloat(hashMoveZ), owner.InputVm.Move.y * _playerMoveAnimation, 10f * Time.deltaTime));
+        owner.Animator.SetFloat(hashMoveX, Mathf.Lerp(owner.Animator.GetFloat(hashMoveX), owner.InputVm.Move.x * _playerMoveAnimation, 10f * Time.deltaTime));
+    }
 }
 
 public class IdleState : PlayerState
@@ -22,6 +32,7 @@ public class IdleState : PlayerState
     public override void Enter()
     {
         base.Enter();
+        _playerMoveAnimation = 0f;
     }
 
     public override void Update()
@@ -31,7 +42,7 @@ public class IdleState : PlayerState
         {
             owner.PlayerState = State.Falling;
         }
-        else if(owner.Velocity.magnitude > 0.1f)
+        else if(owner.InputVm.Move.magnitude > 0.1f)
         {
             owner.PlayerState = State.Walk;
         }
@@ -51,13 +62,14 @@ public class WalkState : PlayerState
     public override void Enter()
     {
         base.Enter();
+        _playerMoveAnimation = 3f;
     }
 
     public override void Update()
     {
         base.Update();
 
-        if (owner.Velocity.magnitude < 0.1f)
+        if (owner.InputVm.Move.magnitude <= 0.1f)
         {
             owner.PlayerState = State.Idle;
         }

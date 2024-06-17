@@ -4,15 +4,34 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.iOS;
 
 public class Player : MonoBehaviour
 {
     [SerializeField] private float maxDistance;
     [SerializeField] private LayerMask groundLayer;
 
-    [SerializeField] private float moveSpeed;
+    [SerializeField] private float _walkSpeed;
+    [SerializeField] private float _runSpeed;
+
+    private float moveSpeed;
+
+    private Vector3 _inputMoveDir;
+    private float targetAngle;
 
     private InputViewModel _inputVm;
+
+    public InputViewModel InputVm
+    {
+        get { return _inputVm; }
+    }
+
+    [Header("Player Animation")]
+    [SerializeField] private Animator _animator;
+    public Animator Animator
+    {
+        get { return _animator; }
+    }
 
     public float MaxDistance
     {
@@ -92,11 +111,20 @@ public class Player : MonoBehaviour
         _stateMachine.AddState(State.Die, new DieState(this));
 
         _stateMachine.InitState(State.Idle);
+
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     private void Start()
     {
         _stateMachine.OnStart();
+
+        if (_inputVm == null)
+        {
+            _inputVm = new InputViewModel();
+            _inputVm.PropertyChanged += OnPropertyChanged;
+            _inputVm.RegisterMoveVelocity(true);
+        }
     } 
 
     private void Update()
@@ -105,6 +133,7 @@ public class Player : MonoBehaviour
 
         Movement();
         Rotation();
+
         Debug.Log(PlayerState);
     }
 
@@ -127,14 +156,7 @@ public class Player : MonoBehaviour
 
     private void OnEnable()
     {
-        Cursor.lockState = CursorLockMode.Locked;
-
-        if (_inputVm == null)
-        {
-            _inputVm = new InputViewModel();
-            _inputVm.PropertyChanged += OnPropertyChanged;
-            _inputVm.RegisterMoveVelocity(true);
-        }
+        moveSpeed = _walkSpeed;
     }
 
     private void OnDisable()
@@ -169,9 +191,13 @@ public class Player : MonoBehaviour
 
     private void Movement()
     {
-        if(_inputVm.Move.magnitude >= 0.1f)
+        _inputMoveDir = new Vector3(_inputVm.Move.x, 0, _inputVm.Move.y).normalized;
+
+        if (_inputMoveDir.magnitude >= 0.1f)
         {
-            Vector3 _moveDir = Quaternion.Euler(0, _inputVm.TargetAngle, 0) * Vector3.forward;
+            targetAngle = Mathf.Atan2(_inputMoveDir.x, _inputMoveDir.z) * Mathf.Rad2Deg + Camera.main.transform.eulerAngles.y;
+
+            Vector3 _moveDir = Quaternion.Euler(0, targetAngle, 0) * Vector3.forward;
 
             _characterController.Move(_moveDir.normalized * moveSpeed * Time.deltaTime);
         }        
@@ -181,8 +207,12 @@ public class Player : MonoBehaviour
     {
         if(_inputVm.Move.magnitude >= 0.1f)
         {
-            Quaternion targetRotation = Quaternion.Euler(0, _inputVm.TargetAngle, 0);
-            transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, 10f * Time.deltaTime);
+            Quaternion cameraRotation = Quaternion.Euler(0, targetAngle, 0);
+
+            Quaternion targetRotate = Quaternion.Lerp(transform.rotation, cameraRotation, 10f * Time.deltaTime);
+
+            _inputVm.RequestActorRotate(targetRotate.x, targetRotate.y, targetRotate.z);
+            //transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, 10f * Time.deltaTime);
         }
     }
 }
