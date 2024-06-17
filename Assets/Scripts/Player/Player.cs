@@ -10,6 +10,7 @@ public class Player : MonoBehaviour
 {
     [SerializeField] private float maxDistance;
     [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private Transform _lookAt;
 
     [SerializeField] private float _walkSpeed;
     [SerializeField] private float _runSpeed;
@@ -112,7 +113,8 @@ public class Player : MonoBehaviour
 
         _stateMachine.InitState(State.Idle);
 
-        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.lockState = CursorLockMode.Confined;
+        Cursor.visible = false;
     }
 
     private void Start()
@@ -124,6 +126,8 @@ public class Player : MonoBehaviour
             _inputVm = new InputViewModel();
             _inputVm.PropertyChanged += OnPropertyChanged;
             _inputVm.RegisterMoveVelocity(true);
+            _inputVm.RegisterActorRotate(true);
+            _inputVm.RegisterMousePosition(true);
         }
     } 
 
@@ -166,6 +170,9 @@ public class Player : MonoBehaviour
         if ( _inputVm != null )
         {
             _inputVm.RegisterMoveVelocity(false);
+            _inputVm.RegisterActorRotate(false);
+            _inputVm.RegisterMousePosition(false);
+
             _inputVm.PropertyChanged -= OnPropertyChanged;
             _inputVm = null;
         }
@@ -175,7 +182,10 @@ public class Player : MonoBehaviour
     {
         switch (e.PropertyName)
         {
-            
+            case nameof(_inputVm.MousePosition):
+                _lookAt.rotation = Quaternion.Lerp(_lookAt.rotation, Quaternion.Euler(_lookAt.rotation.x + _inputVm.MousePosition.y, _lookAt.rotation.y + _inputVm.MousePosition.x , _lookAt.rotation.z), 10f * Time.deltaTime);
+                Debug.Log("마우스 돌리는 중...");
+                break;
         }
     }
 
@@ -187,6 +197,13 @@ public class Player : MonoBehaviour
         _inputVm.RequestMoveOnInput(context.ReadValue<Vector2>().x, context.ReadValue<Vector2>().y);
 
         //ActorLogicManager._instance.OnMoveInput(context.ReadValue<Vector2>());
+    }
+
+    public void OnCameraRotate(InputAction.CallbackContext context)
+    {
+        if(_inputVm == null) return;
+
+        _inputVm.RequestMousePosition(context.ReadValue<Vector2>().x, context.ReadValue<Vector2>().y);
     }
 
     private void Movement()

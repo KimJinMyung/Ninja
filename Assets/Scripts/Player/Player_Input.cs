@@ -25,6 +25,17 @@ public class InputViewModel
         }
     }
 
+    private Vector2 _mousePosition;
+    public Vector2 MousePosition
+    {
+        get { return _mousePosition; }
+        set
+        {
+            _mousePosition = value;
+            OnPropertyChanged(nameof(MousePosition));
+        }
+    }
+
     #region propertyEvent
 
     public event PropertyChangedEventHandler PropertyChanged;
