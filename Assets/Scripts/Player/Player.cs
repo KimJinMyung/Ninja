@@ -6,6 +6,7 @@ using System.ComponentModel;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.iOS;
+using static UnityEngine.UI.GridLayoutGroup;
 
 public class Player : MonoBehaviour
 {
@@ -29,17 +30,30 @@ public class Player : MonoBehaviour
     private Vector3 _inputMoveDir;
     private float targetAngle;
 
+    #region ViewModel
     private InputViewModel _inputVm;
 
     public InputViewModel InputVm { get { return _inputVm; } }
+
+    #endregion
+
+    [Header("Character Controller")]
+    [SerializeField] private CharacterController _characterController;
 
     [Header("Player Animation")]
     [SerializeField] private Animator _animator;
     public Animator Animator { get { return _animator; } }
 
+    protected readonly int hashIsMoveAble = Animator.StringToHash("IsMoveAble");
+
+    [SerializeField] private float _attackDelay;
+    public float AttackDelay { get { return _attackDelay; } }
+
+    #region isGround
     public float MaxDistance { get { return maxDistance; } }
 
     public LayerMask GroundLayer { get { return groundLayer; } }
+    #endregion
 
     [Header("Debug Mode")]
     [SerializeField] private bool _debug;
@@ -47,23 +61,8 @@ public class Player : MonoBehaviour
     public bool _Debug { get { return _debug; } }
 
     private StateMachine _stateMachine;
-    private State _playerState;
-
-    public State PlayerState
-    {
-        get { return _playerState; }
-        set
-        {
-            if (_playerState == value) return;
-
-            _playerState = value;
-            _stateMachine.ChangeState(_playerState);
-        }
-    }
 
     public StateMachine StateMachine { get { return _stateMachine; } }
-
-    private CharacterController _characterController;
 
     public Vector3 Velocity { get { return _characterController.velocity; } } 
     private Quaternion initRotation;
@@ -71,8 +70,6 @@ public class Player : MonoBehaviour
 
     private void Awake()
     {
-        _characterController = GetComponent<CharacterController>();
-
         _stateMachine = gameObject.AddComponent<StateMachine>();
 
         _stateMachine.AddState(State.Idle, new IdleState(this));
@@ -114,14 +111,15 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
+        UpdatePosition();
+        
         CameraRotation();
 
         Movement();
-        Rotation();
-
-        Debug.Log(PlayerState);
 
         _stateMachine.OnUpdate();
+
+        Debug.Log(_inputVm.PlayerState.ToString());
     }
 
     private void LateUpdate()
@@ -131,6 +129,8 @@ public class Player : MonoBehaviour
     private void FixedUpdate()
     {
         _stateMachine.OnFixedUpdate();
+
+        Rotation();
     }
 
     private void OnDrawGizmos()
@@ -165,25 +165,40 @@ public class Player : MonoBehaviour
 
     private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-        //switch (e.PropertyName)
-        //{
-        //    case nameof(_inputVm.Rotation):
-        //        Rotation();
-        //        break;
-        //}
+        switch (e.PropertyName)
+        {
+            case nameof(_inputVm.PlayerState):
+                _stateMachine.ChangeState(_inputVm.PlayerState);
+                break;
+        }
     }
 
+    #region Input System Event
     public void OnMove(InputAction.CallbackContext context)
     {
         if (_inputVm == null) return;
-
 
         _inputVm.RequestMoveOnInput(context.ReadValue<Vector2>().x, context.ReadValue<Vector2>().y);
         //ActorLogicManager._instance.OnMoveInput(context.ReadValue<Vector2>());
     }
 
+    public void OnAttack(InputAction.CallbackContext context)
+    {
+        if (_inputVm == null) return;
+
+        if (context.started)
+        {
+            if (_inputVm.PlayerState == State.Attack) return;
+            _inputVm.PlayerState = State.Attack;         
+        }
+    }
+
+    #endregion
+
     private void Movement()
     {
+        if (!Animator.GetBool(hashIsMoveAble)) return;
+
         _inputMoveDir = new Vector3(_inputVm.Move.x, 0, _inputVm.Move.y).normalized;
 
         if (_inputMoveDir.magnitude >= 0.1f)
@@ -198,17 +213,21 @@ public class Player : MonoBehaviour
 
     private void Rotation()
     {
-        if(_inputVm.Move.magnitude >= 0.1f)
+        if (!Animator.GetBool(hashIsMoveAble)) return;
+
+        if (_inputVm.Move.magnitude >= 0.1f)
         {
             Quaternion cameraDir = Quaternion.Euler(0, targetAngle, 0);
 
-            Quaternion targetRotate = Quaternion.Lerp(transform.rotation, cameraDir, 100f * Time.deltaTime);
+            Quaternion targetRotate = Quaternion.Lerp(transform.rotation, cameraDir, 100f * Time.fixedDeltaTime);
 
             _inputVm.RequestActorRotate(targetRotate.x, targetRotate.y, targetRotate.z);
 
             //character È¸Àü
             Transform playerMesh = transform.GetChild(0);
-            playerMesh.rotation = Quaternion.Lerp(playerMesh.rotation, targetRotate, 10f * Time.deltaTime);
+
+            //Quaternion playerRotation = Quaternion.Lerp(playerMesh.rotation, targetRotate, 10f * Time.deltaTime);
+            playerMesh.rotation = Quaternion.Lerp(playerMesh.rotation, targetRotate, 10f * Time.fixedDeltaTime);
         }
     }
 
@@ -236,5 +255,10 @@ public class Player : MonoBehaviour
         mouseRotation = Quaternion.Euler(y_Axis.Value, x_Axis.Value, 0f);
 
         _lookAt.rotation = Quaternion.Lerp(_lookAt.rotation, mouseRotation, 1f);
+    }
+
+    private void UpdatePosition()
+    {
+        transform.position = _characterController.transform.position;
     }
 }

@@ -4,6 +4,20 @@ using UnityEngine;
 
 public class InputViewModel
 {
+    private State _playerState;
+    public State PlayerState
+    {
+        get { return _playerState; }
+        set
+        {
+            if (_playerState == value) return;
+
+            _playerState = value;
+            OnPropertyChanged(nameof(PlayerState));
+            //_stateMachine.ChangeState(_playerState);
+        }
+    }
+
     private Vector2 _move;
     public Vector2 Move
     {

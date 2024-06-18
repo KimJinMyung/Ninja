@@ -1,13 +1,17 @@
 using System;
+using UnityEditor;
 using UnityEngine;
 
 public class ActorLogicManager : MonoBehaviour
 {
     public static ActorLogicManager _instance = null;
 
+    private Action<State> _stateChangedCallback;
+    private Action<float, float, float> _transformPositionUpdateCallback;
     private Action<float, float> _moveVelocityChangedCallback;
     private Action<float, float, float> _targetAngleChangedCallback;
     private Action<bool> _isLockOnModeChangedCallback;
+    private Action<int> _attackCountChangedCallback;
 
     private void Awake()
     {
@@ -18,6 +22,12 @@ public class ActorLogicManager : MonoBehaviour
     }
 
     #region Register 연결부
+    public void RegisterStateChangedCallback(Action<State> stateChangedCallback, bool isRegister)
+    {
+        if (isRegister) _stateChangedCallback += stateChangedCallback;
+        else _stateChangedCallback -= stateChangedCallback;
+    }
+
     public void RegisterMoveVelocityChangedCallback(Action<float, float> moveVelocityChangedCallback, bool isRegister)
     {
         if (isRegister)
@@ -51,24 +61,26 @@ public class ActorLogicManager : MonoBehaviour
     #endregion
 
     #region Request 연결부
+    public void OnChangedState(State state)
+    {
+        if (_stateChangedCallback == null) return;
+        _stateChangedCallback.Invoke(state);
+    }
     public void OnMoveInput(float x, float y)
     {
         if (_moveVelocityChangedCallback == null) return;
-
         _moveVelocityChangedCallback.Invoke(x,y);
     }
 
     public void OnActorRotate(float x, float y, float z)
     {
         if (_targetAngleChangedCallback == null) return;
-
         _targetAngleChangedCallback.Invoke(x, y, z);
     }
 
     public void OnIsLockOn(bool isLockOn)
     {
-        if (_isLockOnModeChangedCallback == null) return;
-        
+        if (_isLockOnModeChangedCallback == null) return;        
         _isLockOnModeChangedCallback.Invoke(isLockOn);
     }
     #endregion

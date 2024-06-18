@@ -1,3 +1,5 @@
+using JetBrains.Annotations;
+using Player_State.Extension;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -17,6 +19,9 @@ public class PlayerState : ActorState
 
     protected readonly int hashMoveZ = Animator.StringToHash("Z_Value");
     protected readonly int hashMoveX = Animator.StringToHash("X_Value");
+
+    protected readonly int hashAttack = Animator.StringToHash("Attack");
+    protected readonly int hashIsMoveAble = Animator.StringToHash("IsMoveAble");
 
     public override void Update()
     {
@@ -57,11 +62,11 @@ public class IdleState : PlayerState
         base.Update();
         if(ActorLogicManager._instance.OnChangedStateFalling(owner.transform,owner.MaxDistance, owner.GroundLayer))
         {
-            owner.PlayerState = State.Falling;
+            owner.InputVm.PlayerState = State.Falling;
         }
         else if(owner.InputVm.Move.magnitude > 0.1f)
         {
-            owner.PlayerState = State.Walk;
+            owner.InputVm.PlayerState = State.Walk;
         }
     }
 
@@ -88,7 +93,7 @@ public class WalkState : PlayerState
 
         if (owner.InputVm.Move.magnitude <= 0.1f)
         {
-            owner.PlayerState = State.Idle;
+            owner.InputVm.PlayerState = State.Idle;
         }
     }
     public override void LateUpdate() { }
@@ -160,7 +165,7 @@ public class FallingState : PlayerState
         base.Update();
         if (!ActorLogicManager._instance.OnChangedStateFalling(owner.transform, owner.MaxDistance, owner.GroundLayer))
         {
-            owner.PlayerState = State.Idle;
+            owner.InputVm.PlayerState = State.Idle;
         }
     }
     public override void LateUpdate() { }
@@ -221,14 +226,25 @@ public class DetectionState : PlayerState
 public class BattleState : PlayerState
 {
     public BattleState(Player owner) : base(owner) { }
+
+    private float _timer;
+
     public override void Enter()
     {
         base.Enter();
+        _timer = 0;
     }
 
     public override void Update()
     {
         base.Update();
+
+        _timer = Mathf.Clamp(_timer + Time.deltaTime, 0f, 3f);
+
+        if(_timer > 10f)
+        {
+            owner.InputVm.PlayerState = State.Idle;
+        }
     }
     public override void LateUpdate() { }
     public override void FixedUpdate() { }
@@ -237,14 +253,31 @@ public class BattleState : PlayerState
 public class AttackState : PlayerState
 {
     public AttackState(Player owner) : base(owner) { }
+
+    private float _timer;
+
     public override void Enter()
-    {
+    {        
         base.Enter();
+
+        _timer = 0;      
+
+        owner.Animator.SetTrigger(hashAttack);        
     }
 
     public override void Update()
     {
         base.Update();
+
+        //if(owner.Animator.GetCurrentAnimatorStateInfo(0).normalizedTime > 0.2f)
+        //    owner.Animator.SetBool(hashIsMoveAble, false);
+
+        _timer = Mathf.Clamp(_timer + Time.deltaTime, 0, owner.AttackDelay);
+
+        if(_timer >= owner.AttackDelay)
+        {
+            owner.InputVm.PlayerState = State.Battle;
+        }
     }
     public override void LateUpdate() { }
     public override void FixedUpdate() { }
