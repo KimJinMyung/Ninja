@@ -1,3 +1,4 @@
+using Cinemachine;
 using Player_State.Extension;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,85 +9,64 @@ using UnityEngine.InputSystem.iOS;
 
 public class Player : MonoBehaviour
 {
+    //Ground 확인
+    [Header("Check IsGround")]
     [SerializeField] private float maxDistance;
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private Transform _lookAt;
 
+    [Header("Move Speed")]
     [SerializeField] private float _walkSpeed;
     [SerializeField] private float _runSpeed;
 
     private float moveSpeed;
 
+    [Header("Player Cinemachine Setting")]
+    public Cinemachine.AxisState x_Axis;
+    public Cinemachine.AxisState y_Axis;
+
+    //Movement
     private Vector3 _inputMoveDir;
     private float targetAngle;
 
     private InputViewModel _inputVm;
 
-    public InputViewModel InputVm
-    {
-        get { return _inputVm; }
-    }
+    public InputViewModel InputVm { get { return _inputVm; } }
 
     [Header("Player Animation")]
     [SerializeField] private Animator _animator;
-    public Animator Animator
-    {
-        get { return _animator; }
-    }
+    public Animator Animator { get { return _animator; } }
 
-    public float MaxDistance
-    {
-        get { return maxDistance; }
-    }
+    public float MaxDistance { get { return maxDistance; } }
 
-    public LayerMask GroundLayer
-    {
-        get { return groundLayer; }
-    }
+    public LayerMask GroundLayer { get { return groundLayer; } }
 
-    [Header("Debug")]
+    [Header("Debug Mode")]
     [SerializeField] private bool _debug;
 
-    public bool _Debug
-    {
-        get { return  _debug; }
-    }
+    public bool _Debug { get { return _debug; } }
 
     private StateMachine _stateMachine;
     private State _playerState;
 
     public State PlayerState
     {
-        get
-        {
-            return _playerState;
-        }
+        get { return _playerState; }
         set
         {
-            if( _playerState == value ) return;
+            if (_playerState == value) return;
 
             _playerState = value;
             _stateMachine.ChangeState(_playerState);
         }
     }
 
-    public StateMachine StateMachine
-    {
-        get
-        {
-            return _stateMachine;
-        }
-    }
+    public StateMachine StateMachine { get { return _stateMachine; } }
 
     private CharacterController _characterController;
 
-    public Vector3 Velocity
-    {
-        get
-        {
-            return _characterController.velocity;
-        }
-    }
+    public Vector3 Velocity { get { return _characterController.velocity; } } 
+    private Quaternion initRotation;
 
     private void Awake()
     {
@@ -127,18 +107,19 @@ public class Player : MonoBehaviour
             _inputVm.PropertyChanged += OnPropertyChanged;
             _inputVm.RegisterMoveVelocity(true);
             _inputVm.RegisterActorRotate(true);
-            _inputVm.RegisterMousePosition(true);
         }
     } 
 
     private void Update()
     {
-        _stateMachine.OnUpdate();
+        CameraRotation();
 
         Movement();
         Rotation();
 
         Debug.Log(PlayerState);
+
+        _stateMachine.OnUpdate();
     }
 
     private void LateUpdate()
@@ -161,6 +142,8 @@ public class Player : MonoBehaviour
     private void OnEnable()
     {
         moveSpeed = _walkSpeed;
+
+        InitRotation();
     }
 
     private void OnDisable()
@@ -171,7 +154,6 @@ public class Player : MonoBehaviour
         {
             _inputVm.RegisterMoveVelocity(false);
             _inputVm.RegisterActorRotate(false);
-            _inputVm.RegisterMousePosition(false);
 
             _inputVm.PropertyChanged -= OnPropertyChanged;
             _inputVm = null;
@@ -180,13 +162,12 @@ public class Player : MonoBehaviour
 
     private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-        switch (e.PropertyName)
-        {
-            case nameof(_inputVm.MousePosition):
-                _lookAt.rotation = Quaternion.Lerp(_lookAt.rotation, Quaternion.Euler(_lookAt.rotation.x + _inputVm.MousePosition.y, _lookAt.rotation.y + _inputVm.MousePosition.x , _lookAt.rotation.z), 10f * Time.deltaTime);
-                Debug.Log("마우스 돌리는 중...");
-                break;
-        }
+        //switch (e.PropertyName)
+        //{
+        //    case nameof(_inputVm.Rotation):
+        //        Rotation();
+        //        break;
+        //}
     }
 
     public void OnMove(InputAction.CallbackContext context)
@@ -195,15 +176,7 @@ public class Player : MonoBehaviour
 
 
         _inputVm.RequestMoveOnInput(context.ReadValue<Vector2>().x, context.ReadValue<Vector2>().y);
-
         //ActorLogicManager._instance.OnMoveInput(context.ReadValue<Vector2>());
-    }
-
-    public void OnCameraRotate(InputAction.CallbackContext context)
-    {
-        if(_inputVm == null) return;
-
-        _inputVm.RequestMousePosition(context.ReadValue<Vector2>().x, context.ReadValue<Vector2>().y);
     }
 
     private void Movement()
@@ -224,12 +197,40 @@ public class Player : MonoBehaviour
     {
         if(_inputVm.Move.magnitude >= 0.1f)
         {
-            Quaternion cameraRotation = Quaternion.Euler(0, targetAngle, 0);
+            Quaternion cameraDir = Quaternion.Euler(0, targetAngle, 0);
 
-            Quaternion targetRotate = Quaternion.Lerp(transform.rotation, cameraRotation, 10f * Time.deltaTime);
+            Quaternion targetRotate = Quaternion.Lerp(transform.rotation, cameraDir, 100f * Time.deltaTime);
 
             _inputVm.RequestActorRotate(targetRotate.x, targetRotate.y, targetRotate.z);
-            //transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, 10f * Time.deltaTime);
+            
+            //character 회전
+            transform.rotation = Quaternion.Lerp(transform.rotation, targetRotate, 10f * Time.deltaTime);
         }
+    }
+
+    Quaternion mouseRotation;
+
+    private void InitRotation()
+    {
+        x_Axis.Value = 0;
+        y_Axis.Value = 0;
+
+        initRotation = _lookAt.rotation;
+
+        Vector3 initEulerAngle = initRotation.eulerAngles;
+        x_Axis.Value = initEulerAngle.y;
+        y_Axis.Value = initEulerAngle.x;
+
+        mouseRotation = initRotation;
+    }
+
+    private void CameraRotation()
+    {
+        x_Axis.Update(Time.fixedDeltaTime);
+        y_Axis.Update(Time.fixedDeltaTime);
+
+        mouseRotation = Quaternion.Euler(y_Axis.Value, x_Axis.Value, 0f);
+
+        _lookAt.rotation = Quaternion.Lerp(_lookAt.rotation, mouseRotation, 1f);
     }
 }

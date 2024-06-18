@@ -1,3 +1,4 @@
+using Cinemachine;
 using System.ComponentModel;
 using UnityEngine;
 
@@ -25,16 +26,6 @@ public class InputViewModel
         }
     }
 
-    private Vector2 _mousePosition;
-    public Vector2 MousePosition
-    {
-        get { return _mousePosition; }
-        set
-        {
-            _mousePosition = value;
-            OnPropertyChanged(nameof(MousePosition));
-        }
-    }
 
     #region propertyEvent
 

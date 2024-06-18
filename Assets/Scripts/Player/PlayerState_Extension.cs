@@ -1,3 +1,4 @@
+using Cinemachine;
 using UnityEngine;
 
 namespace Player_State.Extension
@@ -28,24 +29,9 @@ namespace Player_State.Extension
             ActorLogicManager._instance.OnActorRotate(x, y, z);
         }
 
-        public static void OnResponseActorRotateChangedEvent(this InputViewModel input, float contextValueX,float contextValueY, float contextValueZ)
+        public static void OnResponseActorRotateChangedEvent(this InputViewModel input, float contextValueX, float contextValueY, float contextValueZ)
         {
             input.Rotation = Quaternion.Euler(new Vector3(contextValueX, contextValueY, contextValueZ));
         }
-
-        public static void RegisterMousePosition(this InputViewModel input, bool isRegister)
-        {
-            ActorLogicManager._instance.RegisterMousePositionChangedCallback(input.OnResponseMousePositionChangedEvent, isRegister);
-        }
-        public static void RequestMousePosition(this InputViewModel input, float x, float y)
-        {
-            ActorLogicManager._instance.OnMousePostition(x, y);
-        }
-
-        public static void OnResponseMousePositionChangedEvent(this InputViewModel input, float contextValueX, float contextValueY)
-        {
-            input.MousePosition = new Vector2(contextValueX, contextValueY);
-        }
-
     }
 }
