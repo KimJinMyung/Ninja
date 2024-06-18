@@ -33,5 +33,20 @@ namespace Player_State.Extension
         {
             input.Rotation = Quaternion.Euler(new Vector3(contextValueX, contextValueY, contextValueZ));
         }
+
+        public static void ReigsterIsLockOn(this InputViewModel input, bool isRegister)
+        {
+            ActorLogicManager._instance.RegisterIsLockOnModeChangedCallback(input.OnResponseIsLockOnChangedEvent, isRegister);
+        }
+
+        public static void RequstIsLockOn(this InputViewModel input, bool isLockOn)
+        {
+            ActorLogicManager._instance.OnIsLockOn(isLockOn);
+        }
+
+        public static void OnResponseIsLockOnChangedEvent(this InputViewModel input, bool isLockOn)
+        {
+            input.IsLockOnMode = isLockOn;
+        }
     }
 }

@@ -67,6 +67,7 @@ public class Player : MonoBehaviour
 
     public Vector3 Velocity { get { return _characterController.velocity; } } 
     private Quaternion initRotation;
+    public Vector3 _moveDir { get; private set; }
 
     private void Awake()
     {
@@ -107,6 +108,7 @@ public class Player : MonoBehaviour
             _inputVm.PropertyChanged += OnPropertyChanged;
             _inputVm.RegisterMoveVelocity(true);
             _inputVm.RegisterActorRotate(true);
+            _inputVm.ReigsterIsLockOn(true);
         }
     } 
 
@@ -152,8 +154,9 @@ public class Player : MonoBehaviour
 
         if ( _inputVm != null )
         {
-            _inputVm.RegisterMoveVelocity(false);
+            _inputVm.ReigsterIsLockOn(false);
             _inputVm.RegisterActorRotate(false);
+            _inputVm.RegisterMoveVelocity(false);
 
             _inputVm.PropertyChanged -= OnPropertyChanged;
             _inputVm = null;
@@ -187,7 +190,7 @@ public class Player : MonoBehaviour
         {
             targetAngle = Mathf.Atan2(_inputMoveDir.x, _inputMoveDir.z) * Mathf.Rad2Deg + Camera.main.transform.eulerAngles.y;
 
-            Vector3 _moveDir = Quaternion.Euler(0, targetAngle, 0) * Vector3.forward;
+            _moveDir = Quaternion.Euler(0, targetAngle, 0) * Vector3.forward;
 
             _characterController.Move(_moveDir.normalized * moveSpeed * Time.deltaTime);
         }        
@@ -202,9 +205,10 @@ public class Player : MonoBehaviour
             Quaternion targetRotate = Quaternion.Lerp(transform.rotation, cameraDir, 100f * Time.deltaTime);
 
             _inputVm.RequestActorRotate(targetRotate.x, targetRotate.y, targetRotate.z);
-            
+
             //character È¸Àü
-            transform.rotation = Quaternion.Lerp(transform.rotation, targetRotate, 10f * Time.deltaTime);
+            Transform playerMesh = transform.GetChild(0);
+            playerMesh.rotation = Quaternion.Lerp(playerMesh.rotation, targetRotate, 10f * Time.deltaTime);
         }
     }
 

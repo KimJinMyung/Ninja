@@ -21,8 +21,25 @@ public class PlayerState : ActorState
     public override void Update()
     {
         base.Update();
-        owner.Animator.SetFloat(hashMoveZ, Mathf.Lerp(owner.Animator.GetFloat(hashMoveZ), owner.InputVm.Move.y * _playerMoveAnimation, 10f * Time.deltaTime));
-        owner.Animator.SetFloat(hashMoveX, Mathf.Lerp(owner.Animator.GetFloat(hashMoveX), owner.InputVm.Move.x * _playerMoveAnimation, 10f * Time.deltaTime));
+
+        PlayerMeshAnimation();
+    }
+
+    private void PlayerMeshAnimation()
+    {
+        if (!owner.InputVm.IsLockOnMode)
+        {
+            //float angleValue = Vector3.Dot(owner.transform.forward, owner._moveDir.normalized * 0.3f);
+
+            float MoveValue = Mathf.Abs(owner.InputVm.Move.y) >= 0.1f || Mathf.Abs(owner.InputVm.Move.x) >= 0.1f ? 0.25f : 0f;
+
+            owner.Animator.SetFloat(hashMoveZ, Mathf.Lerp(owner.Animator.GetFloat(hashMoveZ), MoveValue, 3f * Time.deltaTime));
+        }
+        else
+        {
+            owner.Animator.SetFloat(hashMoveZ, Mathf.Lerp(owner.Animator.GetFloat(hashMoveZ), owner.InputVm.Move.y * _playerMoveAnimation, 10f * Time.deltaTime));
+            owner.Animator.SetFloat(hashMoveX, Mathf.Lerp(owner.Animator.GetFloat(hashMoveX), owner.InputVm.Move.x * _playerMoveAnimation, 10f * Time.deltaTime));
+        }     
     }
 }
 

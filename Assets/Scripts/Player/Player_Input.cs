@@ -26,6 +26,16 @@ public class InputViewModel
         }
     }
 
+    private bool _isLockOnMode;
+    public bool IsLockOnMode
+    {
+        get { return _isLockOnMode; }
+        set
+        {
+            _isLockOnMode = value;
+            OnPropertyChanged(nameof(IsLockOnMode));
+        }
+    }
 
     #region propertyEvent
 

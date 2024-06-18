@@ -7,6 +7,7 @@ public class ActorLogicManager : MonoBehaviour
 
     private Action<float, float> _moveVelocityChangedCallback;
     private Action<float, float, float> _targetAngleChangedCallback;
+    private Action<bool> _isLockOnModeChangedCallback;
 
     private void Awake()
     {
@@ -16,6 +17,7 @@ public class ActorLogicManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
+    #region Register 연결부
     public void RegisterMoveVelocityChangedCallback(Action<float, float> moveVelocityChangedCallback, bool isRegister)
     {
         if (isRegister)
@@ -40,6 +42,15 @@ public class ActorLogicManager : MonoBehaviour
         }
     }
 
+    public void RegisterIsLockOnModeChangedCallback(Action<bool> isLockOnModeChangedCallback, bool isRegister)
+    {
+        if(isRegister) _isLockOnModeChangedCallback += isLockOnModeChangedCallback;
+        else _isLockOnModeChangedCallback -= isLockOnModeChangedCallback;
+    }
+
+    #endregion
+
+    #region Request 연결부
     public void OnMoveInput(float x, float y)
     {
         if (_moveVelocityChangedCallback == null) return;
@@ -53,6 +64,14 @@ public class ActorLogicManager : MonoBehaviour
 
         _targetAngleChangedCallback.Invoke(x, y, z);
     }
+
+    public void OnIsLockOn(bool isLockOn)
+    {
+        if (_isLockOnModeChangedCallback == null) return;
+        
+        _isLockOnModeChangedCallback.Invoke(isLockOn);
+    }
+    #endregion
 
     public bool OnChangedStateFalling(Transform target,float maxDistance, LayerMask groundLayer)
     {
