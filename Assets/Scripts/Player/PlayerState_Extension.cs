@@ -6,13 +6,13 @@ namespace Player_State.Extension
     public static class PlayerState_Extension
     {
         #region State
-        public static void RegisterStateChanged(this InputViewModel input, bool isRegister)
+        public static void RegisterStateChanged(this InputViewModel input, int ActirId, bool isRegister)
         {
-            ActorLogicManager._instance.RegisterStateChangedCallback(input.OnResponseStateChangedEvent, isRegister);
+            ActorLogicManager._instance.RegisterStateChangedCallback(ActirId, input.OnResponseStateChangedEvent, isRegister);
         }
-        public static void RequestStateChanged(this InputViewModel input, State state)
+        public static void RequestStateChanged(this InputViewModel input, int ActirId, State state)
         {
-            ActorLogicManager._instance.OnChangedState(state);
+            ActorLogicManager._instance.OnChangedState(ActirId, state);
         }
         public static void OnResponseStateChangedEvent(this InputViewModel input, State state)
         {
@@ -67,6 +67,23 @@ namespace Player_State.Extension
         public static void OnResponseIsLockOnChangedEvent(this InputViewModel input, bool isLockOn)
         {
             input.IsLockOnMode = isLockOn;
+        }
+        #endregion
+
+        #region HP
+        public static void ReigsterHpChanged(this InputViewModel input, int actorId, bool isRegister)
+        {
+            ActorLogicManager._instance.RegisterHpChangedCallback(actorId, input.OnResponseHpChangedEvent, isRegister);
+        }
+
+        public static void RequstHp(this InputViewModel input, int actorId, float damage)
+        {
+            ActorLogicManager._instance.OnHpChanged(actorId, damage);
+        }
+
+        public static void OnResponseHpChangedEvent(this InputViewModel input, float damage)
+        {
+            input.HP = Mathf.Clamp(input.HP - damage, 0, input.MaxHp);
         }
         #endregion
     }

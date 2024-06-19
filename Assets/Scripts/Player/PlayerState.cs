@@ -52,9 +52,9 @@ public class PlayerState : ActorState
     }
 }
 
-public class IdleState : PlayerState
+public class Player_IdleState : PlayerState
 {
-    public IdleState(Player owner) : base(owner) { }
+    public Player_IdleState(Player owner) : base(owner) { }
     public override void Enter()
     {
         base.Enter();
@@ -66,19 +66,18 @@ public class IdleState : PlayerState
         base.Update();
         if(ActorLogicManager._instance.OnChangedStateFalling(owner.transform,owner.MaxDistance, owner.GroundLayer))
         {
-            owner.InputVm.PlayerState = State.Falling;
+            owner.InputVm.RequestStateChanged(owner.PlayerId, State.Falling);
+                //PlayerState = State.Falling;
         }
         else if(owner.InputVm.Move.magnitude > 0.1f)
         {
-            owner.InputVm.PlayerState = State.Walk;
+            owner.InputVm.RequestStateChanged(owner.PlayerId, State.Walk);
         }
     }
 
     public override void LateUpdate() { }
     public override void FixedUpdate() { }
-    public override void Exit()
-    {
-    }
+    public override void Exit() { }
 }
 
 public class WalkState : PlayerState
@@ -96,7 +95,7 @@ public class WalkState : PlayerState
 
         if (owner.InputVm.Move.magnitude <= 0.1f)
         {
-            owner.InputVm.PlayerState = State.Idle;
+            owner.InputVm.RequestStateChanged(owner.PlayerId, State.Idle);
         }
     }
     public override void LateUpdate() { }
@@ -168,7 +167,7 @@ public class FallingState : PlayerState
 
         if (!ActorLogicManager._instance.OnChangedStateFalling(owner.transform, owner.MaxDistance, owner.GroundLayer))
         {
-            owner.InputVm.PlayerState = State.Idle;
+            owner.InputVm.RequestStateChanged(owner.PlayerId, State.Idle);
         }
     }
     public override void LateUpdate() { }
@@ -249,7 +248,7 @@ public class BattleState : PlayerState
 
         if(_timer > 10f)
         {
-            owner.InputVm.PlayerState = State.Idle;
+            owner.InputVm.RequestStateChanged(owner.PlayerId, State.Idle);
         }
     }
     public override void LateUpdate() { }
@@ -282,7 +281,7 @@ public class AttackState : PlayerState
 
         if(_timer >= owner.AttackDelay)
         {
-            owner.InputVm.PlayerState = State.Battle;
+            owner.InputVm.RequestStateChanged(owner.PlayerId, State.Battle);
         }
     }
     public override void LateUpdate() { }

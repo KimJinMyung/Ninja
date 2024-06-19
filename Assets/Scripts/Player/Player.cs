@@ -11,6 +11,9 @@ using static UnityEngine.UI.GridLayoutGroup;
 
 public class Player : MonoBehaviour
 {
+    private int _playerId;
+    public int PlayerId { get { return _playerId; } }
+
     //Ground »Æ¿Œ
     [Header("Check IsGround")]
     [SerializeField] private float maxDistance;
@@ -72,9 +75,11 @@ public class Player : MonoBehaviour
 
     private void Awake()
     {
+        _playerId = GetInstanceID();
+
         _stateMachine = gameObject.AddComponent<StateMachine>();
 
-        _stateMachine.AddState(State.Idle, new IdleState(this));
+        _stateMachine.AddState(State.Idle, new Player_IdleState(this));
         _stateMachine.AddState(State.Walk, new WalkState(this));
         _stateMachine.AddState(State.Run, new RunState(this));
         _stateMachine.AddState(State.Crounch, new CrouchState(this));
@@ -105,9 +110,11 @@ public class Player : MonoBehaviour
         {
             _inputVm = new InputViewModel();
             _inputVm.PropertyChanged += OnPropertyChanged;
+            _inputVm.RegisterStateChanged(_playerId, true);
             _inputVm.RegisterMoveVelocity(true);
             _inputVm.RegisterActorRotate(true);
             _inputVm.ReigsterIsLockOn(true);
+            _inputVm.ReigsterHpChanged(_playerId, true);
         }
     } 
 
@@ -156,9 +163,11 @@ public class Player : MonoBehaviour
 
         if ( _inputVm != null )
         {
+            _inputVm.ReigsterHpChanged(_playerId, false);
             _inputVm.ReigsterIsLockOn(false);
             _inputVm.RegisterActorRotate(false);
             _inputVm.RegisterMoveVelocity(false);
+            _inputVm.RegisterStateChanged(_playerId, false);
 
             _inputVm.PropertyChanged -= OnPropertyChanged;
             _inputVm = null;
@@ -181,7 +190,6 @@ public class Player : MonoBehaviour
         if (_inputVm == null) return;
 
         _inputVm.RequestMoveOnInput(context.ReadValue<Vector2>().x, context.ReadValue<Vector2>().y);
-        //ActorLogicManager._instance.OnMoveInput(context.ReadValue<Vector2>());
     }
 
     public void OnAttack(InputAction.CallbackContext context)
@@ -193,7 +201,7 @@ public class Player : MonoBehaviour
             if (_inputVm.PlayerState == State.Attack) return;
 
             if (_inputVm.PlayerState == State.Defence) Animator.SetTrigger(hashParry);
-            else _inputVm.PlayerState = State.Attack;         
+            else _inputVm.RequestStateChanged(_playerId, State.Attack);    
         }
     }
 
@@ -202,9 +210,8 @@ public class Player : MonoBehaviour
         if (_inputVm == null) return;
         if (_inputVm.PlayerState == State.Attack) return;
 
-        if (context.ReadValue<float>() > 0.5f) _inputVm.PlayerState = State.Defence;        
-        else _inputVm.PlayerState = State.Battle;
-        //Animator.SetBool("Defence", );
+        if (context.ReadValue<float>() > 0.5f) _inputVm.RequestStateChanged(_playerId, State.Defence);        
+        else _inputVm.RequestStateChanged(_playerId, State.Battle);
     }
     #endregion
 

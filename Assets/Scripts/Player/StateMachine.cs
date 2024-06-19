@@ -13,14 +13,18 @@ public enum State
     Falling,
     Climbing,
     Hide,
-    Detection,
+    Detection,  //발각되다.
+    Parry,
+    UsingItem,
+    //공용
+    Incapacitated,  //제압 당함(기절, 체간 파괴)
     Battle,
     Attack,
     Defence,
-    Parry,
-    Incapacitated,  //제압 당함(기절, 체간 파괴)
-    UsingItem,
-    Die
+    Die,
+    //몬스터 전용
+    Trace,
+    Alert
 }
 
 public class StateMachine : MonoBehaviour

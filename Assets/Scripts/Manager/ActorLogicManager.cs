@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -6,12 +7,11 @@ public class ActorLogicManager : MonoBehaviour
 {
     public static ActorLogicManager _instance = null;
 
-    private Action<State> _stateChangedCallback;
-    private Action<float, float, float> _transformPositionUpdateCallback;
+    private Dictionary<int, Action<State>> _stateChangedCallback = new Dictionary<int, Action<State>>();
     private Action<float, float> _moveVelocityChangedCallback;
     private Action<float, float, float> _targetAngleChangedCallback;
     private Action<bool> _isLockOnModeChangedCallback;
-    private Action<int> _attackCountChangedCallback;
+    private Dictionary<int, Action<float>> _hpChangedCallbacks = new Dictionary<int, Action<float>>();
 
     private void Awake()
     {
@@ -22,10 +22,27 @@ public class ActorLogicManager : MonoBehaviour
     }
 
     #region Register 연결부
-    public void RegisterStateChangedCallback(Action<State> stateChangedCallback, bool isRegister)
+    public void RegisterStateChangedCallback(int actorId,Action<State> stateChangedCallback, bool isRegister)
     {
-        if (isRegister) _stateChangedCallback += stateChangedCallback;
-        else _stateChangedCallback -= stateChangedCallback;
+        if (isRegister)
+        {
+            if (!_stateChangedCallback.ContainsKey(actorId))
+            {
+                _stateChangedCallback[actorId] = stateChangedCallback;
+            }
+            else
+            {
+                _stateChangedCallback[actorId] += stateChangedCallback;
+            }
+        }
+        else
+        {
+            if(_stateChangedCallback.ContainsKey(actorId))
+            {
+                _stateChangedCallback[actorId] -= stateChangedCallback;
+                if (_stateChangedCallback[actorId] == null) _stateChangedCallback.Remove(actorId);
+            }
+        }
     }
 
     public void RegisterMoveVelocityChangedCallback(Action<float, float> moveVelocityChangedCallback, bool isRegister)
@@ -58,13 +75,37 @@ public class ActorLogicManager : MonoBehaviour
         else _isLockOnModeChangedCallback -= isLockOnModeChangedCallback;
     }
 
+    public void RegisterHpChangedCallback(int actorId,Action<float> hpChangedCallback, bool isRegister)
+    {
+        if (isRegister)
+        {
+            if (!_hpChangedCallbacks.ContainsKey(actorId))
+            {
+                _hpChangedCallbacks[actorId] = hpChangedCallback;
+            }
+            else
+            {
+                _hpChangedCallbacks[actorId] += hpChangedCallback;
+            }
+        }
+        else
+        {
+            if (_hpChangedCallbacks.ContainsKey(actorId))
+            {
+                _hpChangedCallbacks[actorId] -= hpChangedCallback;
+                if (_hpChangedCallbacks[actorId] == null) _hpChangedCallbacks.Remove(actorId);
+            }
+        }
+    }
+
     #endregion
 
     #region Request 연결부
-    public void OnChangedState(State state)
+    public void OnChangedState(int actorId,State state)
     {
-        if (_stateChangedCallback == null) return;
-        _stateChangedCallback.Invoke(state);
+        //if (_stateChangedCallback == null) return;
+        //_stateChangedCallback.Invoke(state);
+        if (_stateChangedCallback.ContainsKey(actorId)) _stateChangedCallback[actorId]?.Invoke(state);
     }
     public void OnMoveInput(float x, float y)
     {
@@ -82,6 +123,11 @@ public class ActorLogicManager : MonoBehaviour
     {
         if (_isLockOnModeChangedCallback == null) return;        
         _isLockOnModeChangedCallback.Invoke(isLockOn);
+    }
+
+    public void OnHpChanged(int actorId,float damage)
+    {
+        if (_hpChangedCallbacks.ContainsKey(actorId)) _hpChangedCallbacks[actorId]?.Invoke(damage);
     }
     #endregion
 
