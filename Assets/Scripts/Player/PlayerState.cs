@@ -3,6 +3,7 @@ using Player_State.Extension;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.UI.GridLayoutGroup;
 
 //Player의 동작 제어
 
@@ -265,9 +266,9 @@ public class AttackState : PlayerState
     {        
         base.Enter();
 
-        _timer = 0;      
+        _timer = 0;
 
-        owner.Animator.SetTrigger(hashAttack);        
+        owner.Animator.SetTrigger(hashAttack);               
     }
 
     public override void Update()
