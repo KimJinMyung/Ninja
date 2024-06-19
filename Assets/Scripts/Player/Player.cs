@@ -237,6 +237,9 @@ public class Player : MonoBehaviour
         if (context.started)
         {
             _isLockOnMode = _isLockOnMode ? false : true;
+            Animator.SetBool(hashLockOn, _isLockOnMode);
+
+            if (!_isLockOnMode) _lockOnTarget = null;
             //_inputVm.RequstLockOnTarget(_lockOnTarget);
         }
     }
@@ -250,7 +253,7 @@ public class Player : MonoBehaviour
                 _stateMachine.ChangeState(_inputVm.PlayerState);
                 break;
             case nameof(_inputVm.LockOnTarget):
-                if(_inputVm.LockOnTarget != null) Animator.SetBool(hashLockOn, true);    
+                if (_inputVm.LockOnTarget != null) Animator.SetBool(hashLockOn, true);
                 else Animator.SetBool(hashLockOn, false);
                 break;
         }
@@ -355,30 +358,28 @@ public class Player : MonoBehaviour
             Vector3 dirTarget = (collider.transform.position - Camera.main.transform.position).normalized;
             float angleToTarget = Vector3.Angle(Camera.main.transform.forward, dirTarget);
 
-            if(angleToTarget < _ViewAngle)
+            if(_lockOnTarget == collider.transform)
             {
-                //Ray ray = new Ray(Camera.main.transform.position, dirTarget);
-                //if(Physics.Raycast(ray, out RaycastHit hit, _detectionRange, _targetLayer))
-                //{
-                //    if(hit.collider == collider)
-                //    {
-                //        float distance = Vector3.Distance(Camera.main.transform.position, hit.point);
-                //        if (distance < closestDistance)
-                //        {
-                //            closestDistance = distance;
-                //            closestTarget = collider.transform;
-                //        }
-                //    }
-                //}
                 float distance = Vector3.Distance(Camera.main.transform.position, collider.transform.position);
-                float combinedMetric = angleToTarget + distance * 0.1f; // 각도와 거리를 결합한 메트릭
+                float combinedMetric = angleToTarget + distance * 0.1f;
 
-                if (combinedMetric < closestAngle)
-                {
-                    closestAngle = combinedMetric;
-                    closestTarget = collider.transform;
-                }
+                closestAngle = combinedMetric;
+                closestTarget = collider.transform;
             }
+            else
+            {
+                if (angleToTarget < _ViewAngle)
+                {
+                    float distance = Vector3.Distance(Camera.main.transform.position, collider.transform.position);
+                    float combinedMetric = angleToTarget + distance * 0.1f; // 각도와 거리를 결합한 메트릭
+
+                    if (combinedMetric < closestAngle)
+                    {
+                        closestAngle = combinedMetric;
+                        closestTarget = collider.transform;
+                    }
+                }
+            }                                                                       
         }
 
         if (closestTarget != null)
