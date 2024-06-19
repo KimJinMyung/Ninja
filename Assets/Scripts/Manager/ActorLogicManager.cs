@@ -12,6 +12,7 @@ public class ActorLogicManager : MonoBehaviour
     private Action<float, float, float> _targetAngleChangedCallback;
     private Action<bool> _isLockOnModeChangedCallback;
     private Dictionary<int, Action<float>> _hpChangedCallbacks = new Dictionary<int, Action<float>>();
+    private Action<Transform> _lockOnTargetChangedCallback;
 
     private void Awake()
     {
@@ -69,12 +70,6 @@ public class ActorLogicManager : MonoBehaviour
         }
     }
 
-    public void RegisterIsLockOnModeChangedCallback(Action<bool> isLockOnModeChangedCallback, bool isRegister)
-    {
-        if(isRegister) _isLockOnModeChangedCallback += isLockOnModeChangedCallback;
-        else _isLockOnModeChangedCallback -= isLockOnModeChangedCallback;
-    }
-
     public void RegisterHpChangedCallback(int actorId,Action<float> hpChangedCallback, bool isRegister)
     {
         if (isRegister)
@@ -98,6 +93,12 @@ public class ActorLogicManager : MonoBehaviour
         }
     }
 
+    public void RegisterLockOnTargetChangedCallback(Action<Transform> lockOnTargetChangedCallback, bool isRegister)
+    {
+        if (isRegister) _lockOnTargetChangedCallback += lockOnTargetChangedCallback;
+        else _lockOnTargetChangedCallback -= lockOnTargetChangedCallback;
+    }
+
     #endregion
 
     #region Request ¿¬°áºÎ
@@ -119,15 +120,14 @@ public class ActorLogicManager : MonoBehaviour
         _targetAngleChangedCallback.Invoke(x, y, z);
     }
 
-    public void OnIsLockOn(bool isLockOn)
-    {
-        if (_isLockOnModeChangedCallback == null) return;        
-        _isLockOnModeChangedCallback.Invoke(isLockOn);
-    }
-
     public void OnHpChanged(int actorId,float damage)
     {
         if (_hpChangedCallbacks.ContainsKey(actorId)) _hpChangedCallbacks[actorId]?.Invoke(damage);
+    }
+    public void OnLockOnTarget(Transform target)
+    {
+        if(_lockOnTargetChangedCallback == null) return;
+        _lockOnTargetChangedCallback.Invoke(target);
     }
     #endregion
 

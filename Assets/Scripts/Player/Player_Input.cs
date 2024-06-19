@@ -40,17 +40,6 @@ public class InputViewModel
         }
     }
 
-    private bool _isLockOnMode;
-    public bool IsLockOnMode
-    {
-        get { return _isLockOnMode; }
-        set
-        {
-            _isLockOnMode = value;
-            OnPropertyChanged(nameof(IsLockOnMode));
-        }
-    }
-
     private float _hp;
     public float HP
     {
@@ -72,6 +61,18 @@ public class InputViewModel
             if (_maxHp == value) return;
             _maxHp = value;
             OnPropertyChanged(nameof(MaxHp));
+        }
+    }
+
+    private Transform _lockOnTarget;
+    public Transform LockOnTarget
+    {
+        get { return _lockOnTarget; }
+        set
+        {
+            if (_lockOnTarget == value) return;
+            _lockOnTarget = value;
+            OnPropertyChanged(nameof(LockOnTarget));
         }
     }
 

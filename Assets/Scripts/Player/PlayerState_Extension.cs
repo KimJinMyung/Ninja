@@ -53,23 +53,6 @@ namespace Player_State.Extension
         }
         #endregion
 
-        #region LockOn
-        public static void ReigsterIsLockOn(this InputViewModel input, bool isRegister)
-        {
-            ActorLogicManager._instance.RegisterIsLockOnModeChangedCallback(input.OnResponseIsLockOnChangedEvent, isRegister);
-        }
-
-        public static void RequstIsLockOn(this InputViewModel input, bool isLockOn)
-        {
-            ActorLogicManager._instance.OnIsLockOn(isLockOn);
-        }
-
-        public static void OnResponseIsLockOnChangedEvent(this InputViewModel input, bool isLockOn)
-        {
-            input.IsLockOnMode = isLockOn;
-        }
-        #endregion
-
         #region HP
         public static void ReigsterHpChanged(this InputViewModel input, int actorId, bool isRegister)
         {
@@ -84,6 +67,23 @@ namespace Player_State.Extension
         public static void OnResponseHpChangedEvent(this InputViewModel input, float damage)
         {
             input.HP = Mathf.Clamp(input.HP - damage, 0, input.MaxHp);
+        }
+        #endregion
+
+        #region LockOnTarget
+        public static void ReigsterLockOnTargetChanged(this InputViewModel input, bool isRegister)
+        {
+            ActorLogicManager._instance.RegisterLockOnTargetChangedCallback(input.OnResponseLockOnTargetChangedEvent, isRegister);
+        }
+
+        public static void RequestLockOnTarget(this InputViewModel input, Transform target)
+        {
+            ActorLogicManager._instance.OnLockOnTarget(target);
+        }
+
+        public static void OnResponseLockOnTargetChangedEvent(this InputViewModel input, Transform tartget)
+        {
+            input.LockOnTarget = tartget;
         }
         #endregion
     }

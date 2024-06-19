@@ -21,6 +21,7 @@ public class PlayerState : ActorState
     protected readonly int hashMoveZ = Animator.StringToHash("Z_Value");
     protected readonly int hashMoveX = Animator.StringToHash("X_Value");
 
+    protected readonly int hashLockOn = Animator.StringToHash("LockOn");
     protected readonly int hashAttack = Animator.StringToHash("Attack");
     protected readonly int hashIsMoveAble = Animator.StringToHash("IsMoveAble");
 
@@ -36,7 +37,7 @@ public class PlayerState : ActorState
 
     private void PlayerMeshAnimation()
     {
-        if (!owner.InputVm.IsLockOnMode)
+        if (!owner.Animator.GetBool(hashLockOn))
         {
             //float angleValue = Vector3.Dot(owner.transform.forward, owner._moveDir.normalized * 0.3f);
 
@@ -46,6 +47,8 @@ public class PlayerState : ActorState
         }
         else
         {
+            _playerMoveAnimation = !owner._isRun ? 3f : 5f;
+
             owner.Animator.SetFloat(hashMoveZ, Mathf.Lerp(owner.Animator.GetFloat(hashMoveZ), owner.InputVm.Move.y * _playerMoveAnimation, 10f * Time.deltaTime));
             owner.Animator.SetFloat(hashMoveX, Mathf.Lerp(owner.Animator.GetFloat(hashMoveX), owner.InputVm.Move.x * _playerMoveAnimation, 10f * Time.deltaTime));
         }     

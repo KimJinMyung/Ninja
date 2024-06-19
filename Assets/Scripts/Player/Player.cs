@@ -1,4 +1,5 @@
 using Cinemachine;
+using Cinemachine.Utility;
 using Player_State.Extension;
 using System.Collections;
 using System.Collections.Generic;
@@ -34,6 +35,8 @@ public class Player : MonoBehaviour
     private Vector3 _inputMoveDir;
     private float targetAngle;
 
+    public bool _isRun {  get; private set; }
+
     #region ViewModel
     private InputViewModel _inputVm;
 
@@ -48,6 +51,7 @@ public class Player : MonoBehaviour
     [SerializeField] private Animator _animator;
     public Animator Animator { get { return _animator; } }
 
+    protected readonly int hashLockOn = Animator.StringToHash("LockOn");
     protected readonly int hashIsMoveAble = Animator.StringToHash("IsMoveAble");
     protected readonly int hashParry = Animator.StringToHash("Parry");
 
@@ -58,6 +62,16 @@ public class Player : MonoBehaviour
     public float MaxDistance { get { return maxDistance; } }
 
     public LayerMask GroundLayer { get { return groundLayer; } }
+    #endregion
+
+    #region LockOnTarget
+    [Header("LockOn Target")]
+    [SerializeField] private LayerMask _targetLayer;
+    [SerializeField] private float _detectionRange;
+    [SerializeField] private float _ViewAngle;
+
+    private Transform _lockOnTarget;
+    private bool _isLockOnMode;
     #endregion
 
     [Header("Debug Mode")]
@@ -113,7 +127,7 @@ public class Player : MonoBehaviour
             _inputVm.RegisterStateChanged(_playerId, true);
             _inputVm.RegisterMoveVelocity(true);
             _inputVm.RegisterActorRotate(true);
-            _inputVm.ReigsterIsLockOn(true);
+            _inputVm.ReigsterLockOnTargetChanged(true);
             _inputVm.ReigsterHpChanged(_playerId, true);
         }
     } 
@@ -140,6 +154,13 @@ public class Player : MonoBehaviour
         _stateMachine.OnFixedUpdate();
 
         Rotation();
+
+        _lockOnTarget = DetectingLockOnTarget();
+
+        if(_isLockOnMode)
+        {
+            _inputVm.RequestLockOnTarget(_lockOnTarget);
+        }
     }
 
     private void OnDrawGizmos()
@@ -164,23 +185,13 @@ public class Player : MonoBehaviour
         if ( _inputVm != null )
         {
             _inputVm.ReigsterHpChanged(_playerId, false);
-            _inputVm.ReigsterIsLockOn(false);
+            _inputVm.ReigsterLockOnTargetChanged(false);
             _inputVm.RegisterActorRotate(false);
             _inputVm.RegisterMoveVelocity(false);
             _inputVm.RegisterStateChanged(_playerId, false);
 
             _inputVm.PropertyChanged -= OnPropertyChanged;
             _inputVm = null;
-        }
-    }
-
-    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
-    {
-        switch (e.PropertyName)
-        {
-            case nameof(_inputVm.PlayerState):
-                _stateMachine.ChangeState(_inputVm.PlayerState);
-                break;
         }
     }
 
@@ -201,11 +212,11 @@ public class Player : MonoBehaviour
             if (_inputVm.PlayerState == State.Attack) return;
 
             if (_inputVm.PlayerState == State.Defence) Animator.SetTrigger(hashParry);
-            else 
+            else
             {
-                if(_inputVm.PlayerState.Equals(State.Parry)) return;
+                if (_inputVm.PlayerState.Equals(State.Parry)) return;
                 _inputVm.RequestStateChanged(_playerId, State.Attack);
-            }   
+            }
         }
     }
 
@@ -214,10 +225,36 @@ public class Player : MonoBehaviour
         if (_inputVm == null) return;
         if (_inputVm.PlayerState == State.Attack) return;
 
-        if (context.ReadValue<float>() > 0.5f) _inputVm.RequestStateChanged(_playerId, State.Defence);        
+        if (context.ReadValue<float>() > 0.5f) _inputVm.RequestStateChanged(_playerId, State.Defence);
         else _inputVm.RequestStateChanged(_playerId, State.Battle);
     }
+
+    public void OnLockOnMode(InputAction.CallbackContext context)
+    {
+        if (_inputVm == null) return;
+        if(_lockOnTarget == null) return;
+
+        if (context.started)
+        {
+            _isLockOnMode = _isLockOnMode ? false : true;
+            //_inputVm.RequstLockOnTarget(_lockOnTarget);
+        }
+    }
     #endregion
+
+    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        switch (e.PropertyName)
+        {
+            case nameof(_inputVm.PlayerState):
+                _stateMachine.ChangeState(_inputVm.PlayerState);
+                break;
+            case nameof(_inputVm.LockOnTarget):
+                if(_inputVm.LockOnTarget != null) Animator.SetBool(hashLockOn, true);    
+                else Animator.SetBool(hashLockOn, false);
+                break;
+        }
+    }
 
     private void Movement()
     {
@@ -239,6 +276,30 @@ public class Player : MonoBehaviour
     {
         if (!Animator.GetBool(hashIsMoveAble)) return;
 
+        //캐릭터 Mesh
+        Transform playerMesh = transform.GetChild(0);
+
+        if (Animator.GetBool(hashLockOn) && _lockOnTarget != null)
+        {
+            LookAtTargetOnYAxis(_lockOnTarget, playerMesh); 
+        }
+        else
+        {
+            CharacterMeshRotation(playerMesh);
+        }
+        
+    }
+
+    private void LookAtTargetOnYAxis(Transform target, Transform playerMesh)
+    {
+        Vector3 dirTarget = target.position - playerMesh.position;
+        dirTarget.y = 0;
+        Quaternion rotation = Quaternion.LookRotation(dirTarget);
+        playerMesh.rotation = Quaternion.Lerp(playerMesh.rotation, Quaternion.Euler(0, rotation.eulerAngles.y, 0), 10f * Time.fixedDeltaTime);
+    }
+
+    private void CharacterMeshRotation(Transform playerMesh)
+    {
         if (_inputVm.Move.magnitude >= 0.1f)
         {
             Quaternion cameraDir = Quaternion.Euler(0, targetAngle, 0);
@@ -246,9 +307,6 @@ public class Player : MonoBehaviour
             Quaternion targetRotate = Quaternion.Lerp(transform.rotation, cameraDir, 100f * Time.fixedDeltaTime);
 
             _inputVm.RequestActorRotate(targetRotate.x, targetRotate.y, targetRotate.z);
-
-            //character 회전
-            Transform playerMesh = transform.GetChild(0);
 
             //Quaternion playerRotation = Quaternion.Lerp(playerMesh.rotation, targetRotate, 10f * Time.deltaTime);
             playerMesh.rotation = Quaternion.Lerp(playerMesh.rotation, targetRotate, 10f * Time.fixedDeltaTime);
@@ -284,5 +342,54 @@ public class Player : MonoBehaviour
     private void UpdatePosition()
     {
         transform.position = _characterController.transform.position;
+    }
+
+    private Transform DetectingLockOnTarget()
+    {
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position + Vector3.up, _detectionRange, _targetLayer);
+        Transform closestTarget = null;
+        float closestAngle = Mathf.Infinity;
+
+        foreach(Collider collider in hitColliders)
+        {
+            Vector3 dirTarget = (collider.transform.position - Camera.main.transform.position).normalized;
+            float angleToTarget = Vector3.Angle(Camera.main.transform.forward, dirTarget);
+
+            if(angleToTarget < _ViewAngle)
+            {
+                //Ray ray = new Ray(Camera.main.transform.position, dirTarget);
+                //if(Physics.Raycast(ray, out RaycastHit hit, _detectionRange, _targetLayer))
+                //{
+                //    if(hit.collider == collider)
+                //    {
+                //        float distance = Vector3.Distance(Camera.main.transform.position, hit.point);
+                //        if (distance < closestDistance)
+                //        {
+                //            closestDistance = distance;
+                //            closestTarget = collider.transform;
+                //        }
+                //    }
+                //}
+                float distance = Vector3.Distance(Camera.main.transform.position, collider.transform.position);
+                float combinedMetric = angleToTarget + distance * 0.1f; // 각도와 거리를 결합한 메트릭
+
+                if (combinedMetric < closestAngle)
+                {
+                    closestAngle = combinedMetric;
+                    closestTarget = collider.transform;
+                }
+            }
+        }
+
+        if (closestTarget != null)
+        {
+            Debug.Log(closestTarget.gameObject.name);
+            return closestTarget;
+        }
+        else
+        {
+            Debug.Log("감지 실패");
+            return default;
+        }
     }
 }
