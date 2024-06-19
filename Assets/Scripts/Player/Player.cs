@@ -201,7 +201,11 @@ public class Player : MonoBehaviour
             if (_inputVm.PlayerState == State.Attack) return;
 
             if (_inputVm.PlayerState == State.Defence) Animator.SetTrigger(hashParry);
-            else _inputVm.RequestStateChanged(_playerId, State.Attack);    
+            else 
+            {
+                if(_inputVm.PlayerState.Equals(State.Parry)) return;
+                _inputVm.RequestStateChanged(_playerId, State.Attack);
+            }   
         }
     }
 
