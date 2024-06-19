@@ -23,6 +23,9 @@ public class PlayerState : ActorState
     protected readonly int hashAttack = Animator.StringToHash("Attack");
     protected readonly int hashIsMoveAble = Animator.StringToHash("IsMoveAble");
 
+    protected readonly int hashDefence = Animator.StringToHash("Defence");
+    protected readonly int hashParry = Animator.StringToHash("Parry");
+
     public override void Update()
     {
         base.Update();
@@ -74,7 +77,6 @@ public class IdleState : PlayerState
     public override void FixedUpdate() { }
     public override void Exit()
     {
-        Debug.Log("Exiting Idle State");
     }
 }
 
@@ -100,7 +102,6 @@ public class WalkState : PlayerState
     public override void FixedUpdate() { }
     public override void Exit()
     {
-        Debug.Log("Exiting Idle State");
     }
 }
 public class RunState : PlayerState
@@ -163,6 +164,7 @@ public class FallingState : PlayerState
     public override void Update()
     {
         base.Update();
+
         if (!ActorLogicManager._instance.OnChangedStateFalling(owner.transform, owner.MaxDistance, owner.GroundLayer))
         {
             owner.InputVm.PlayerState = State.Idle;
@@ -232,7 +234,10 @@ public class BattleState : PlayerState
     public override void Enter()
     {
         base.Enter();
+
         _timer = 0;
+
+        owner.Animator.SetBool(hashDefence, false);
     }
 
     public override void Update()
@@ -289,6 +294,7 @@ public class DefenceState : PlayerState
     public override void Enter()
     {
         base.Enter();
+        owner.Animator.SetBool(hashDefence, true);
     }
 
     public override void Update()
@@ -297,7 +303,12 @@ public class DefenceState : PlayerState
     }
     public override void LateUpdate() { }
     public override void FixedUpdate() { }
-    public override void Exit() { }
+    public override void Exit() 
+    {
+        if (owner.InputVm.PlayerState == State.Parry) return;
+        
+        owner.Animator.SetBool(hashDefence, false);
+    }
 }
 public class ParryState : PlayerState
 {
@@ -305,15 +316,21 @@ public class ParryState : PlayerState
     public override void Enter()
     {
         base.Enter();
+        owner.Animator.SetTrigger(hashParry);
     }
 
     public override void Update()
     {
         base.Update();
+
+        if(owner.Animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.9f)
+        {
+            owner.InputVm.PlayerState = State.Defence;
+        }
     }
     public override void LateUpdate() { }
     public override void FixedUpdate() { }
-    public override void Exit() { }
+    public override void Exit() { owner.Animator.ResetTrigger(hashParry); }
 }
 public class IncapacitatedState : PlayerState
 {

@@ -3,6 +3,7 @@ using Player_State.Extension;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.iOS;
@@ -189,10 +190,21 @@ public class Player : MonoBehaviour
         if (context.started)
         {
             if (_inputVm.PlayerState == State.Attack) return;
-            _inputVm.PlayerState = State.Attack;         
+
+            if(_inputVm.PlayerState == State.Defence) _inputVm.PlayerState = State.Parry;
+            else _inputVm.PlayerState = State.Attack;         
         }
     }
 
+    public void OnDefence(InputAction.CallbackContext context)
+    {
+        if (_inputVm == null) return;
+        if (_inputVm.PlayerState == State.Attack) return;
+
+        if (context.ReadValue<float>() > 0.5f) _inputVm.PlayerState = State.Defence;        
+        else _inputVm.PlayerState = State.Battle;
+        //Animator.SetBool("Defence", );
+    }
     #endregion
 
     private void Movement()

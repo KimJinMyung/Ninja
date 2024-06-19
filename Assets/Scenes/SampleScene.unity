@@ -123,6 +123,17 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!114 &621191134 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 226982435, guid: bf82a012913ebea429c9886230dad46c, type: 3}
+  m_PrefabInstance: {fileID: 2391910382590879930}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70e627e0198baaa4ea9a1a51b5fff6c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -485,6 +496,46 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 226982433, guid: bf82a012913ebea429c9886230dad46c, type: 3}
+      propertyPath: m_ActionEvents.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 226982433, guid: bf82a012913ebea429c9886230dad46c, type: 3}
+      propertyPath: m_ActionEvents.Array.data[2].m_ActionId
+      value: a1cc752f-b39e-4847-a155-5a613c33e117
+      objectReference: {fileID: 0}
+    - target: {fileID: 226982433, guid: bf82a012913ebea429c9886230dad46c, type: 3}
+      propertyPath: m_ActionEvents.Array.data[2].m_ActionName
+      value: Player/Defence[/Mouse/rightButton]
+      objectReference: {fileID: 0}
+    - target: {fileID: 226982433, guid: bf82a012913ebea429c9886230dad46c, type: 3}
+      propertyPath: m_ActionEvents.Array.data[2].m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 226982433, guid: bf82a012913ebea429c9886230dad46c, type: 3}
+      propertyPath: m_ActionEvents.Array.data[2].m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 226982433, guid: bf82a012913ebea429c9886230dad46c, type: 3}
+      propertyPath: m_ActionEvents.Array.data[2].m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 621191134}
+    - target: {fileID: 226982433, guid: bf82a012913ebea429c9886230dad46c, type: 3}
+      propertyPath: m_ActionEvents.Array.data[2].m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 226982433, guid: bf82a012913ebea429c9886230dad46c, type: 3}
+      propertyPath: m_ActionEvents.Array.data[2].m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: OnDefence
+      objectReference: {fileID: 0}
+    - target: {fileID: 226982433, guid: bf82a012913ebea429c9886230dad46c, type: 3}
+      propertyPath: m_ActionEvents.Array.data[2].m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: Player, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 226982433, guid: bf82a012913ebea429c9886230dad46c, type: 3}
+      propertyPath: m_ActionEvents.Array.data[2].m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 226982435, guid: bf82a012913ebea429c9886230dad46c, type: 3}
       propertyPath: _attackDelay
       value: 0.3
