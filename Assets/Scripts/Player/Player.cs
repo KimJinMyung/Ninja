@@ -46,6 +46,7 @@ public class Player : MonoBehaviour
     public Animator Animator { get { return _animator; } }
 
     protected readonly int hashIsMoveAble = Animator.StringToHash("IsMoveAble");
+    protected readonly int hashParry = Animator.StringToHash("Parry");
 
     [SerializeField] private float _attackDelay;
     public float AttackDelay { get { return _attackDelay; } }
@@ -191,7 +192,7 @@ public class Player : MonoBehaviour
         {
             if (_inputVm.PlayerState == State.Attack) return;
 
-            if(_inputVm.PlayerState == State.Defence) _inputVm.PlayerState = State.Parry;
+            if (_inputVm.PlayerState == State.Defence) Animator.SetTrigger(hashParry);
             else _inputVm.PlayerState = State.Attack;         
         }
     }

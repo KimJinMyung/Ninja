@@ -313,24 +313,19 @@ public class DefenceState : PlayerState
 public class ParryState : PlayerState
 {
     public ParryState(Player owner) : base(owner) { }
+
     public override void Enter()
     {
         base.Enter();
-        owner.Animator.SetTrigger(hashParry);
     }
 
     public override void Update()
     {
-        base.Update();
-
-        if(owner.Animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.9f)
-        {
-            owner.InputVm.PlayerState = State.Defence;
-        }
+        base.Update();                
     }
     public override void LateUpdate() { }
     public override void FixedUpdate() { }
-    public override void Exit() { owner.Animator.ResetTrigger(hashParry); }
+    public override void Exit() { }
 }
 public class IncapacitatedState : PlayerState
 {
