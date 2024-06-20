@@ -4,22 +4,15 @@ using UnityEngine.UI;
 
 public class LockOn_UI : MonoBehaviour
 {
-    //[SerializeField] private Transform _monter;
     [SerializeField] private GameObject _lockOnIconPrefab;
 
-    //임시 리스트 [player가 감지한 몬스터들의 리스트]
-    //MonsterManager에서 등장
-
-    //private Image _lockOnIcon;
-
-    //private RectTransform uiElement;
     private Canvas _thisCanvas;
 
     private Dictionary<Transform, Image> monsterIcons = new Dictionary<Transform, Image>(); 
 
     private void Awake()
     {
-        _thisCanvas = _lockOnIconPrefab.GetComponent<Canvas>();
+        _thisCanvas = GetComponent<Canvas>();
         //_lockOnIcon = _lockOnIconPrefab.transform.GetComponentInChildren<Image>(); ;
     }
 
@@ -30,7 +23,8 @@ public class LockOn_UI : MonoBehaviour
             if (!monsterIcons.ContainsKey(monster))
             {
                 GameObject newIcon = Instantiate(_lockOnIconPrefab);
-                Image _lockOnIcon = newIcon.GetComponentInChildren<Image>();
+                newIcon.transform.SetParent(_thisCanvas.transform);
+                Image _lockOnIcon = newIcon.GetComponent<Image>();
                 monsterIcons.Add(monster, _lockOnIcon);
             }            
 
@@ -60,18 +54,13 @@ public class LockOn_UI : MonoBehaviour
         {
             Vector2 canvasPosition;
 
-            if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 _thisCanvas.transform as RectTransform,
                 ScreenPosition,
                 _thisCanvas.worldCamera,
-                out canvasPosition))
-            {
-                Debug.Log(canvasPosition);
-            }
-            else Debug.Log("실패");
+                out canvasPosition);
 
             icon.rectTransform.anchoredPosition = canvasPosition;
-
             icon.enabled = true;
 
             IconColorChanged(_monster.gameObject, icon);
