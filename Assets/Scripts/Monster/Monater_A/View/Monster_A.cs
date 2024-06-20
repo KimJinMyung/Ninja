@@ -5,6 +5,7 @@ public class Monster_A : Monster
     protected override void Awake()
     {
         base.Awake();
+        type = monsterType.monster_A;
     }
 
     protected override void OnEnable()

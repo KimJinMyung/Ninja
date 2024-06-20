@@ -6,7 +6,6 @@ using UnityEngine;
 using static UnityEngine.UI.GridLayoutGroup;
 
 //Player의 동작 제어
-
 public class PlayerState : ActorState
 {    
     protected Player owner;

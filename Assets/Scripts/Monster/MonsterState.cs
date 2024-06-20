@@ -55,4 +55,13 @@ public class Monster_DeadState : MonsterState
 {
     public Monster_DeadState(Monster owner) : base(owner) { }
 
+    public override void Enter()
+    {
+        base.Enter();
+
+        //사망시 비활성화
+        owner.gameObject.SetActive(false);
+        //GameManagerDic에서 제거
+        MonsterManager.instance.RemoveMonsters(owner.monsterId);
+    }
 }

@@ -3,9 +3,22 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using UnityEngine;
 
+public enum monsterType
+{
+    monster_A,
+    Boss
+}
+
 public class Monster : MonoBehaviour
 {
-    protected int monsterId;
+    protected int _monsterId;
+    public int monsterId
+    {
+        get { return _monsterId; }
+    }
+
+    protected monsterType type;
+    //스폰할 몬스터 종류
 
     protected StateMachine _stateMachine;
 
@@ -31,13 +44,13 @@ public class Monster : MonoBehaviour
 
     protected virtual void OnEnable()
     {
-        monsterId = GetInstanceID();
+        _monsterId = GetInstanceID();
 
         if (_monsterState == null)
         {
             _monsterState = new Monster_Status_ViewModel();
             _monsterState.PropertyChanged += OnPropertyChanged;
-            _monsterState.RegisterHPChanged(monsterId, true);
+            _monsterState.RegisterHPChanged(_monsterId, true);
         }
     }
 
@@ -45,7 +58,7 @@ public class Monster : MonoBehaviour
     {
         if (_monsterState != null)
         {
-            _monsterState.RegisterHPChanged(monsterId, false);
+            _monsterState.RegisterHPChanged(_monsterId, false);
             _monsterState.PropertyChanged -= OnPropertyChanged;
             _monsterState = null;
         }

@@ -64,16 +64,6 @@ public class Player : MonoBehaviour
     public LayerMask GroundLayer { get { return groundLayer; } }
     #endregion
 
-    #region LockOnTarget
-    [Header("LockOn Target")]
-    [SerializeField] private LayerMask _targetLayer;
-    [SerializeField] private float _detectionRange;
-    [SerializeField] private float _ViewAngle;
-
-    private Transform _lockOnTarget;
-    private bool _isLockOnMode;
-    #endregion
-
     [Header("Debug Mode")]
     [SerializeField] private bool _debug;
 
@@ -155,12 +145,9 @@ public class Player : MonoBehaviour
 
         Rotation();
 
-        _lockOnTarget = DetectingLockOnTarget();
+        //_lockOnTarget = DetectingLockOnTarget();
 
-        if(_isLockOnMode)
-        {
-            _inputVm.RequestLockOnTarget(_lockOnTarget);
-        }
+
     }
 
     private void OnDrawGizmos()
@@ -228,21 +215,6 @@ public class Player : MonoBehaviour
         if (context.ReadValue<float>() > 0.5f) _inputVm.RequestStateChanged(_playerId, State.Defence);
         else _inputVm.RequestStateChanged(_playerId, State.Battle);
     }
-
-    public void OnLockOnMode(InputAction.CallbackContext context)
-    {
-        if (_inputVm == null) return;
-        if(_lockOnTarget == null) return;
-
-        if (context.started)
-        {
-            _isLockOnMode = _isLockOnMode ? false : true;
-            Animator.SetBool(hashLockOn, _isLockOnMode);
-
-            if (!_isLockOnMode) _lockOnTarget = null;
-            //_inputVm.RequstLockOnTarget(_lockOnTarget);
-        }
-    }
     #endregion
 
     private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -253,8 +225,15 @@ public class Player : MonoBehaviour
                 _stateMachine.ChangeState(_inputVm.PlayerState);
                 break;
             case nameof(_inputVm.LockOnTarget):
-                if (_inputVm.LockOnTarget != null) Animator.SetBool(hashLockOn, true);
-                else Animator.SetBool(hashLockOn, false);
+                if (_inputVm.LockOnTarget != null)
+                {
+                    Animator.SetBool(hashLockOn, true);
+                    _inputVm.LockOnTarget.gameObject.layer = LayerMask.NameToLayer("LockOn");
+                }
+                else 
+                { 
+                    Animator.SetBool(hashLockOn, false);                   
+                }
                 break;
         }
     }
@@ -282,9 +261,9 @@ public class Player : MonoBehaviour
         //캐릭터 Mesh
         Transform playerMesh = transform.GetChild(0);
 
-        if (Animator.GetBool(hashLockOn) && _lockOnTarget != null)
+        if (Animator.GetBool(hashLockOn) && _inputVm.LockOnTarget != null)
         {
-            LookAtTargetOnYAxis(_lockOnTarget, playerMesh); 
+            LookAtTargetOnYAxis(_inputVm.LockOnTarget, playerMesh);
         }
         else
         {
@@ -345,52 +324,5 @@ public class Player : MonoBehaviour
     private void UpdatePosition()
     {
         transform.position = _characterController.transform.position;
-    }
-
-    private Transform DetectingLockOnTarget()
-    {
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position + Vector3.up, _detectionRange, _targetLayer);
-        Transform closestTarget = null;
-        float closestAngle = Mathf.Infinity;
-
-        foreach(Collider collider in hitColliders)
-        {
-            Vector3 dirTarget = (collider.transform.position - Camera.main.transform.position).normalized;
-            float angleToTarget = Vector3.Angle(Camera.main.transform.forward, dirTarget);
-
-            if(_lockOnTarget == collider.transform)
-            {
-                float distance = Vector3.Distance(Camera.main.transform.position, collider.transform.position);
-                float combinedMetric = angleToTarget + distance * 0.1f;
-
-                closestAngle = combinedMetric;
-                closestTarget = collider.transform;
-            }
-            else
-            {
-                if (angleToTarget < _ViewAngle)
-                {
-                    float distance = Vector3.Distance(Camera.main.transform.position, collider.transform.position);
-                    float combinedMetric = angleToTarget + distance * 0.1f; // 각도와 거리를 결합한 메트릭
-
-                    if (combinedMetric < closestAngle)
-                    {
-                        closestAngle = combinedMetric;
-                        closestTarget = collider.transform;
-                    }
-                }
-            }                                                                       
-        }
-
-        if (closestTarget != null)
-        {
-            Debug.Log(closestTarget.gameObject.name);
-            return closestTarget;
-        }
-        else
-        {
-            Debug.Log("감지 실패");
-            return default;
-        }
     }
 }
