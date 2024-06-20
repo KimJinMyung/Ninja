@@ -81,7 +81,7 @@ public class LockOnZone : MonoBehaviour
         Transform closestTarget = null;
         float closestAngle = Mathf.Infinity;
 
-        foreach(Collider collider in hitColliders)
+        foreach(var collider in hitColliders)
         {
             Vector3 dirTarget = (collider.transform.position - Camera.main.transform.position).normalized;
             float angleToTarget = Vector3.Angle(Camera.main.transform.forward, dirTarget);
@@ -102,7 +102,7 @@ public class LockOnZone : MonoBehaviour
                 if (angleToTarget < _ViewAngle)
                 {
                     MonsterManager.instance.LockOnAbleListAdd(collider.transform);
-                    if (_lockOnTarget == closestTarget) continue;
+                    if (_lockOnTarget == closestTarget && _lockOnTarget != null) continue;
 
                     distance = Vector3.Distance(Camera.main.transform.position, collider.transform.position);
                     combinedMetric = angleToTarget + distance * 0.1f; // 각도와 거리를 결합한 메트릭
@@ -115,7 +115,7 @@ public class LockOnZone : MonoBehaviour
                 }
                 else
                 {
-                    if (_lockOnTarget == closestTarget) continue;
+                    //if (_lockOnTarget == closestTarget) continue;
                     MonsterManager.instance.LockOnAbleListRemove(collider.transform);
                 }
             }
