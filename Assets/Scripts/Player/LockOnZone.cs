@@ -9,6 +9,7 @@ public class LockOnZone : MonoBehaviour
     [SerializeField] private float _ViewAngle;
 
     private Transform _lockOnTarget;
+
     private bool _isLockOnMode;
 
     private List<Collider> hitColliders = new List<Collider>();
@@ -26,7 +27,6 @@ public class LockOnZone : MonoBehaviour
         if((_mask.value & (1 << other.gameObject.layer)) != 0)
         {
             hitColliders.Add(other);
-            Debug.LogWarning("aaaa");
         }
     }
 
@@ -36,13 +36,12 @@ public class LockOnZone : MonoBehaviour
         {
             hitColliders.Remove(other);
             MonsterManager.instance.LockOnAbleListRemove(other.transform);
-            Debug.LogWarning("cccc");
         }
     }
 
     private void FixedUpdate()
     {
-        _lockOnTarget = DetectingLookOnTarget();
+        DetectingLookOnTarget();
 
         if (_isLockOnMode)
         {
@@ -51,28 +50,35 @@ public class LockOnZone : MonoBehaviour
         else
         {
             _player.InputVm.RequestLockOnTarget(null);
-
-            if (_lockOnTarget != null)
-                _lockOnTarget.gameObject.layer = LayerMask.NameToLayer("Monster");
         }
     }
 
     public void OnLockOnMode(InputAction.CallbackContext context)
     {
         if (_player.InputVm == null) return;
-        if (_lockOnTarget == null) return;
 
         if (context.started)
         {
-            _isLockOnMode = _isLockOnMode ? false : true;
+            Transform newTarget = DetectingLookOnTarget();
+            Debug.Log(newTarget.GetInstanceID());
+            if (_lockOnTarget == newTarget)
+            {
+                _lockOnTarget.gameObject.layer = LayerMask.NameToLayer("Monster");
+                _isLockOnMode = false;
+            }
+            else _isLockOnMode = true;
+
+            if(_lockOnTarget != null)
+                _lockOnTarget.gameObject.layer = LayerMask.NameToLayer("Monster");
+            _lockOnTarget = newTarget;
+
             _player.Animator.SetBool(hashLockOn, _isLockOnMode);
 
             if (!_isLockOnMode)
             {
                 _lockOnTarget = null;
             }
-
-            //_inputVm.RequestLockOnTarget(_lockOnTarget);
+;
         }
     }
 
@@ -89,51 +95,32 @@ public class LockOnZone : MonoBehaviour
             float distance;
             float combinedMetric;
 
-            if (_lockOnTarget == collider.transform)
+            if (angleToTarget < _ViewAngle)
             {
-                distance = Vector3.Distance(Camera.main.transform.position, collider.transform.position);
-                combinedMetric = angleToTarget + distance * 0.1f;
+                MonsterManager.instance.LockOnAbleListAdd(collider.transform);
+                if (_lockOnTarget == closestTarget && _lockOnTarget != null) continue;
 
-                closestAngle = combinedMetric;
-                closestTarget = collider.transform;
+                distance = Vector3.Distance(Camera.main.transform.position, collider.transform.position);
+                combinedMetric = angleToTarget + distance * 0.1f; // 각도와 거리를 결합한 메트릭
+
+                if (combinedMetric < closestAngle)
+                {
+                    closestAngle = combinedMetric;
+                    closestTarget = collider.transform;
+                }
             }
             else
             {
-                if (angleToTarget < _ViewAngle)
-                {
-                    MonsterManager.instance.LockOnAbleListAdd(collider.transform);
-                    if (_lockOnTarget == closestTarget && _lockOnTarget != null) continue;
-
-                    distance = Vector3.Distance(Camera.main.transform.position, collider.transform.position);
-                    combinedMetric = angleToTarget + distance * 0.1f; // 각도와 거리를 결합한 메트릭
-
-                    if (combinedMetric < closestAngle)
-                    {
-                        closestAngle = combinedMetric;
-                        closestTarget = collider.transform;
-                    }
-                }
-                else
-                {
-                    //if (_lockOnTarget == closestTarget) continue;
-                    MonsterManager.instance.LockOnAbleListRemove(collider.transform);
-                }
+                MonsterManager.instance.LockOnAbleListRemove(collider.transform);
             }
         }
 
         if (closestTarget != null)
         {
-            Debug.Log(closestTarget.gameObject.name);
-
-            if (closestTarget != _lockOnTarget && _lockOnTarget != null)
-            {
-                _lockOnTarget.gameObject.layer = LayerMask.NameToLayer("Monster");
-            }
             return closestTarget;
         }
         else
         {
-            Debug.Log("감지 실패");
             return default;
         }
     }

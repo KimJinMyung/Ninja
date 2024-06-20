@@ -13,7 +13,6 @@ public class LockOn_UI : MonoBehaviour
     private void Awake()
     {
         _thisCanvas = GetComponent<Canvas>();
-        //_lockOnIcon = _lockOnIconPrefab.transform.GetComponentInChildren<Image>(); ;
     }
 
     private void FixedUpdate()
