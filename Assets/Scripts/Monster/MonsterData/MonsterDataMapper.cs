@@ -11,11 +11,11 @@ public class Monster_data
     public float RunSpeed { get; set; }
     public float Strength { get; set; }
     public float Stamina { get; set; }
-    public List<string> AttackMethod_Name { get; set; }
+    public List<string> AttackMethodName { get; set; }
 }
 
 public class Monster_Attack
 {
     public string DataName { get; set; }
-    public string AttackScriptsName { get; set; }
+    public string AttackScriptName { get; set; }
 }

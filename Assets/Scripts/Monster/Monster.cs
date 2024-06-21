@@ -72,13 +72,13 @@ public class Monster : MonoBehaviour
 
     protected void SetAttackMethod(Monster_data monster)
     {
-        var attakList = monster.AttackMethod_Name;
+        var attakList = monster.AttackMethodName;
         if (attakList.Count > 0)
         {
             foreach(var attackName in attakList)
             {
                 var attack = DataManager.Instance.GetAttackMethodName(attackName);
-                string attackScriptName = attack.AttackScriptsName;
+                string attackScriptName = attack.AttackScriptName;
                 Type atk = Type.GetType(attackScriptName);
                 gameObject.AddComponent(atk);
             }
