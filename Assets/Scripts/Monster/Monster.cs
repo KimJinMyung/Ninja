@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel;
 using UnityEngine;
 
@@ -9,6 +10,8 @@ public enum monsterType
 
 public class Monster : MonoBehaviour
 {
+    [SerializeField] protected float _hp;
+
     protected int _monsterId;
     public int monsterId
     {
@@ -49,6 +52,36 @@ public class Monster : MonoBehaviour
             _monsterState = new Monster_Status_ViewModel();
             _monsterState.PropertyChanged += OnPropertyChanged;
             _monsterState.RegisterHPChanged(_monsterId, true);
+        }
+    }
+
+    protected virtual void Start()
+    {
+        SetMonsterInfo();
+    }
+
+    protected void SetMonsterInfo()
+    {
+        var monster = DataManager.Instance.GetMonsterData((int)type);
+        if (monster == null) return;
+
+        _hp = monster.HP;
+
+        SetAttackMethod(monster);
+    }
+
+    protected void SetAttackMethod(Monster_data monster)
+    {
+        var attakList = monster.AttackMethod_Name;
+        if (attakList.Count > 0)
+        {
+            foreach(var attackName in attakList)
+            {
+                var attack = DataManager.Instance.GetAttackMethodName(attackName);
+                string attackScriptName = attack.AttackScriptsName;
+                Type atk = Type.GetType(attackScriptName);
+                gameObject.AddComponent(atk);
+            }
         }
     }
 

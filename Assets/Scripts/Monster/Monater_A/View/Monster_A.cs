@@ -15,18 +15,14 @@ public class Monster_A : Monster
         
     }
 
+    protected override void Start()
+    {
+        base.Start();
+    }
+
     protected override void OnDisable()
     {
         base.OnDisable();
-    }
-
-    IEnumerator StartAI()
-    {
-        while (true)
-        {
-
-        }
-        yield break;
     }
 
     #region PropertyChangedMethod

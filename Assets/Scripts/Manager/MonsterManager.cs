@@ -1,7 +1,4 @@
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.Threading;
 using UnityEngine;
 
 enum MonsterFileType
@@ -25,8 +22,6 @@ public class MonsterManager : MonoBehaviour
 
     private List<Transform> _lockOnAbleMonsterList = new List<Transform>();
     public List<Transform> LockOnAbleMonsterList { get { return _lockOnAbleMonsterList; } }
-
-
 
     public void AddMonsters(int actorId, Transform monster)
     {

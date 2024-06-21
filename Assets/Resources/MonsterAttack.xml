@@ -2,18 +2,18 @@
 <MonsterAttack>
   <dataCategory>
     <DataName>SwordAttack</DataName>
-    <AttackScriptName>{Atk_Sword}</AttackScriptName>
+    <AttackScriptName>Atk_Sword</AttackScriptName>
   </dataCategory>
   <dataCategory>
     <DataName>SpearAttack</DataName>
-    <AttackScriptName>{Atk_Spear}</AttackScriptName>
+    <AttackScriptName>Atk_Spear</AttackScriptName>
   </dataCategory>
   <dataCategory>
     <DataName>ShurikenAttack</DataName>
-    <AttackScriptName>{Atk_Shuriken}</AttackScriptName>
+    <AttackScriptName>Atk_Shuriken</AttackScriptName>
   </dataCategory>
   <dataCategory>
     <DataName>DaggerAttack</DataName>
-    <AttackScriptName>{Atk_Dagger}</AttackScriptName>
+    <AttackScriptName>Atk_Dagger</AttackScriptName>
   </dataCategory>
 </MonsterAttack>

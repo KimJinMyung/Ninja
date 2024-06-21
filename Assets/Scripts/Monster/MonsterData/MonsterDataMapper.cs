@@ -17,5 +17,5 @@ public class Monster_data
 public class Monster_Attack
 {
     public string DataName { get; set; }
-    public List<string> AttackScriptsName { get; set; }
+    public string AttackScriptsName { get; set; }
 }
