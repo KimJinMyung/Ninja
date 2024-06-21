@@ -1,3 +1,4 @@
+using System.Collections;
 using System.ComponentModel;
 
 public class Monster_A : Monster
@@ -10,7 +11,8 @@ public class Monster_A : Monster
 
     protected override void OnEnable()
     {
-        base.OnEnable();
+        base.OnEnable();        
+        
     }
 
     protected override void OnDisable()
@@ -18,8 +20,19 @@ public class Monster_A : Monster
         base.OnDisable();
     }
 
+    IEnumerator StartAI()
+    {
+        while (true)
+        {
+
+        }
+        yield break;
+    }
+
+    #region PropertyChangedMethod
     protected override void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
         base.OnPropertyChanged(sender, e);
     }
+    #endregion
 }

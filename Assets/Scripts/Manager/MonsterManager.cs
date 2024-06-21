@@ -1,7 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using UnityEngine;
+
+enum MonsterFileType
+{
+    Monster_Info,
+    Monster_Attack
+}
 
 public class MonsterManager : MonoBehaviour
 {
@@ -11,15 +18,15 @@ public class MonsterManager : MonoBehaviour
     {
         if(instance == null) instance = this;
         else if(instance != this) Destroy(this.gameObject);
-
         DontDestroyOnLoad(this.gameObject);
-    }
+    }    
 
-    //Dictionary<monsterType, Dictionary<int, Transform>> monsterDics = new Dictionary<monsterType, Dictionary<int, Transform>>();
     private Dictionary<int, Transform> _monsterLists = new Dictionary<int, Transform>();
 
     private List<Transform> _lockOnAbleMonsterList = new List<Transform>();
     public List<Transform> LockOnAbleMonsterList { get { return _lockOnAbleMonsterList; } }
+
+
 
     public void AddMonsters(int actorId, Transform monster)
     {
@@ -38,16 +45,4 @@ public class MonsterManager : MonoBehaviour
 
         _lockOnAbleMonsterList = lists;
     }
-
-    //public void LockOnAbleListAdd(Transform monster)
-    //{
-    //    if (_lockOnAbleMonsterList.Contains(monster)) return;
-    //    _lockOnAbleMonsterList.Add(monster);
-    //}
-
-    //public void LockOnAbleListRemove(Transform monster)
-    //{
-    //    if (!_lockOnAbleMonsterList.Contains(monster)) return;
-    //    _lockOnAbleMonsterList.Remove(monster);
-    //}
 }

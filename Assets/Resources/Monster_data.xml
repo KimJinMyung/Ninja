@@ -1,36 +1,47 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Monsters>
-    <Monster>
-        <DataId>1</DataId>
-        <Name>병사</Name>
-        <Description>성을 지키는 일반적인 보병이다.</Description>
-        <HP>100</HP>
-        <ATK>10</ATK>
-        <WalkSpeed>1.5</WalkSpeed>
-        <RunSpeed>3.5</RunSpeed>
-        <Strength>5</Strength>
-        <Stamina>25</Stamina>
-    </Monster>
-    <Monster>
-        <DataId>2</DataId>
-        <Name>닌자</Name>
-        <Description>성 내부의 이상 현상을 제거하는 암살자, 주군에 대한 충성심이 매우 높다.</Description>
-        <HP>150</HP>
-        <ATK>30</ATK>
-        <WalkSpeed>3</WalkSpeed>
-        <RunSpeed>4.5</RunSpeed>
-        <Strength>8</Strength>
-        <Stamina>100</Stamina>
-    </Monster>
-    <Monster>
-        <DataId>3</DataId>
-        <Name>사무라이</Name>
-        <Description>무거운 갑주를 입고 있어 방어력이 매우 높고 일반적인 병사와는 다르게 근력이 높다.</Description>
-        <HP>200</HP>
-        <ATK>25</ATK>
-        <WalkSpeed>1.5</WalkSpeed>
-        <RunSpeed>4</RunSpeed>
-        <Strength>10</Strength>
-        <Stamina>250</Stamina>
-    </Monster>
-</Monsters>
+<Monster_data>
+  <dataCategory>
+    <DataId>1</DataId>
+    <Name>병사</Name>
+    <Description>성을 지키는 일반적인 보병이다.</Description>
+    <HP>100</HP>
+    <ATK>10</ATK>
+    <WalkSpeed>1.5</WalkSpeed>
+    <RunSpeed>3.5</RunSpeed>
+    <Strength>5</Strength>
+    <Stamina>25</Stamina>
+    <AttackMethods>
+      <AttackMethodName>SpearAttack</AttackMethodName>
+    </AttackMethods>
+  </dataCategory>
+  <dataCategory>
+    <DataId>2</DataId>
+    <Name>닌자</Name>
+    <Description>"성 내부의 이상 현상을 제거하는 암살자, 주군에 대한 충성심이 매우 높다."</Description>
+    <HP>150</HP>
+    <ATK>30</ATK>
+    <WalkSpeed>3</WalkSpeed>
+    <RunSpeed>4.5</RunSpeed>
+    <Strength>8</Strength>
+    <Stamina>100</Stamina>
+    <AttackMethods>
+      <AttackMethodName>ShurikenAttack</AttackMethodName>
+      <AttackMethodName>DaggerAttack</AttackMethodName>
+    </AttackMethods>
+  </dataCategory>
+  <dataCategory>
+    <DataId>3</DataId>
+    <Name>사무라이</Name>
+    <Description>"무거운 갑주를 입고 있어 방어력이 매우 높고 일반적인 병사와는 다르게 근력이 높다."</Description>
+    <HP>200</HP>
+    <ATK>25</ATK>
+    <WalkSpeed>1.5</WalkSpeed>
+    <RunSpeed>4</RunSpeed>
+    <Strength>10</Strength>
+    <Stamina>250</Stamina>
+    <AttackMethods>
+      <AttackMethodName>SwordAttack</AttackMethodName>
+      <AttackMethodName>BowAttack</AttackMethodName>
+    </AttackMethods>
+  </dataCategory>
+</Monster_data>

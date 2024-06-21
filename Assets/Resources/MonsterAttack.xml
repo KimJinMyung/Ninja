@@ -1,20 +1,19 @@
-<?xml version='1.0' encoding='utf-8'?>
-<Attacks>
-  <Attack>
+<?xml version="1.0" encoding="utf-8"?>
+<MonsterAttack>
+  <dataCategory>
     <DataName>SwordAttack</DataName>
     <AttackScriptName>{Atk_Sword}</AttackScriptName>
-  </Attack>
-  <Attack>
+  </dataCategory>
+  <dataCategory>
     <DataName>SpearAttack</DataName>
     <AttackScriptName>{Atk_Spear}</AttackScriptName>
-  </Attack>
-  <Attack>
+  </dataCategory>
+  <dataCategory>
     <DataName>ShurikenAttack</DataName>
     <AttackScriptName>{Atk_Shuriken}</AttackScriptName>
-  </Attack>
-  <Attack>
+  </dataCategory>
+  <dataCategory>
     <DataName>DaggerAttack</DataName>
     <AttackScriptName>{Atk_Dagger}</AttackScriptName>
-  </Attack>
-</Attacks>
-``` &#8203;:citation[oaicite:0]{index=0}&#8203;
+  </dataCategory>
+</MonsterAttack>
