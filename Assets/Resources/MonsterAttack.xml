@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Attacks>
+  <Attack>
+    <DataName>SwordAttack</DataName>
+    <AttackScriptName>{Atk_Sword}</AttackScriptName>
+  </Attack>
+  <Attack>
+    <DataName>SpearAttack</DataName>
+    <AttackScriptName>{Atk_Spear}</AttackScriptName>
+  </Attack>
+  <Attack>
+    <DataName>ShurikenAttack</DataName>
+    <AttackScriptName>{Atk_Shuriken}</AttackScriptName>
+  </Attack>
+  <Attack>
+    <DataName>DaggerAttack</DataName>
+    <AttackScriptName>{Atk_Dagger}</AttackScriptName>
+  </Attack>
+</Attacks>
+``` &#8203;:citation[oaicite:0]{index=0}&#8203;

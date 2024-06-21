@@ -877,9 +877,21 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 226982435, guid: bf82a012913ebea429c9886230dad46c, type: 3}
+      propertyPath: _walkSpeed
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1918117270, guid: bf82a012913ebea429c9886230dad46c, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1918117274, guid: bf82a012913ebea429c9886230dad46c, type: 3}
       propertyPath: _ViewAngle
       value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 1918117274, guid: bf82a012913ebea429c9886230dad46c, type: 3}
+      propertyPath: _mask.m_Bits
+      value: 1984
       objectReference: {fileID: 0}
     - target: {fileID: 3420220915716357727, guid: bf82a012913ebea429c9886230dad46c, type: 3}
       propertyPath: m_LocalPosition.x
