@@ -1,14 +1,9 @@
 using Cinemachine;
 using Cinemachine.Utility;
 using Player_State.Extension;
-using System.Collections;
-using System.Collections.Generic;
 using System.ComponentModel;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.iOS;
-using static UnityEngine.UI.GridLayoutGroup;
 
 public class Player : MonoBehaviour
 {
@@ -228,11 +223,10 @@ public class Player : MonoBehaviour
                 if (_inputVm.LockOnTarget != null)
                 {
                     Animator.SetBool(hashLockOn, true);
-                    _inputVm.LockOnTarget.gameObject.layer = LayerMask.NameToLayer("LockOn");
                 }
-                else 
-                { 
-                    Animator.SetBool(hashLockOn, false);                   
+                else
+                {
+                    Animator.SetBool(hashLockOn, false);
                 }
                 break;
         }

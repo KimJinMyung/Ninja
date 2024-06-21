@@ -10,9 +10,9 @@ public class MonsterManager : MonoBehaviour
     private void Awake()
     {
         if(instance == null) instance = this;
-        else if(instance != this) Destroy(gameObject);
+        else if(instance != this) Destroy(this.gameObject);
 
-        DontDestroyOnLoad(gameObject);
+        DontDestroyOnLoad(this.gameObject);
     }
 
     //Dictionary<monsterType, Dictionary<int, Transform>> monsterDics = new Dictionary<monsterType, Dictionary<int, Transform>>();
@@ -32,21 +32,22 @@ public class MonsterManager : MonoBehaviour
         if(_monsterLists.ContainsKey(actorId)) _monsterLists.Remove(actorId);
     }
 
-    public Transform LockOnAbleMonsterCallback(int actorId)
+    public void LockOnAbleMonsterListChanged(List<Transform> lists)
     {
-        if(!_monsterLists.ContainsKey(actorId)) return null;
-        return _monsterLists[actorId];
+        if (_lockOnAbleMonsterList.Equals(lists)) return;
+
+        _lockOnAbleMonsterList = lists;
     }
 
-    public void LockOnAbleListAdd(Transform monster)
-    {
-        if (_lockOnAbleMonsterList.Contains(monster)) return;
-        _lockOnAbleMonsterList.Add(monster);
-    }
+    //public void LockOnAbleListAdd(Transform monster)
+    //{
+    //    if (_lockOnAbleMonsterList.Contains(monster)) return;
+    //    _lockOnAbleMonsterList.Add(monster);
+    //}
 
-    public void LockOnAbleListRemove(Transform monster)
-    {
-        if (!_lockOnAbleMonsterList.Contains(monster)) return;
-        _lockOnAbleMonsterList.Remove(monster);
-    }
+    //public void LockOnAbleListRemove(Transform monster)
+    //{
+    //    if (!_lockOnAbleMonsterList.Contains(monster)) return;
+    //    _lockOnAbleMonsterList.Remove(monster);
+    //}
 }

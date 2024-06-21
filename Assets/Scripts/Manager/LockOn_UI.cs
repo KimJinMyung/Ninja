@@ -72,9 +72,13 @@ public class LockOn_UI : MonoBehaviour
 
     private void IconColorChanged(GameObject target, Image _lockOnIcon)
     {
-        if(target.layer == LayerMask.NameToLayer("LockOn"))
+        if(target.layer == LayerMask.NameToLayer("LockOnTarget"))
         {
             _lockOnIcon.color = Color.red;
+        }
+        else if(target.layer == LayerMask.NameToLayer("LockOnAble"))
+        {
+            _lockOnIcon.color = Color.blue;
         }
         else
         {

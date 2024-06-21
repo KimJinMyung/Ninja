@@ -1,5 +1,6 @@
 using Player_State.Extension;
 using System.Collections.Generic;
+using System.ComponentModel;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -8,6 +9,7 @@ public class LockOnZone : MonoBehaviour
     [SerializeField] private LayerMask _mask;
     [SerializeField] private float _ViewAngle;
 
+    private Transform _lockOnAbleTarget;
     private Transform _lockOnTarget;
 
     private bool _isLockOnMode;
@@ -15,11 +17,61 @@ public class LockOnZone : MonoBehaviour
     private List<Collider> hitColliders = new List<Collider>();
     private Player _player;
 
+    private  LockOnZoneViewModel _viewModel;
+    public LockOnZoneViewModel ViewModel {  get { return _viewModel; } }
+
     protected readonly int hashLockOn = Animator.StringToHash("LockOn");
 
     private void Awake()
     {
         _player = transform.root.GetComponent<Player>();//GetComponent<Player>();
+    }
+
+    //private void OnEnable()
+    //{
+    //    InitViewMondel();
+    //}
+
+    private void Start()
+    {
+        InitViewMondel();
+    }
+
+    private void InitViewMondel()
+    {
+        if (_viewModel == null)
+        {
+            _viewModel = new LockOnZoneViewModel();
+            _viewModel.PropertyChanged += OnPropertyChanged;
+            _viewModel.ReigsterLockOnTargetListChanged(true);
+            _viewModel.ReigsterLockOnAbleTargetChanged(true);
+            _viewModel.ReigsterLockOnTargetChanged(true);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (_viewModel != null)
+        {
+            _viewModel.ReigsterLockOnTargetChanged(false);
+            _viewModel.ReigsterLockOnAbleTargetChanged(false);
+            _viewModel.ReigsterLockOnTargetListChanged(false);
+            _viewModel.PropertyChanged -= OnPropertyChanged;
+            _viewModel = null;
+        }
+    }
+
+    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    { 
+        switch(e.PropertyName)
+        {
+            case nameof(_viewModel.HitColliders):
+                break;
+            case nameof(_viewModel.LockOnTarget):
+                if(_viewModel.LockOnTarget != null)
+                    _viewModel.LockOnTarget.gameObject.layer = LayerMask.NameToLayer("LockOnTarget");
+                break;
+        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -34,23 +86,22 @@ public class LockOnZone : MonoBehaviour
     {
         if ((_mask.value & (1 << other.gameObject.layer)) != 0)
         {
-            hitColliders.Remove(other);
-            MonsterManager.instance.LockOnAbleListRemove(other.transform);
+            hitColliders.Remove(other);   
+            
+            if(_player.InputVm.LockOnTarget == other.transform)
+            {
+                _player.InputVm.RequestLockOnTarget(null);
+            }
         }
     }
 
     private void FixedUpdate()
     {
-        DetectingLookOnTarget();
+        _lockOnAbleTarget = DetectingLookOnTarget();
 
-        if (_isLockOnMode)
-        {
-            _player.InputVm.RequestLockOnTarget(_lockOnTarget);
-        }
-        else
-        {
-            _player.InputVm.RequestLockOnTarget(null);
-        }
+        if (_lockOnAbleTarget == null) return;
+        if (_lockOnAbleTarget.gameObject.layer == LayerMask.NameToLayer("Monster"))
+            _viewModel.RequestLockOnAbleTarget(_lockOnAbleTarget);
     }
 
     public void OnLockOnMode(InputAction.CallbackContext context)
@@ -59,33 +110,29 @@ public class LockOnZone : MonoBehaviour
 
         if (context.started)
         {
-            Transform newTarget = DetectingLookOnTarget();
-            Debug.Log(newTarget.GetInstanceID());
-            if (_lockOnTarget == newTarget)
+            //_lockOnAbleTarget = DetectingLookOnTarget();
+
+            if(_isLockOnMode && _lockOnAbleTarget == _lockOnTarget)
             {
-                _lockOnTarget.gameObject.layer = LayerMask.NameToLayer("Monster");
                 _isLockOnMode = false;
+                _viewModel.RequestLockOnTarget(null, _player.InputVm);
             }
-            else _isLockOnMode = true;
-
-            if(_lockOnTarget != null)
-                _lockOnTarget.gameObject.layer = LayerMask.NameToLayer("Monster");
-            _lockOnTarget = newTarget;
-
-            _player.Animator.SetBool(hashLockOn, _isLockOnMode);
-
-            if (!_isLockOnMode)
+            else
             {
-                _lockOnTarget = null;
+                _isLockOnMode = true;
+                _lockOnTarget = _lockOnAbleTarget;
+                _viewModel.RequestLockOnTarget(_lockOnTarget, _player.InputVm);
             }
-;
         }
     }
 
+    #region
     private Transform DetectingLookOnTarget()
     {
         Transform closestTarget = null;
         float closestAngle = Mathf.Infinity;
+
+        List<Transform> tempLockOnAbleList = new List<Transform>();
 
         foreach(var collider in hitColliders)
         {
@@ -97,8 +144,7 @@ public class LockOnZone : MonoBehaviour
 
             if (angleToTarget < _ViewAngle)
             {
-                MonsterManager.instance.LockOnAbleListAdd(collider.transform);
-                if (_lockOnTarget == closestTarget && _lockOnTarget != null) continue;
+                tempLockOnAbleList.Add(collider.transform);
 
                 distance = Vector3.Distance(Camera.main.transform.position, collider.transform.position);
                 combinedMetric = angleToTarget + distance * 0.1f; // 각도와 거리를 결합한 메트릭
@@ -108,12 +154,10 @@ public class LockOnZone : MonoBehaviour
                     closestAngle = combinedMetric;
                     closestTarget = collider.transform;
                 }
-            }
-            else
-            {
-                MonsterManager.instance.LockOnAbleListRemove(collider.transform);
-            }
+            }            
         }
+
+        _viewModel.RequestLockOnTargetList(tempLockOnAbleList);
 
         if (closestTarget != null)
         {
@@ -124,4 +168,5 @@ public class LockOnZone : MonoBehaviour
             return default;
         }
     }
+    #endregion
 }

@@ -10,16 +10,18 @@ public class ActorLogicManager : MonoBehaviour
     private Dictionary<int, Action<State>> _stateChangedCallback = new Dictionary<int, Action<State>>();
     private Action<float, float> _moveVelocityChangedCallback;
     private Action<float, float, float> _targetAngleChangedCallback;
-    private Action<bool> _isLockOnModeChangedCallback;
     private Dictionary<int, Action<float>> _hpChangedCallbacks = new Dictionary<int, Action<float>>();
-    private Action<Transform> _lockOnTargetChangedCallback;
+    private Action<List<Transform>> _lockOnTargetListChangedCallback;
+    private Action<Transform> _lockOnAbleTargetChangedCallback;
+    private Action<Transform, InputViewModel> _lockOnTargetChangedCallback;
+    private Action<Transform> _lockOnTargetChangeCallback;
 
     private void Awake()
     {
         if (_instance == null) _instance = this;
-        else if(_instance != this) Destroy(gameObject);
+        else if(_instance != this) Destroy(this.gameObject);
 
-        DontDestroyOnLoad(gameObject);
+        DontDestroyOnLoad(this.gameObject);
     }
 
     #region Register 연결부
@@ -93,12 +95,29 @@ public class ActorLogicManager : MonoBehaviour
         }
     }
 
-    public void RegisterLockOnTargetChangedCallback(Action<Transform> lockOnTargetChangedCallback, bool isRegister)
+    public void RegisterLockOnTargetListChangedCallback(Action<List<Transform>> lockOnTargetListChangedCallback, bool isRegister)
+    {
+        if(isRegister) _lockOnTargetListChangedCallback += lockOnTargetListChangedCallback;
+        else _lockOnTargetListChangedCallback -= lockOnTargetListChangedCallback;
+    }
+
+    public void RegisterLockOnTargetChangedCallback(Action<Transform, InputViewModel> lockOnTargetChangedCallback, bool isRegister)
     {
         if (isRegister) _lockOnTargetChangedCallback += lockOnTargetChangedCallback;
         else _lockOnTargetChangedCallback -= lockOnTargetChangedCallback;
     }
 
+    public void RegisterLockOnTargetChangedCallback(Action<Transform> lockOnTargetChangedCallback, bool isRegister)
+    {
+        if (isRegister) _lockOnTargetChangeCallback += lockOnTargetChangedCallback;
+        else _lockOnTargetChangeCallback -= lockOnTargetChangedCallback;
+    }
+
+    public void RegisterLockOnAbleTargetChangedCallback(Action<Transform> lockOnAbleTargetChangedCallback, bool isRegister)
+    {
+        if (isRegister) _lockOnAbleTargetChangedCallback += lockOnAbleTargetChangedCallback;
+        else _lockOnAbleTargetChangedCallback -= lockOnAbleTargetChangedCallback;
+    }
     #endregion
 
     #region Request 연결부
@@ -124,10 +143,27 @@ public class ActorLogicManager : MonoBehaviour
     {
         if (_hpChangedCallbacks.ContainsKey(actorId)) _hpChangedCallbacks[actorId]?.Invoke(damage);
     }
-    public void OnLockOnTarget(Transform target)
+
+    public void OnLockOnTargetList(List<Transform> lockOnTargetList)
+    {
+        if(_lockOnTargetListChangedCallback == null) return;
+        _lockOnTargetListChangedCallback.Invoke(lockOnTargetList);
+    }
+    public void OnLockOnAbleTarget(Transform target)
+    {
+        if (_lockOnAbleTargetChangedCallback == null) return;
+        _lockOnAbleTargetChangedCallback.Invoke(target);
+    }
+    public void OnLockOnTarget(Transform target, InputViewModel player)
     {
         if(_lockOnTargetChangedCallback == null) return;
-        _lockOnTargetChangedCallback.Invoke(target);
+        _lockOnTargetChangedCallback.Invoke(target, player);
+    }
+
+    public void OnLockOnTarget(Transform target)
+    {
+        if (_lockOnTargetChangedCallback == null) return;
+        _lockOnTargetChangeCallback.Invoke(target);
     }
     #endregion
 
