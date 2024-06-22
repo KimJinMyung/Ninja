@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using UnityEngine;
 
 public class Monster_Status_ViewModel
 {
@@ -24,6 +25,19 @@ public class Monster_Status_ViewModel
 
             _hp = value;
             OnPropertyChanged(nameof(HP));
+        }
+    }
+
+    private Transform _traceTarget;
+    public Transform TraceTarget
+    {
+        get => _traceTarget;
+        set
+        {
+            if(_traceTarget == value) return;
+
+            _traceTarget = value;
+            OnPropertyChanged(nameof(TraceTarget));
         }
     }
 

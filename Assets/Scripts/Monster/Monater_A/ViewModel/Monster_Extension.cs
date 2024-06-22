@@ -32,4 +32,18 @@ public static class Monster_Extension
         monster_A.MonsterState = state;
     }
     #endregion
+    #region Target
+    public static void RegisterTraceTargetChanged(this Monster_Status_ViewModel monster_A, int actorId, bool isRegister)
+    {
+        ActorLogicManager._instance.RegisterTraceTargetChangedCallback(monster_A.OnResponseTraceTargetChangedEvent, actorId,isRegister);
+    }
+    public static void RequestTraceTargetChanged(this Monster_Status_ViewModel monster_A, int actorId, Transform traceTarget)
+    {
+        ActorLogicManager._instance.OnTraceTarget(actorId, traceTarget);
+    }
+    public static void OnResponseTraceTargetChangedEvent(this Monster_Status_ViewModel monster_A, Transform traceTarget)
+    {
+        monster_A.TraceTarget = traceTarget;    
+    }
+    #endregion
 }

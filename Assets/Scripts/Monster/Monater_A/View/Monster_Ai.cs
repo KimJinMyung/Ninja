@@ -23,18 +23,15 @@ public class Monster_Ai : MonoBehaviour
 
     private void OnEnable()
     {
-        Instantiate(_detectZone);     
+        GameObject detectZone = Instantiate(_detectZone);     
+        detectZone.transform.parent = transform;
     }
 
-    //IEnumerator StartAI()
-    //{
-    //    while (owner.HP > 0)
-    //    {
-    //        yield return new WaitForSeconds(0.3f);
-
-    //        owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.Idle);
-    //    }
-    //    yield return null;
-    //}
-    
+    private void Update()
+    {
+        if(owner.MonsterViewModel.MonsterState == State.Trace)
+        {
+            agent.SetDestination(owner.MonsterViewModel.TraceTarget.position);
+        }
+    }
 }

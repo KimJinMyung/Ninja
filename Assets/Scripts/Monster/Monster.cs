@@ -18,6 +18,8 @@ public class Monster : MonoBehaviour
 
     [Header("DetectZone")]
     [SerializeField] private GameObject _detectZone;
+    [SerializeField] protected float _viewAngle;
+    public float ViewAngle {  get { return _viewAngle; } }
     protected float lastAttackTime;
 
     protected int _monsterId;
@@ -60,6 +62,7 @@ public class Monster : MonoBehaviour
             _monsterState.PropertyChanged += OnPropertyChanged;
             _monsterState.RegisterStateChanged(_monsterId, true);
             _monsterState.RegisterHPChanged(_monsterId, true);            
+            _monsterState.RegisterTraceTargetChanged(_monsterId, true);
         }
 
         lastAttackTime -= _attackDelay;
@@ -103,6 +106,7 @@ public class Monster : MonoBehaviour
         {
             _monsterState.RegisterHPChanged(_monsterId, false);
             _monsterState.RegisterStateChanged(_monsterId, false);
+            _monsterState.RegisterTraceTargetChanged(_monsterId, false);
             _monsterState.PropertyChanged -= OnPropertyChanged;
             _monsterState = null;
         }

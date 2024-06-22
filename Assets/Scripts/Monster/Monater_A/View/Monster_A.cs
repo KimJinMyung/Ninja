@@ -7,6 +7,7 @@ public class Monster_A : Monster
     {
         base.Awake();
         type = monsterType.monster_A;
+        _viewAngle = 90f;
     }
 
     protected override void OnEnable()

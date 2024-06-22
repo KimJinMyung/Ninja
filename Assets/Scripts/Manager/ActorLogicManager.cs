@@ -15,6 +15,7 @@ public class ActorLogicManager : MonoBehaviour
     private Action<Transform> _lockOnAbleTargetChangedCallback;
     private Action<Transform, InputViewModel> _lockOnTargetChangedCallback;
     private Action<Transform> _lockOnTargetChangeCallback;
+    private Dictionary<int, Action<Transform>> _traceTargetChangedCallback;
 
     private void Awake()
     {
@@ -118,13 +119,37 @@ public class ActorLogicManager : MonoBehaviour
         if (isRegister) _lockOnAbleTargetChangedCallback += lockOnAbleTargetChangedCallback;
         else _lockOnAbleTargetChangedCallback -= lockOnAbleTargetChangedCallback;
     }
+
+    public void RegisterTraceTargetChangedCallback(Action<Transform> TraceTargetChangedCallback, int actorId, bool isRegister)
+    {
+        if(isRegister)
+        {
+            if (isRegister)
+            {
+                if (!_traceTargetChangedCallback.ContainsKey(actorId))
+                {
+                    _traceTargetChangedCallback[actorId] = TraceTargetChangedCallback;
+                }
+                else
+                {
+                    _traceTargetChangedCallback[actorId] += TraceTargetChangedCallback;
+                }
+            }
+            else
+            {
+                if (_traceTargetChangedCallback.ContainsKey(actorId))
+                {
+                    _traceTargetChangedCallback[actorId] -= TraceTargetChangedCallback;
+                    if (_traceTargetChangedCallback[actorId] == null) _traceTargetChangedCallback.Remove(actorId);
+                }
+            }
+        }
+    }
     #endregion
 
     #region Request ¿¬°áºÎ
     public void OnChangedState(int actorId,State state)
     {
-        //if (_stateChangedCallback == null) return;
-        //_stateChangedCallback.Invoke(state);
         if (_stateChangedCallback.ContainsKey(actorId)) _stateChangedCallback[actorId]?.Invoke(state);
     }
     public void OnMoveInput(float x, float y)
@@ -164,6 +189,10 @@ public class ActorLogicManager : MonoBehaviour
     {
         if (_lockOnTargetChangedCallback == null) return;
         _lockOnTargetChangeCallback.Invoke(target);
+    }
+    public void OnTraceTarget(int actorId, Transform target)
+    {
+        if (_traceTargetChangedCallback.ContainsKey(actorId)) _traceTargetChangedCallback[actorId]?.Invoke(target);
     }
     #endregion
 

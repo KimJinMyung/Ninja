@@ -17,6 +17,10 @@ public class DetectZone : MonoBehaviour
             var lockOnAction = actionMap.FindAction("LockOn");
             lockOnAction.performed += _playerLockOnZone.OnLockOnMode;
         }
+        else
+        {
+            gameObject.AddComponent<MonsterDetectZone>();
+        }
     }
 
     private void OnDisable()
