@@ -16,7 +16,7 @@ public class ActorLogicManager : MonoBehaviour
     private Action<Transform> _lockOnAbleTargetChangedCallback;
     private Action<Transform, InputViewModel> _lockOnTargetChangedCallback;
     private Action<Transform> _lockOnTargetChangeCallback;
-    private Dictionary<int, Action<Transform>> _traceTargetChangedCallback;
+    private Dictionary<int, Action<Transform>> _traceTargetChangedCallback = new Dictionary<int, Action<Transform>>();
 
     private void Awake()
     {
@@ -49,6 +49,7 @@ public class ActorLogicManager : MonoBehaviour
             }
         }
     }
+
     public void RegisterInfoChangedCallback(int actorId, Action<Monster_data> infoChangedCallback, bool isRegister)
     {
         if (isRegister)

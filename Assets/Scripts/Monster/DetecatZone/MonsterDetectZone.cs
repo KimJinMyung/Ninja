@@ -11,23 +11,24 @@ public class MonsterDetectZone : MonoBehaviour
 
     private Transform Eyes;
 
-    private void OnEnable()
+    private void Start()
     {
-        owner = transform.root.GetComponent<Monster>();
+        owner = transform.parent.GetComponent<Monster>();
         zoneCollider = GetComponent<SphereCollider>();
 
-        FindEyeTransform();
+        FindEyeTransform(owner.transform);
     }
 
-    private void FindEyeTransform()
+    private void FindEyeTransform(Transform parent)
     {
-        foreach(Transform child in transform)
+        foreach(Transform child in parent)
         {
             if (child.CompareTag("Eye"))
             {
                 this.Eyes = child;
                 break;
             }
+            FindEyeTransform(child);
         }
     }
 

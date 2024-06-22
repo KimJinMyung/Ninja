@@ -1,32 +1,15 @@
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
+using ActorStateMachine;
 
 public class MonsterState : ActorState
-{
+{ 
     protected Monster owner;
-    protected float _attackDelay;
-    protected int monsterId;
 
     public MonsterState(Monster owner)
     {
         this.owner = owner;
-        _attackDelay = owner.AttackDelay;
-    }
-
-    public override void Enter()
-    {
-        base.Enter();
-        monsterId = owner.monsterId;
-    }
-
-    public override void Update()
-    {
-        base.Update();
-        if(owner.MonsterViewModel.MonsterInfo.HP <= 0)
-        {
-            owner.MonsterViewModel.RequestStateChanged(monsterId, State.Die);            
-        }
     }
 }
 
@@ -41,30 +24,11 @@ public class Monster_IdleState : MonsterState
     public override void Enter()
     {
         base.Enter();
-        _time = 0f;
-        _PatrolDelay = Random.Range(0.2f, 3f);
-        owner.Agent.speed = owner.MonsterViewModel.MonsterInfo.WalkSpeed;
     }
 
     public override void Update()
     {
         base.Update();
-
-        if (owner.MonsterViewModel.MonsterState == State.Die) return;
-
-        if(owner.MonsterViewModel.TraceTarget != null)
-        {
-            owner.MonsterViewModel.RequestStateChanged(monsterId, State.Trace);
-        }else
-        {
-            if (!owner.IsPatrolMonster) return;
-
-            _time = Mathf.Clamp(_time + Time.deltaTime, 0f, _PatrolDelay);
-            if(_time >= _PatrolDelay)
-            {
-                owner.MonsterViewModel.RequestStateChanged(monsterId, State.Walk);
-            }
-        }
     }
 }
 
@@ -79,50 +43,15 @@ public class Monster_PatrolState : MonsterState
     public override void Enter()
     {
         base.Enter();
-        StartPos = owner.transform.position;
-        patrolEndPos = StartPos;
-        //if (owner.IsPatrolMonster)
-        //{
-        //    if (owner.IsRandomPatrolMonster)
-        //    {
-        //        RandomPoint();
-        //    }
-        //    else
-        //    {
-        //        //패트롤 지점 지정
-        //    }
-        //}
-        RandomPoint();
+        //StartPos = owner.transform.position;
+        //patrolEndPos = StartPos;
+
+        //RandomPoint();
     }
 
     public override void Update()
     {
-        base.Update();
-
-        if(owner.MonsterViewModel.TraceTarget != null)
-        {
-            owner.MonsterViewModel.RequestStateChanged(monsterId, State.Trace);
-        }
-        else
-        {
-            if (patrolEndPos != StartPos && Vector3.Distance(owner.transform.position, patrolEndPos) <= 0.2f)
-            {
-                owner.MonsterViewModel.RequestStateChanged(monsterId, State.Idle);
-            }
-        }        
-    }
-
-    private void RandomPoint()
-    {
-        while(patrolEndPos == owner.transform.position)
-        {
-            Vector3 randomPoint = owner.transform.position + Random.insideUnitSphere * 15f;
-            if (NavMesh.SamplePosition(randomPoint, out NavMeshHit hit, 1.0f, (1 << NavMesh.GetAreaFromName("Walkable"))))
-            {
-                patrolEndPos = hit.position;
-                break;
-            }
-        }        
+        base.Update();     
     }
 
 }
@@ -132,25 +61,14 @@ public class Monster_TraceState : MonsterState
 {
     public Monster_TraceState(Monster owner) : base(owner) { }
 
-    private Transform target;
     public override void Enter()
     {
         base.Enter();
-        target = owner.MonsterViewModel.TraceTarget;
-        owner.Agent.speed = owner.MonsterViewModel.MonsterInfo.RunSpeed;
     }
 
     public override void Update()
     {
         base.Update();
-
-        if(owner.MonsterViewModel.TraceTarget == null)
-        {
-            owner.MonsterViewModel.RequestStateChanged(monsterId, State.Alert);
-            return;
-        }
-
-        owner.Agent.SetDestination(target.position);
     }
 }
 
@@ -159,31 +77,14 @@ public class Monster_AlertState : MonsterState
 {
     public Monster_AlertState(Monster owner) : base(owner) { }
 
-    private float AlertStateEndTime = 2f;
-    private float _timer;
-
     public override void Enter()
     {
         base.Enter();
-        _timer = 0;
     }
 
     public override void Update()
     {
-        base.Enter();
-
-        if (owner.MonsterViewModel.TraceTarget != null)
-        {
-            owner.MonsterViewModel.RequestStateChanged(monsterId, State.Trace);
-        }
-        else
-        {
-            _timer = Mathf.Clamp(_timer + Time.deltaTime, 0f, AlertStateEndTime);
-            if(_timer >= AlertStateEndTime)
-            {
-                owner.MonsterViewModel.RequestStateChanged(monsterId, State.Idle);
-            }
-        }
+        base.Enter();       
     }
 
 }

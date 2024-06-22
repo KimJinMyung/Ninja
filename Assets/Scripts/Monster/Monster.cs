@@ -2,6 +2,8 @@ using System;
 using System.ComponentModel;
 using UnityEngine;
 using UnityEngine.AI;
+using ActorStateMachine;
+using static UnityEngine.UI.GridLayoutGroup;
 
 public enum monsterType
 {
@@ -79,21 +81,31 @@ public class Monster : MonoBehaviour
         {
             _monsterState = new Monster_Status_ViewModel();
             _monsterState.PropertyChanged += OnPropertyChanged;
-            _monsterState.RegisterStateChanged(_monsterId, true);          
-            _monsterState.RegisterMonsterInfoChanged(_monsterId, true);
-            _monsterState.RegisterTraceTargetChanged(_monsterId, true);
+        }
+        else 
+        {
+            _monsterState.RequestStateChanged(monsterId, State.Idle);
         }
     }
 
     protected virtual void Start()
     {
+        _monsterState.RegisterStateChanged(_monsterId, true);
+        _monsterState.RegisterMonsterInfoChanged(_monsterId, true);
+        _monsterState.RegisterTraceTargetChanged(_monsterId, true);
+
+        _monsterState.RequestStateChanged(monsterId, State.Idle);
+
         SetMonsterInfo();
 
-        GameObject detectZone = Instantiate(_detectZone);
+        GameObject detectZone = Instantiate(_detectZone, transform.position, transform.rotation);
         detectZone.transform.parent = transform;
+
+        //_stateMachine.ChangeState(State.Walk);
+       // _monsterState.RequestStateChanged(_monsterId, State.Walk);
     }
 
-    protected void SetMonsterInfo()
+    protected virtual void SetMonsterInfo()
     {
         var monster = DataManager.Instance.GetMonsterData((int)type);
         if (monster == null) return;
@@ -103,7 +115,7 @@ public class Monster : MonoBehaviour
         SetAttackMethod(monster);
     }
 
-    protected void SetAttackMethod(Monster_data monster)
+    protected virtual void SetAttackMethod(Monster_data monster)
     {
         var attakList = monster.AttackMethodName;
         if (attakList.Count > 0)
@@ -129,6 +141,10 @@ public class Monster : MonoBehaviour
             _monsterState = null;
         }
     }
+    protected virtual void Update()
+    {
+        MonsterAI();
+    }
 
     protected virtual void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
@@ -136,6 +152,135 @@ public class Monster : MonoBehaviour
         {
             case nameof(_monsterState.MonsterState):
                 _stateMachine.ChangeState(_monsterState.MonsterState);
+                NewStateEnter(_monsterState.MonsterState);
+                break;
+        }
+    }
+
+    protected virtual void NewStateEnter(State newState)
+    {
+        switch (newState)
+        {
+            case State.Idle:
+                _time = 0f;
+                _PatrolDelay = UnityEngine.Random.Range(0.2f, 3f);
+                agent.speed = MonsterViewModel.MonsterInfo.WalkSpeed;
+                break;
+            case State.Walk:
+                ////if (owner.IsPatrolMonster)
+                ////{
+                ////    if (owner.IsRandomPatrolMonster)
+                ////    {
+                ////        RandomPoint();
+                ////    }
+                ////    else
+                ////    {
+                ////        //패트롤 지점 지정
+                ////    }
+                ////}
+                StartPos = transform.position;
+                patrolEndPos = StartPos;
+                RandomPoint();
+                break;
+            case State.Trace:
+                agent.speed = MonsterViewModel.MonsterInfo.RunSpeed;
+                break;
+            case State.Alert:
+                _timer = 0f;
+                break;
+        }
+    }
+
+    #region PatrolState
+    private float _time;
+    private float _PatrolDelay;
+    public float PatrolDelay { get => _PatrolDelay; set { _PatrolDelay = value; } }
+
+    protected Vector3 patrolEndPos;
+    protected Vector3 StartPos;
+
+    [Header("Patrol 가능 길이")]
+    [SerializeField] protected float _distance = 15f;
+    #endregion
+    #region AlertState
+    protected float _timer;
+    protected float AlertStateEndTime = 5f;
+    #endregion
+
+    protected virtual void RandomPoint()
+    {
+        while (patrolEndPos == transform.position)
+        {
+            Vector3 randomPoint = transform.position + UnityEngine.Random.insideUnitSphere * _distance;
+            if (NavMesh.SamplePosition(randomPoint, out NavMeshHit hit, 1.0f, (1 << NavMesh.GetAreaFromName("Walkable"))))
+            {
+                patrolEndPos = hit.position;
+                break;
+            }
+        }
+    }
+
+    protected void MonsterAI()
+    {
+        switch (MonsterViewModel.MonsterState)
+        {
+            case State.Idle:
+                if(MonsterViewModel.MonsterInfo.HP <= 0)
+                {
+                    MonsterViewModel.RequestStateChanged(monsterId, State.Die);
+                    return;
+                }
+
+                if (MonsterViewModel.TraceTarget != null)
+                {
+                    MonsterViewModel.RequestStateChanged(monsterId, State.Trace);
+                }
+                else
+                {
+                    if (!IsPatrolMonster) return;
+
+                    _time = Mathf.Clamp(_time + Time.deltaTime, 0f, _PatrolDelay);
+                    if (_time >= _PatrolDelay)
+                    {
+                        MonsterViewModel.RequestStateChanged(monsterId, State.Walk);
+                    }
+                }
+                break;
+            case State.Walk:
+                if (MonsterViewModel.TraceTarget != null)
+                {
+                    MonsterViewModel.RequestStateChanged(monsterId, State.Trace);
+                }
+                else
+                {
+                    if (patrolEndPos != StartPos && Vector3.Distance(transform.position, patrolEndPos) <= 0.2f)
+                    {
+                        MonsterViewModel.RequestStateChanged(monsterId, State.Idle);
+                    }
+                }
+                break;
+            case State.Trace:                
+                if (MonsterViewModel.TraceTarget == null)
+                {
+                    MonsterViewModel.RequestStateChanged(monsterId, State.Alert);
+                    return;
+                }
+
+                agent.SetDestination(MonsterViewModel.TraceTarget.position);
+                break;
+            case State.Alert:
+                if (MonsterViewModel.TraceTarget != null)
+                {
+                    MonsterViewModel.RequestStateChanged(monsterId, State.Trace);
+                }
+                else
+                {
+                    _timer = Mathf.Clamp(_timer + Time.deltaTime, 0f, AlertStateEndTime);
+                    if (_timer >= AlertStateEndTime)
+                    {
+                        MonsterViewModel.RequestStateChanged(monsterId, State.Idle);
+                    }
+                }
                 break;
         }
     }

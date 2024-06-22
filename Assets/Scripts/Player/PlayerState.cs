@@ -2,7 +2,7 @@ using Player_State.Extension;
 using UnityEngine;
 
 //Player의 동작 제어
-public class PlayerState : ActorState
+public class PlayerState : ActorStateMachine.ActorState
 {    
     protected Player owner;
 

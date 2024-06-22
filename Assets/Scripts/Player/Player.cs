@@ -4,6 +4,7 @@ using Player_State.Extension;
 using System.ComponentModel;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using ActorStateMachine;
 
 public class Player : MonoBehaviour
 {
@@ -126,8 +127,6 @@ public class Player : MonoBehaviour
         Movement();
 
         _stateMachine.OnUpdate();
-
-        Debug.Log(_inputVm.PlayerState.ToString());
     }
 
     private void LateUpdate()
