@@ -42,7 +42,7 @@ public class Monster_IdleState : MonsterState
     {
         base.Enter();
         _time = 0f;
-        _PatrolDelay = Random.Range(0.2f, 8f);
+        _PatrolDelay = Random.Range(0.2f, 3f);
         owner.Agent.speed = owner.MonsterViewModel.MonsterInfo.WalkSpeed;
     }
 
@@ -81,6 +81,17 @@ public class Monster_PatrolState : MonsterState
         base.Enter();
         StartPos = owner.transform.position;
         patrolEndPos = StartPos;
+        //if (owner.IsPatrolMonster)
+        //{
+        //    if (owner.IsRandomPatrolMonster)
+        //    {
+        //        RandomPoint();
+        //    }
+        //    else
+        //    {
+        //        //패트롤 지점 지정
+        //    }
+        //}
         RandomPoint();
     }
 
@@ -147,6 +158,33 @@ public class Monster_TraceState : MonsterState
 public class Monster_AlertState : MonsterState
 {
     public Monster_AlertState(Monster owner) : base(owner) { }
+
+    private float AlertStateEndTime = 2f;
+    private float _timer;
+
+    public override void Enter()
+    {
+        base.Enter();
+        _timer = 0;
+    }
+
+    public override void Update()
+    {
+        base.Enter();
+
+        if (owner.MonsterViewModel.TraceTarget != null)
+        {
+            owner.MonsterViewModel.RequestStateChanged(monsterId, State.Trace);
+        }
+        else
+        {
+            _timer = Mathf.Clamp(_timer + Time.deltaTime, 0f, AlertStateEndTime);
+            if(_timer >= AlertStateEndTime)
+            {
+                owner.MonsterViewModel.RequestStateChanged(monsterId, State.Idle);
+            }
+        }
+    }
 
 }
 
