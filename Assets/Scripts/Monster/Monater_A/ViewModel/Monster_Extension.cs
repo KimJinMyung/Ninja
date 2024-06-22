@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class Monster_A_Extension
+public static class Monster_Extension
 {
     #region HP
     public static void RegisterHPChanged(this Monster_Status_ViewModel monster_A,int acotrId, bool isRegister)

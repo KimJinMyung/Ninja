@@ -4,9 +4,11 @@ using System.ComponentModel;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class LockOnZone : MonoBehaviour
+public class PlayerLockOnZone : MonoBehaviour
 {
     [SerializeField] private LayerMask _mask;
+
+    [Header("시야 각도")]
     [SerializeField] private float _ViewAngle;
 
     private Transform _lockOnAbleTarget;
@@ -24,13 +26,14 @@ public class LockOnZone : MonoBehaviour
 
     private void Awake()
     {
-        _player = transform.root.GetComponent<Player>();//GetComponent<Player>();
+        _player = transform.root.GetComponent<Player>();
     }
 
-    //private void OnEnable()
-    //{
-    //    InitViewMondel();
-    //}
+    private void OnEnable()
+    {
+        _mask = (1 << 6) | (1 << 7) | (1 << 8) | (1 << 9) | (1 << 10);
+        _ViewAngle = 50f;
+    }
 
     private void Start()
     {

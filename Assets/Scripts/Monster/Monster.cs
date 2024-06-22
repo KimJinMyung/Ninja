@@ -9,8 +9,16 @@ public enum monsterType
 }
 
 public class Monster : MonoBehaviour
-{
+{    
     [SerializeField] protected float _hp;
+    public float HP { get { return _hp; } }
+    [SerializeField] protected float _detectionRadius;
+    [SerializeField] protected float _attackRange;
+    [SerializeField] protected float _attackDelay;
+
+    [Header("DetectZone")]
+    [SerializeField] private GameObject _detectZone;
+    protected float lastAttackTime;
 
     protected int _monsterId;
     public int monsterId
@@ -24,8 +32,7 @@ public class Monster : MonoBehaviour
     protected StateMachine _stateMachine;
 
     protected Monster_Status_ViewModel _monsterState;
-
-    protected float HP;
+    public Monster_Status_ViewModel MonsterViewModel { get { return _monsterState; } }
 
     protected virtual void Awake()
     {
@@ -51,13 +58,18 @@ public class Monster : MonoBehaviour
         {
             _monsterState = new Monster_Status_ViewModel();
             _monsterState.PropertyChanged += OnPropertyChanged;
-            _monsterState.RegisterHPChanged(_monsterId, true);
+            _monsterState.RegisterStateChanged(_monsterId, true);
+            _monsterState.RegisterHPChanged(_monsterId, true);            
         }
+
+        lastAttackTime -= _attackDelay;
     }
 
     protected virtual void Start()
     {
         SetMonsterInfo();
+
+        gameObject.AddComponent<Monster_Ai>().DetectZone = _detectZone;
     }
 
     protected void SetMonsterInfo()
@@ -90,6 +102,7 @@ public class Monster : MonoBehaviour
         if (_monsterState != null)
         {
             _monsterState.RegisterHPChanged(_monsterId, false);
+            _monsterState.RegisterStateChanged(_monsterId, false);
             _monsterState.PropertyChanged -= OnPropertyChanged;
             _monsterState = null;
         }
@@ -97,9 +110,11 @@ public class Monster : MonoBehaviour
 
     protected virtual void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-        //switch (e.PropertyName)
-        //{
-
-        //}
+        switch (e.PropertyName)
+        {
+            case nameof(_monsterState.MonsterState):
+                _stateMachine.ChangeState(_monsterState.MonsterState);
+                break;
+        }
     }
 }
