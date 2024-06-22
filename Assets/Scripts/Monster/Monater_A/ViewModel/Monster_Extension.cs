@@ -4,20 +4,21 @@ using UnityEngine;
 
 public static class Monster_Extension
 {
-    #region HP
-    public static void RegisterHPChanged(this Monster_Status_ViewModel monster_A,int acotrId, bool isRegister)
+    #region Monster_Data
+    public static void RegisterMonsterInfoChanged(this Monster_Status_ViewModel monster_A, int acotrId, bool isRegister)
     {
-        ActorLogicManager._instance.RegisterHpChangedCallback(acotrId, monster_A.OnResponseHPChangedEvent, isRegister);
+        ActorLogicManager._instance.RegisterInfoChangedCallback(acotrId, monster_A.OnResponseMonsterInfoChangedEvent, isRegister);
     }
-    public static void RequestHPChanged(this Monster_Status_ViewModel monster_A, int acotrId, float damage)
+    public static void RequestMonsterInfoChanged(this Monster_Status_ViewModel monster_A, int acotrId, Monster_data info)
     {
-        ActorLogicManager._instance.OnHpChanged(acotrId, damage);
+        ActorLogicManager._instance.OnInfoChanged(acotrId, info);
     }
-    public static void OnResponseHPChangedEvent(this Monster_Status_ViewModel monster_A, float damage)
+    public static void OnResponseMonsterInfoChangedEvent(this Monster_Status_ViewModel monster_A, Monster_data info)
     {
-        monster_A.HP = Mathf.Clamp(monster_A.HP - damage, 0, monster_A.HP);
+        monster_A.MonsterInfo = info;
     }
     #endregion
+
     #region State
     public static void RegisterStateChanged(this Monster_Status_ViewModel monster_A, int ActirId, bool isRegister)
     {

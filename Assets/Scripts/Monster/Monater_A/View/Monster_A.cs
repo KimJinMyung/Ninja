@@ -1,5 +1,6 @@
 using System.Collections;
 using System.ComponentModel;
+using UnityEngine;
 
 public class Monster_A : Monster
 {
@@ -8,11 +9,12 @@ public class Monster_A : Monster
         base.Awake();
         type = monsterType.monster_A;
         _viewAngle = 90f;
+        animator = GetComponent<Animator>();
     }
 
     protected override void OnEnable()
     {
-        base.OnEnable();        
+        base.OnEnable();         
         
     }
 

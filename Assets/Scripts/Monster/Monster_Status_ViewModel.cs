@@ -15,16 +15,16 @@ public class Monster_Status_ViewModel
         }
     }
 
-    private float _hp;
-    public float HP
+    private Monster_data _monster_info;
+    public Monster_data MonsterInfo
     {
-        get { return _hp; }
+        get => _monster_info;
         set
         {
-            if(_hp == value) return;
+            if(_monster_info == value) return;
 
-            _hp = value;
-            OnPropertyChanged(nameof(HP));
+            _monster_info = value;
+            OnPropertyChanged(nameof(MonsterInfo));
         }
     }
 

@@ -8,6 +8,7 @@ public class ActorLogicManager : MonoBehaviour
     public static ActorLogicManager _instance = null;
 
     private Dictionary<int, Action<State>> _stateChangedCallback = new Dictionary<int, Action<State>>();
+    private Dictionary<int, Action<Monster_data>> _InfoChangedCallback = new Dictionary<int, Action<Monster_data>>();
     private Action<float, float> _moveVelocityChangedCallback;
     private Action<float, float, float> _targetAngleChangedCallback;
     private Dictionary<int, Action<float>> _hpChangedCallbacks = new Dictionary<int, Action<float>>();
@@ -45,6 +46,28 @@ public class ActorLogicManager : MonoBehaviour
             {
                 _stateChangedCallback[actorId] -= stateChangedCallback;
                 if (_stateChangedCallback[actorId] == null) _stateChangedCallback.Remove(actorId);
+            }
+        }
+    }
+    public void RegisterInfoChangedCallback(int actorId, Action<Monster_data> infoChangedCallback, bool isRegister)
+    {
+        if (isRegister)
+        {
+            if (!_InfoChangedCallback.ContainsKey(actorId))
+            {
+                _InfoChangedCallback[actorId] = infoChangedCallback;
+            }
+            else
+            {
+                _InfoChangedCallback[actorId] += infoChangedCallback;
+            }
+        }
+        else
+        {
+            if (_InfoChangedCallback.ContainsKey(actorId))
+            {
+                _InfoChangedCallback[actorId] -= infoChangedCallback;
+                if (_InfoChangedCallback[actorId] == null) _InfoChangedCallback.Remove(actorId);
             }
         }
     }
@@ -162,6 +185,11 @@ public class ActorLogicManager : MonoBehaviour
     {
         if (_targetAngleChangedCallback == null) return;
         _targetAngleChangedCallback.Invoke(x, y, z);
+    }
+
+    public void OnInfoChanged(int actorId, Monster_data info)
+    {
+        if (_InfoChangedCallback.ContainsKey(actorId)) _InfoChangedCallback[actorId]?.Invoke(info);
     }
 
     public void OnHpChanged(int actorId,float damage)

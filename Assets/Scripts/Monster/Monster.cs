@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel;
 using UnityEngine;
+using UnityEngine.AI;
 
 public enum monsterType
 {
@@ -10,24 +11,28 @@ public enum monsterType
 
 public class Monster : MonoBehaviour
 {    
-    [SerializeField] protected float _hp;
-    public float HP { get { return _hp; } }
+    //임시
+    //[SerializeField] protected float _hp;
+    //public float HP { get { return _hp; } }
+
+
     [SerializeField] protected float _detectionRadius;
     [SerializeField] protected float _attackRange;
     [SerializeField] protected float _attackDelay;
+    public float AttackDelay { get { return _attackDelay; } }
 
     [Header("DetectZone")]
     [SerializeField] private GameObject _detectZone;
     [SerializeField] protected float _viewAngle;
     public float ViewAngle {  get { return _viewAngle; } }
-    protected float lastAttackTime;
 
+    #region InstanceID
     protected int _monsterId;
     public int monsterId
     {
         get { return _monsterId; }
     }
-
+    #endregion
     protected monsterType type;
     //스폰할 몬스터 종류
 
@@ -36,8 +41,22 @@ public class Monster : MonoBehaviour
     protected Monster_Status_ViewModel _monsterState;
     public Monster_Status_ViewModel MonsterViewModel { get { return _monsterState; } }
 
+    private Monster_data monster_Info;
+    public Monster_data Monster_Info { get { return monster_Info; } set { monster_Info = value; } }
+
+    [SerializeField] protected bool isPatrolMonster;
+    [SerializeField] protected bool isRandomPatrolMonster;
+    public bool IsPatrolMonster { get { return isPatrolMonster; } }
+    public bool IsRandomPatrolMonster { get { return isRandomPatrolMonster;} }
+
+    protected NavMeshAgent agent;
+    public NavMeshAgent Agent { get { return agent; } }
+    protected Animator animator;
+
     protected virtual void Awake()
     {
+        agent = GetComponent<NavMeshAgent>();
+
         _stateMachine = gameObject.AddComponent<StateMachine>();
 
         _stateMachine.AddState(State.Idle, new Monster_IdleState(this));
@@ -60,19 +79,18 @@ public class Monster : MonoBehaviour
         {
             _monsterState = new Monster_Status_ViewModel();
             _monsterState.PropertyChanged += OnPropertyChanged;
-            _monsterState.RegisterStateChanged(_monsterId, true);
-            _monsterState.RegisterHPChanged(_monsterId, true);            
+            _monsterState.RegisterStateChanged(_monsterId, true);          
+            _monsterState.RegisterMonsterInfoChanged(_monsterId, true);
             _monsterState.RegisterTraceTargetChanged(_monsterId, true);
         }
-
-        lastAttackTime -= _attackDelay;
     }
 
     protected virtual void Start()
     {
         SetMonsterInfo();
 
-        gameObject.AddComponent<Monster_Ai>().DetectZone = _detectZone;
+        GameObject detectZone = Instantiate(_detectZone);
+        detectZone.transform.parent = transform;
     }
 
     protected void SetMonsterInfo()
@@ -80,7 +98,7 @@ public class Monster : MonoBehaviour
         var monster = DataManager.Instance.GetMonsterData((int)type);
         if (monster == null) return;
 
-        _hp = monster.HP;
+        monster_Info = monster;        
 
         SetAttackMethod(monster);
     }
@@ -104,7 +122,7 @@ public class Monster : MonoBehaviour
     {
         if (_monsterState != null)
         {
-            _monsterState.RegisterHPChanged(_monsterId, false);
+            _monsterState.RegisterMonsterInfoChanged(_monsterId, false);
             _monsterState.RegisterStateChanged(_monsterId, false);
             _monsterState.RegisterTraceTargetChanged(_monsterId, false);
             _monsterState.PropertyChanged -= OnPropertyChanged;

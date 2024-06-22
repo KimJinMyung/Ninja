@@ -9,10 +9,26 @@ public class MonsterDetectZone : MonoBehaviour
     private Monster owner;
     private SphereCollider zoneCollider;
 
+    private Transform Eyes;
+
     private void OnEnable()
     {
         owner = transform.root.GetComponent<Monster>();
         zoneCollider = GetComponent<SphereCollider>();
+
+        FindEyeTransform();
+    }
+
+    private void FindEyeTransform()
+    {
+        foreach(Transform child in transform)
+        {
+            if (child.CompareTag("Eye"))
+            {
+                this.Eyes = child;
+                break;
+            }
+        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -60,11 +76,11 @@ public class MonsterDetectZone : MonoBehaviour
         if (player == null) return;
 
         Vector3 playerDir = (player.position - transform.position).normalized;
-        float angleMonAndPlayer = Vector3.Angle(transform.forward, playerDir);
+        float angleMonAndPlayer = Vector3.Angle(Eyes.forward, playerDir);
 
         if(angleMonAndPlayer < owner.ViewAngle / 2f)
         {
-            if(Physics.Raycast(transform.position, playerDir, out RaycastHit hit, zoneCollider.radius))
+            if(Physics.Raycast(Eyes.position, playerDir, out RaycastHit hit, zoneCollider.radius))
             {
                 if(hit.transform == player)
                 {
