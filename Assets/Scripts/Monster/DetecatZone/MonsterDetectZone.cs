@@ -53,23 +53,9 @@ public class MonsterDetectZone : MonoBehaviour
         if (owner.MonsterViewModel.MonsterState == State.Attack) return;
 
         Detecting();
-        //if (Detecting())
-        //{
-        //    if(owner.MonsterViewModel.MonsterState != State.Battle)
-        //    {
-        //        owner.MonsterViewModel.RequestTraceTargetChanged(owner.monsterId, player);
-        //        owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.Trace);
-        //    }            
-        //}
-        //else if(owner.MonsterViewModel.MonsterState == State.Trace)
-        //{
-        //    owner.MonsterViewModel.RequestTraceTargetChanged(owner.monsterId, null);
-        //    owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.Alert);
-        //}
-        //else if(owner.MonsterViewModel.MonsterState != State.Alert)
-        //{            
-        //    owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.Idle);
-        //}
+
+        if (owner.MonsterViewModel.TraceTarget != null)
+            Debug.Log(owner.MonsterViewModel.TraceTarget);
     }
 
     private void Detecting()
@@ -81,13 +67,8 @@ public class MonsterDetectZone : MonoBehaviour
 
         if(angleMonAndPlayer < owner.ViewAngle / 2f)
         {
-            if(Physics.Raycast(Eyes.position, playerDir, out RaycastHit hit, zoneCollider.radius))
-            {
-                if(hit.transform == player)
-                {
-                    owner.MonsterViewModel.RequestTraceTargetChanged(owner.monsterId, player);
-                }
-            }
+            owner.MonsterViewModel.RequestTraceTargetChanged(owner.monsterId, player);
+            return;
         }
 
         owner.MonsterViewModel.RequestTraceTargetChanged(owner.monsterId, null);

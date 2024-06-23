@@ -1623,7 +1623,7 @@ Animator:
   m_GameObject: {fileID: 793704502297144107}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: 2ba66718d3169ae42a05d8facf302228, type: 3}
-  m_Controller: {fileID: 9100000, guid: d62af11c372059a4d9c2feacf46a754a, type: 2}
+  m_Controller: {fileID: 9100000, guid: 9089adfa9c8b3db4b82a03ef3c786ad6, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
   m_ApplyRootMotion: 1
@@ -1650,9 +1650,12 @@ MonoBehaviour:
   _attackRange: 0
   _attackDelay: 0
   _detectZone: {fileID: 8793306539393603952, guid: 97793a825e3bf194e892a734b494e565, type: 3}
-  _viewAngle: 0
+  _viewAngle: 50
   isPatrolMonster: 1
   isRandomPatrolMonster: 1
+  _distance: 15
+  _distanceToStand: 3
+  SubduedEndTime: 0
 --- !u!195 &3894060368160230685
 NavMeshAgent:
   m_ObjectHideFlags: 0

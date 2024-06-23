@@ -357,6 +357,12 @@ public class UsingItemState : PlayerState
     public override void FixedUpdate() { }
     public override void Exit() { }
 }
+
+public class HurtState : PlayerState
+{
+    public HurtState(Player owner) : base(owner) { }
+
+}
 public class DieState : PlayerState
 {
     public DieState(Player owner) : base(owner) { }

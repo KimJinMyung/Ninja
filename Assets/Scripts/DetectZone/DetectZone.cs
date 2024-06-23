@@ -12,6 +12,7 @@ public class DetectZone : MonoBehaviour
 
     private void OnEnable()
     {
+        this.gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
         if (transform.root.CompareTag("Player"))
         {
             Rigidbody playerZone = gameObject.AddComponent<Rigidbody>();

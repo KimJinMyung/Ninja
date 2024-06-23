@@ -93,6 +93,18 @@ public class Monster_AlertState : MonsterState
 public class Monster_SubduedState : MonsterState
 {
     public Monster_SubduedState(Monster owner) : base(owner) { }
+
+    public override void Enter()
+    {
+        base.Enter();
+        owner.IsSubdued = true;
+    }
+
+    public override void Exit()
+    {
+        base.Exit();
+        owner.IsSubdued = false;
+    }
 }
 
 //전투 돌입
@@ -101,10 +113,23 @@ public class Monster_BattleState : MonsterState
     public Monster_BattleState(Monster owner) : base(owner) { }
 }
 
+//주위를 돌기
+public class Monster_CirclingState : MonsterState
+{
+    public Monster_CirclingState(Monster owner) : base(owner) { }
+}
+
 //공격
 public class Monster_AttackState : MonsterState
 {
     public Monster_AttackState(Monster owner) : base(owner) { }
+
+}
+
+//데미지 받음
+public class Monster_HurtState : MonsterState
+{
+    public Monster_HurtState(Monster owner) : base(owner) { }
 
 }
 

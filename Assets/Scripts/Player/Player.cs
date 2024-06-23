@@ -5,6 +5,7 @@ using System.ComponentModel;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using ActorStateMachine;
+using TMPro;
 
 public class Player : MonoBehaviour
 {
@@ -94,6 +95,7 @@ public class Player : MonoBehaviour
         _stateMachine.AddState(State.Parry, new ParryState(this));
         _stateMachine.AddState(State.Incapacitated, new IncapacitatedState(this));
         _stateMachine.AddState(State.UsingItem, new UsingItemState(this));
+        _stateMachine.AddState(State.Hurt, new HurtState(this));
         _stateMachine.AddState(State.Die, new DieState(this));
 
         _stateMachine.InitState(State.Idle);

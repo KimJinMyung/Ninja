@@ -4,6 +4,7 @@ using UnityEngine;
 
 public enum State
 {
+
     Idle,
     Walk,
     Run,
@@ -20,10 +21,12 @@ public enum State
     Battle,
     Attack,
     Defence,
+    Hurt,
     Die,
     //몬스터 전용
     Trace,
-    Alert
+    Alert,
+    Circling
 }
 
 namespace ActorStateMachine
@@ -43,7 +46,6 @@ namespace ActorStateMachine
             if (curState == null) return;
             curState.Update();
             curState.Transition();
-            Debug.Log(this);
         }
         public void OnLateUpdate()
         {
