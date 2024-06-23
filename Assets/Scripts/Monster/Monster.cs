@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using ActorStateMachine;
 using Cinemachine;
+using static UnityEngine.UI.GridLayoutGroup;
 
 public enum monsterType
 {
@@ -149,12 +150,28 @@ public class Monster : MonoBehaviour
             _monsterState = null;
         }
     }
+
+    protected virtual void Update()
+    {
+        if(_monsterState.TraceTarget == null)
+        {
+            MonsterDetectZone detectZone = GetComponentInChildren<MonsterDetectZone>();
+            if (detectZone == null) return;
+            
+            if(detectZone.Player == null)
+            {
+                _monsterState.RequestTraceTargetChanged(monsterId, null);
+            }
+        }
+    }
+
     protected virtual void FixedUpdate()
     {
-        Debug.Log(_monsterState.MonsterState);
-        MonsterAI();
+        Debug.Log(_monsterState.MonsterState);        
 
-        //animator.SetFloat("MoveSpeed", (float)agent.speed / _agentSpeed);
+        MonsterAI();        
+
+        animator.SetFloat("MoveSpeed", (float)agent.speed / _agentSpeed);
     }
 
     protected virtual void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -222,7 +239,8 @@ public class Monster : MonoBehaviour
             case State.Circling:
                 _time = 0f;
                 _circleTimeRange = UnityEngine.Random.Range(3f, 6f);
-                _circlingDir = UnityEngine.Random.Range(0, 2) == 0 ? 1 : -1;                
+                _circlingDir = UnityEngine.Random.Range(0, 2) == 0 ? 1 : -1;   
+                agent.ResetPath();
                 _agentSpeed = monster_Info.WalkSpeed;
                 animator.SetBool("Circling", true);
                 break;
@@ -266,7 +284,7 @@ public class Monster : MonoBehaviour
     #endregion
     #region Circling
     protected float _circleTimeRange;
-    protected float _circlingSpeed = 20f;
+    protected float _circlingSpeed;
     protected int _circlingDir = 1;
     #endregion
 
@@ -294,7 +312,7 @@ public class Monster : MonoBehaviour
                     return;
                 }
 
-                agent.speed = Mathf.Lerp(agent.speed, 0f, 10f * Time.deltaTime);
+                agent.speed = Mathf.Lerp(agent.speed, 0f, 10f * Time.fixedDeltaTime);
 
                 if (MonsterViewModel.TraceTarget != null)
                 {
@@ -304,7 +322,7 @@ public class Monster : MonoBehaviour
                 {
                     if (!IsPatrolMonster) return;
 
-                    _time = Mathf.Clamp(_time + Time.deltaTime, 0f, _PatrolDelay);
+                    _time = Mathf.Clamp(_time + Time.fixedDeltaTime, 0f, _PatrolDelay);
                     if (_time >= _PatrolDelay)
                     {
                         MonsterViewModel.RequestStateChanged(monsterId, State.Walk);
@@ -313,7 +331,7 @@ public class Monster : MonoBehaviour
                 break;
             case State.Walk:
 
-                agent.speed = Mathf.Lerp(agent.speed, _agentSpeed, 10f * Time.deltaTime);
+                agent.speed = Mathf.Lerp(agent.speed, _agentSpeed, 10f * Time.fixedDeltaTime);
 
                 if (MonsterViewModel.TraceTarget != null)
                 {
@@ -345,7 +363,7 @@ public class Monster : MonoBehaviour
 
                 if (_distanceToTarget <= _distanceToStand + 0.03f)
                 {
-                    agent.speed = Mathf.Lerp(agent.speed, 0f, 10f * Time.deltaTime);
+                    agent.speed = Mathf.Lerp(agent.speed, 0f, 10f * Time.fixedDeltaTime);
 
                     if(agent.speed <= 0.5f)
                     {
@@ -356,7 +374,7 @@ public class Monster : MonoBehaviour
                 }
                 else
                 {
-                    agent.speed = Mathf.Lerp(agent.speed, _agentSpeed, 10f * Time.deltaTime);
+                    agent.speed = Mathf.Lerp(agent.speed, _agentSpeed, 10f * Time.fixedDeltaTime);
                 }
 
                 break;
@@ -367,7 +385,7 @@ public class Monster : MonoBehaviour
                 }
                 else
                 {
-                    _time = Mathf.Clamp(_time + Time.deltaTime, 0f, AlertStateEndTime);
+                    _time = Mathf.Clamp(_time + Time.fixedDeltaTime, 0f, AlertStateEndTime);
                     if (_time >= AlertStateEndTime)
                     {
                         MonsterViewModel.RequestStateChanged(monsterId, State.Idle);
@@ -375,7 +393,7 @@ public class Monster : MonoBehaviour
                 }
                 break;
             case State.Incapacitated:
-                _time = Mathf.Clamp(_time + Time.deltaTime, 0f, SubduedEndTime);
+                _time = Mathf.Clamp(_time + Time.fixedDeltaTime, 0f, SubduedEndTime);
                 if (_time >= SubduedEndTime)
                 {
                     MonsterViewModel.RequestStateChanged(_monsterId, State.Battle);
@@ -388,7 +406,7 @@ public class Monster : MonoBehaviour
                     return;
                 }
 
-                _time = Mathf.Clamp(_time + Time.deltaTime, 0f, _circleDelay);
+                _time = Mathf.Clamp(_time + Time.fixedDeltaTime, 0f, _circleDelay);
                 if(_time >= _circleDelay)
                 {
                     if(UnityEngine.Random.Range(0, 2) == 0)
@@ -413,20 +431,30 @@ public class Monster : MonoBehaviour
 
                 break;
             case State.Circling:
+                if(MonsterViewModel.TraceTarget == null)
+                {
+
+                }
 
                 traceTargetPos = _monsterState.TraceTarget.position;
 
-                //agent.speed = _agentSpeed;/*Mathf.Lerp(agent.speed, _agentSpeed, 10f * Time.deltaTime);*/
+                agent.speed = Mathf.Lerp(agent.speed, _agentSpeed, 10f * Time.fixedDeltaTime);
+                _circlingSpeed = Mathf.Lerp(_circlingSpeed, 20f, 10f * Time.fixedDeltaTime);
 
-                _time = Mathf.Clamp(_time + Time.deltaTime, 0f, _circleTimeRange);
+                _time = Mathf.Clamp(_time + Time.fixedDeltaTime, 0f, _circleTimeRange);
                 if (_time >= _circleTimeRange)
                 {
                     MonsterViewModel.RequestStateChanged(monsterId, State.Battle);
                     return;
                 }
 
-                transform.RotateAround(traceTargetPos, Vector3.up, _circlingDir * _circlingSpeed * Time.fixedDeltaTime);
-                transform.LookAt(traceTargetPos);
+                //transform.RotateAround(traceTargetPos, Vector3.up, _circlingDir * _circlingSpeed * Time.fixedDeltaTime);
+                
+                var VecToTarget = transform.position - traceTargetPos;
+                var rotatedPos = Quaternion.Euler(0, _circlingDir * _circlingSpeed * Time.fixedDeltaTime, 0) * VecToTarget;
+
+                agent.Move(rotatedPos - VecToTarget);
+                transform.rotation = Quaternion.LookRotation(-rotatedPos);
 
                 animator.SetFloat("CirclingDir", _circlingDir);
                 //animator.SetFloat("MoveSpeed", (float)agent.speed / monster_Info.WalkSpeed);

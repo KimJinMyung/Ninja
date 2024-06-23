@@ -5,16 +5,17 @@ using UnityEngine;
 public class MonsterDetectZone : MonoBehaviour
 {
     private Transform player;
+    public Transform Player {  get { return player; } }
+
+    private Transform ViewObject;
 
     private Monster owner;
-    private SphereCollider zoneCollider;
 
     private Transform Eyes;
 
     private void Start()
     {
         owner = transform.parent.GetComponent<Monster>();
-        zoneCollider = GetComponent<SphereCollider>();
 
         FindEyeTransform(owner.transform);
     }
@@ -48,14 +49,25 @@ public class MonsterDetectZone : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        if (ViewObject == null)
+        {
+            if (Player == null)
+            {
+                owner.MonsterViewModel.RequestTraceTargetChanged(owner.monsterId, null);
+                return;
+            }
+        }
+
+        owner.MonsterViewModel.RequestTraceTargetChanged(owner.monsterId, player);
+    }
+
     private void FixedUpdate()
     {
         if (owner.MonsterViewModel.MonsterState == State.Attack) return;
 
         Detecting();
-
-        if (owner.MonsterViewModel.TraceTarget != null)
-            Debug.Log(owner.MonsterViewModel.TraceTarget);
     }
 
     private void Detecting()
@@ -67,10 +79,11 @@ public class MonsterDetectZone : MonoBehaviour
 
         if(angleMonAndPlayer < owner.ViewAngle / 2f)
         {
-            owner.MonsterViewModel.RequestTraceTargetChanged(owner.monsterId, player);
+            ViewObject = player;
             return;
         }
 
-        owner.MonsterViewModel.RequestTraceTargetChanged(owner.monsterId, null);
+        ViewObject = null;
+        //owner.MonsterViewModel.RequestTraceTargetChanged(owner.monsterId, null);
     }
 }
