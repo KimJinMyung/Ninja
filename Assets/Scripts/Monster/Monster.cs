@@ -3,6 +3,7 @@ using System.ComponentModel;
 using UnityEngine;
 using UnityEngine.AI;
 using ActorStateMachine;
+using Cinemachine;
 
 public enum monsterType
 {
@@ -148,12 +149,12 @@ public class Monster : MonoBehaviour
             _monsterState = null;
         }
     }
-    protected virtual void Update()
+    protected virtual void FixedUpdate()
     {
         Debug.Log(_monsterState.MonsterState);
         MonsterAI();
 
-        animator.SetFloat("MoveSpeed", (float)agent.speed / _agentSpeed);
+        //animator.SetFloat("MoveSpeed", (float)agent.speed / _agentSpeed);
     }
 
     protected virtual void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -222,7 +223,7 @@ public class Monster : MonoBehaviour
                 _time = 0f;
                 _circleTimeRange = UnityEngine.Random.Range(3f, 6f);
                 _circlingDir = UnityEngine.Random.Range(0, 2) == 0 ? 1 : -1;                
-                _agentSpeed = monster_Info.WalkSpeed;                
+                _agentSpeed = monster_Info.WalkSpeed;
                 animator.SetBool("Circling", true);
                 break;
 
@@ -413,7 +414,9 @@ public class Monster : MonoBehaviour
                 break;
             case State.Circling:
 
-                agent.speed = _agentSpeed;/*Mathf.Lerp(agent.speed, _agentSpeed, 10f * Time.deltaTime);*/
+                traceTargetPos = _monsterState.TraceTarget.position;
+
+                //agent.speed = _agentSpeed;/*Mathf.Lerp(agent.speed, _agentSpeed, 10f * Time.deltaTime);*/
 
                 _time = Mathf.Clamp(_time + Time.deltaTime, 0f, _circleTimeRange);
                 if (_time >= _circleTimeRange)
@@ -422,21 +425,14 @@ public class Monster : MonoBehaviour
                     return;
                 }
 
-                RotateAround();
+                transform.RotateAround(traceTargetPos, Vector3.up, _circlingDir * _circlingSpeed * Time.fixedDeltaTime);
+                transform.LookAt(traceTargetPos);
 
                 animator.SetFloat("CirclingDir", _circlingDir);
-                animator.SetFloat("MoveSpeed", (float)agent.speed / monster_Info.WalkSpeed);
+                //animator.SetFloat("MoveSpeed", (float)agent.speed / monster_Info.WalkSpeed);
                 break;
         }
     }
 
-    protected void RotateAround()
-    {
-        Transform target = _monsterState.TraceTarget;
 
-        if (target == null) return;
-
-        transform.RotateAround(target.position, Vector3.up, _circlingSpeed * _circlingDir * Time.deltaTime);
-        transform.LookAt(target);
-    }
 }
