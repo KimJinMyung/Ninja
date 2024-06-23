@@ -151,20 +151,6 @@ public class Monster : MonoBehaviour
         }
     }
 
-    protected virtual void Update()
-    {
-        if(_monsterState.TraceTarget == null)
-        {
-            MonsterDetectZone detectZone = GetComponentInChildren<MonsterDetectZone>();
-            if (detectZone == null) return;
-            
-            if(detectZone.Player == null)
-            {
-                _monsterState.RequestTraceTargetChanged(monsterId, null);
-            }
-        }
-    }
-
     protected virtual void FixedUpdate()
     {
         Debug.Log(_monsterState.MonsterState);        
