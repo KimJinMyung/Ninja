@@ -48,7 +48,7 @@ public class MonsterManager : MonoBehaviour
     {
         if (_monsterLists.Count <= 0) return;
 
-        if (!IsNotAttackAble())
+        if (IsAttackAble())
         {
             if (_attackingTimer > 0) _attackingTimer -= Time.deltaTime;
             else
@@ -72,20 +72,19 @@ public class MonsterManager : MonoBehaviour
         }
     }
 
-    private bool IsNotAttackAble()
+    private bool IsAttackAble()
     {
+        int index = 0;
         foreach (var monsterTransform in _monsterLists.Values)
         {
             var monsterComponent = monsterTransform.GetComponent<Monster>();
-            if (monsterComponent == null || monsterComponent.MonsterViewModel.TraceTarget == null)
-            {
-                return true;
-            }
 
-            if (!monsterComponent.IsCurrentState(State.Attack)) return true;
+            if (monsterComponent == null || monsterComponent.MonsterViewModel.TraceTarget == null) return false;
+            if (monsterComponent.IsCurrentState(State.Attack)) return false;
+            index++;
         }
 
-        return false;
+        return true;
 
         //if (_monsterLists.Values.Any(e => e.GetComponent<Monster>().MonsterViewModel.TraceTarget == null)) return true;
 

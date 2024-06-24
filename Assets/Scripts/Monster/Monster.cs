@@ -307,7 +307,7 @@ public class Monster : MonoBehaviour
     #endregion
     #region AttackState
     public float CombatMovementTimer;
-    [SerializeField] public Vector2 AttackDelayRange { get; private set; } = new Vector2(1f, 4f);
+    [SerializeField] public Vector2 AttackDelayRange { get; private set; } = new Vector2(1f, 2f);
     #endregion
 
     protected virtual void RandomPoint()

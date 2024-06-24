@@ -28,6 +28,13 @@ public class Monster_A : Monster
         base.OnDisable();
     }
 
+    protected override void Update()
+    {
+        base.Update();
+
+        Debug.Log(_monsterState.TraceTarget);
+    }
+
     #region PropertyChangedMethod
     protected override void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
