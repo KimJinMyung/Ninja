@@ -1,6 +1,6 @@
 using System.Collections;
 public interface IArk
 {
-    abstract float attackRange {  get; set; }
-    abstract float attackSpeed { get; set; }
+    public float attackRange {  get; set; }
+    public float attackSpeed { get; set; }
 }

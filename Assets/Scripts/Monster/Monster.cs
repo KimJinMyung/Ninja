@@ -96,6 +96,7 @@ public class Monster : MonoBehaviour
         _time = 0f;
         _PatrolDelay = UnityEngine.Random.Range(0.2f, 3f);
         agent.speed = monster_Info.WalkSpeed;
+        animator.SetBool("ComBatMode", false);
     }
 
     public bool IsCurrentState(State state)
@@ -142,11 +143,13 @@ public class Monster : MonoBehaviour
                 var attack = DataManager.Instance.GetAttackMethodName(attackName);
                 string attackScriptName = attack.AttackScriptName;
                 Type atk = Type.GetType(attackScriptName);
-                gameObject.AddComponent(atk);
-                var ark = gameObject.GetComponent<IArk>();
+                
+                var ark = gameObject.AddComponent(atk).GetComponent<IArk>();
 
-                if(_attackRange < ark.attackRange)
+                if (_attackRange < ark.attackRange)
                     _attackRange = ark.attackRange;
+
+                Debug.Log($"공격 사거리 {_attackRange}");
             }
         }
     }
@@ -200,7 +203,7 @@ public class Monster : MonoBehaviour
                     _monsterState.RequestStateChanged(monsterId, State.Hurt);
                 }
 
-                Debug.Log(_monsterState.MonsterInfo.HP);
+                //Debug.Log(_monsterState.MonsterInfo.HP);
                 break;
         }
     }
@@ -234,9 +237,8 @@ public class Monster : MonoBehaviour
             case State.Trace:
                 MoveSpeed = monster_Info.RunSpeed;
                 agent.angularSpeed = 3000;
-                _distanceToTarget = 0;                
-                traceTargetPos = MonsterViewModel.TraceTarget.position;
-                agent.SetDestination(traceTargetPos);
+                animator.SetBool("ComBatMode", true);
+                //_distanceToTarget = 0;                
                 break;
             case State.Alert:
                 _time = 0f;
@@ -249,7 +251,7 @@ public class Monster : MonoBehaviour
                 MoveSpeed = 0f;
                 agent.speed = 0f;
                 _circleDelay = UnityEngine.Random.Range(2f, 5f);
-                agent.destination = default;
+                agent.destination = default;                
                 animator.SetBool("Circling", false);
                 break;
             case State.Circling:
@@ -260,6 +262,7 @@ public class Monster : MonoBehaviour
                 animator.SetBool("Circling", true);
                 break;
             case State.Attack:
+                Debug.Log("공격 시작...");
                 animator.SetTrigger("Attack");
                 break;
             case State.Die:
@@ -286,7 +289,6 @@ public class Monster : MonoBehaviour
     [SerializeField] protected float _attackRange = 0f;
     public float AttackRange { get { return _attackRange; } }
     protected float _distanceToTarget;
-    protected Vector3 traceTargetPos;
     #endregion
     #region AlertState
     protected float AlertStateEndTime = 5f;
@@ -307,7 +309,7 @@ public class Monster : MonoBehaviour
     #endregion
     #region AttackState
     public float CombatMovementTimer;
-    [SerializeField] public Vector2 AttackDelayRange { get; private set; } = new Vector2(1f, 2f);
+    [SerializeField] public Vector2 AttackDelayRange { get; private set; } = new Vector2(1f, 4f);
     #endregion
 
     protected virtual void RandomPoint()
@@ -368,39 +370,39 @@ public class Monster : MonoBehaviour
                 }
 
                 break;
-            case State.Trace:                
+            case State.Trace:
                 if (MonsterViewModel.TraceTarget == null)
                 {
                     MonsterViewModel.RequestStateChanged(monsterId, State.Alert);
                     return;
-                }                
-
-                if (_monsterState.TraceTarget.position != traceTargetPos)
-                {
-                    traceTargetPos = _monsterState.TraceTarget.position;
-                    agent.SetDestination(traceTargetPos);
                 }
+
+                Vector3 traceTargetPos = _monsterState.TraceTarget.position;
+
+                agent.SetDestination(traceTargetPos);
 
                 _distanceToTarget = Vector3.Distance(transform.position, MonsterViewModel.TraceTarget.transform.position);
 
-                if (_distanceToTarget <= _attackRange + 8f + 0.03f)
+                Debug.Log(_attackRange);
+                if (_distanceToTarget <= _attackRange + 10f + 0.03f)
                 {
-                    agent.speed = Mathf.Lerp(agent.speed, 0f, 10f * MoveSpeed * Time.fixedDeltaTime);
+                    agent.speed = Mathf.Lerp(agent.speed, 1f, 10f * Time.deltaTime);
 
-                    if(agent.speed <= 0.8f)
+                    if (_distanceToTarget <= _attackRange + 0.03f)
                     {
                         agent.speed = 0f;
                         MonsterViewModel.RequestStateChanged(monsterId, State.Battle);
                         return;
-                    }                    
+                    }
                 }
                 else
-                {                    
-                    agent.speed = Mathf.Lerp(agent.speed, MoveSpeed, MoveSpeed * Time.fixedDeltaTime);
+                {
+                    agent.speed = Mathf.Lerp(agent.speed, MoveSpeed, 10f * Time.deltaTime);
                 }
 
                 break;
             case State.Alert:
+
                 if (MonsterViewModel.TraceTarget != null)
                 {
                     MonsterViewModel.RequestStateChanged(monsterId, State.Trace);
@@ -459,8 +461,6 @@ public class Monster : MonoBehaviour
                     return;
                 }
 
-                traceTargetPos = _monsterState.TraceTarget.position;
-
                 agent.speed = Mathf.Lerp(agent.speed, MoveSpeed, 10f * Time.fixedDeltaTime);
                 _circlingSpeed = Mathf.Lerp(_circlingSpeed, 20f, 10f * Time.fixedDeltaTime);
 
@@ -473,7 +473,7 @@ public class Monster : MonoBehaviour
 
                 //transform.RotateAround(traceTargetPos, Vector3.up, _circlingDir * _circlingSpeed * Time.fixedDeltaTime);
                 
-                var VecToTarget = transform.position - traceTargetPos;
+                var VecToTarget = transform.position - _monsterState.TraceTarget.position;
                 var rotatedPos = Quaternion.Euler(0, _circlingDir * _circlingSpeed * Time.fixedDeltaTime, 0) * VecToTarget;
 
                 agent.Move(rotatedPos - VecToTarget);
@@ -488,5 +488,9 @@ public class Monster : MonoBehaviour
         }
     }
 
-
+    public void OnAnimation_AttackEnd()
+    {
+        MonsterViewModel.RequestStateChanged(monsterId, State.Battle);
+        CombatMovementTimer = 0f;
+    }
 }

@@ -32,7 +32,6 @@ public class Monster_A : Monster
     {
         base.Update();
 
-        Debug.Log(_monsterState.TraceTarget);
     }
 
     #region PropertyChangedMethod

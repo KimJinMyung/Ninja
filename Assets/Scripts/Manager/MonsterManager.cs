@@ -19,7 +19,7 @@ public class MonsterManager : MonoBehaviour
         DontDestroyOnLoad(this.gameObject);
     }    
 
-    private Dictionary<int, Transform> _monsterLists = new Dictionary<int, Transform>();
+    private Dictionary<int, Monster> _monsterLists = new Dictionary<int, Monster>();
 
     private List<Transform> _lockOnAbleMonsterList = new List<Transform>();
     public List<Transform> LockOnAbleMonsterList { get { return _lockOnAbleMonsterList; } }
@@ -28,8 +28,12 @@ public class MonsterManager : MonoBehaviour
 
     public void AddMonsters(int actorId, Transform monster)
     {
-        if (!_monsterLists.ContainsKey(actorId)) _monsterLists.Add(actorId, monster); 
-        else _monsterLists[actorId] = monster;
+        var newMonster = monster.GetComponent<Monster>();
+
+        if(newMonster == null) return;
+
+        if (!_monsterLists.ContainsKey(actorId)) _monsterLists.Add(actorId, newMonster); 
+        else _monsterLists[actorId] = newMonster;
     }
 
     public void RemoveMonsters(int actorId)
@@ -55,34 +59,55 @@ public class MonsterManager : MonoBehaviour
             {
                 //한마리만 Attack
                 var attackMonster = SelectMonsterForAttack();
-                if(Vector3.Distance(attackMonster.transform.position, attackMonster.MonsterViewModel.TraceTarget.position) > attackMonster.AttackRange)
+
+                if (attackMonster.MonsterViewModel.MonsterState != State.Battle && attackMonster.MonsterViewModel.MonsterState != State.Circling) return;
+
+                var AttackRange = attackMonster.GetComponentsInChildren<IArk>();
+
+                float range = 0;
+                foreach(var Rangelist in AttackRange)
                 {
-                    attackMonster.Agent.speed = attackMonster.MonsterViewModel.MonsterInfo.RunSpeed;
-                    attackMonster.Agent.Move(attackMonster.transform.position);
+                    if(range < Rangelist.attackRange)
+                    {
+                        range = Rangelist.attackRange;
+                    }
                 }
-                else
+
+                Debug.Log($"공격 사거리 : {range}");
+                if (Vector3.Distance(attackMonster.transform.position, attackMonster.MonsterViewModel.TraceTarget.position) <= range + 1.03f)
                 {
-                    attackMonster.Agent.speed = 0;
-                    attackMonster.Agent.Move(attackMonster.transform.position);
+                    attackMonster.Agent.speed = 0f;
 
                     _attackingTimer = Random.Range(attackMonster.AttackDelayRange.x, attackMonster.AttackDelayRange.y);
-                    attackMonster.MonsterViewModel.RequestStateChanged(attackMonster.monsterId, State.Attack);                    
-                }              
+                    attackMonster.MonsterViewModel.RequestStateChanged(attackMonster.monsterId, State.Attack);
+                }                
             }
         }
     }
 
+    //공격이 가능한 조건
+    //1. _monsterList.Count 가 0보다 커야한다. (몬스터가 한마리라도 존재해야 한다.)
+    //2. _monster가 target을 발견해야한다.
+    //3. target을 가진 모든 몬스터들의 상태가 하나라도 State.Attack이면 안된다.
+
     private bool IsAttackAble()
     {
-        int index = 0;
+        if(_monsterLists.Count <=0) return false;
+
+        bool hasTarget = false;
+
         foreach (var monsterTransform in _monsterLists.Values)
         {
-            var monsterComponent = monsterTransform.GetComponent<Monster>();
+            if (monsterTransform != null && monsterTransform.MonsterViewModel.TraceTarget != null)
+            {
+                hasTarget = true;
 
-            if (monsterComponent == null || monsterComponent.MonsterViewModel.TraceTarget == null) return false;
-            if (monsterComponent.IsCurrentState(State.Attack)) return false;
-            index++;
+                if (monsterTransform.IsCurrentState(State.Attack)) return false;                
+            } 
+            
         }
+
+        if(!hasTarget) return false;
 
         return true;
 
@@ -93,6 +118,18 @@ public class MonsterManager : MonoBehaviour
 
     Monster SelectMonsterForAttack()
     {
-        return _monsterLists.Values.OrderByDescending(e => e.GetComponent<Monster>().CombatMovementTimer).FirstOrDefault().GetComponent<Monster>();       
+        List<Monster> monsterList = new List<Monster>();
+
+        foreach(var monster in _monsterLists.Values)
+        {
+            if(monster.MonsterViewModel.TraceTarget != null)
+            {
+                monsterList.Add(monster);
+            }
+        }
+
+        return monsterList.OrderByDescending(e => e.CombatMovementTimer).FirstOrDefault();
+
+        //return _monsterLists.Values.OrderByDescending(e => e.GetComponent<Monster>().CombatMovementTimer).FirstOrDefault().GetComponent<Monster>();       
     }
 }

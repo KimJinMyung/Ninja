@@ -127,7 +127,7 @@ public class Player : MonoBehaviour
         if (player == null) return;
 
         player_Data = player;
-        _inputVm.RequestOnPlayerInfo(PlayerId,player_Data);
+        _inputVm.RequestOnPlayerInfo(PlayerId, player);
     }
 
     private void Update()

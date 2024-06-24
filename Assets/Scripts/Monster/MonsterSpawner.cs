@@ -7,7 +7,7 @@ public class MonsterSpawner : MonoBehaviour
     [Header("스폰 포인트")]
     [SerializeField] private GameObject SpawnPoint;
 
-    [Header("몬스터 리스트")]
+    [Header("스폰할 몬스터 리스트")]
     [SerializeField] private List<GameObject> _monsterList;
 
     [Header("소환할 몬스터 수")]
@@ -26,6 +26,7 @@ public class MonsterSpawner : MonoBehaviour
         {
             GameObject newMonster = Instantiate(_monsterList[Random.Range(0, _monsterList.Count)], _spawnPosList[Random.Range(0, _spawnPosList.Count)]);
             Monster monster = newMonster.GetComponent<Monster>();
+
             MonsterManager.instance.AddMonsters(monster.monsterId, monster.transform);
         }
     }

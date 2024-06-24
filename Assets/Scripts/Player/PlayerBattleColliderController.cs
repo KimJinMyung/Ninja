@@ -22,16 +22,12 @@ public class PlayerBattleColliderController : MonoBehaviour
     {
         if(!_attackZone.enabled)
             _attackZone.enabled = true;
-
-        Debug.Log("Attack On");
     }
 
     public void AttackColliderOff()
     {
         if(_attackZone.enabled)
             _attackZone.enabled = false;
-
-        Debug.Log("Attack Off");
     }
 
     public void ParryColliderOn()

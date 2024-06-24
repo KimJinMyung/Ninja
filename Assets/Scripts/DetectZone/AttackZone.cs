@@ -16,7 +16,7 @@ public class AttackZone : MonoBehaviour
 
         if (other.CompareTag("Player"))
         {
-            Player player = other.GetComponent<Player>();
+            Player player = other.transform.root.GetComponent<Player>();
             ownerMonster = transform.root.GetComponentInChildren<Monster>();
 
             if (ownerMonster == null) return;
@@ -25,7 +25,6 @@ public class AttackZone : MonoBehaviour
             player_Data.HP -= ownerMonster.MonsterViewModel.MonsterInfo.ATK;
             player.InputVm.RequestOnPlayerInfo(player_Data.PlayerId, player_Data);
 
-            Debug.Log("몬스터의 공격");
         }
         else
         {
@@ -37,8 +36,6 @@ public class AttackZone : MonoBehaviour
             Monster_data monster_info = monster.MonsterViewModel.MonsterInfo;
             monster_info.HP -= ownerPlayer.InputVm.player_Data.ATK;
             monster.MonsterViewModel.RequestMonsterInfoChanged(monster.monsterId, monster_info);
-
-            Debug.Log("플레이어의 공격");
         }
     }
 }
