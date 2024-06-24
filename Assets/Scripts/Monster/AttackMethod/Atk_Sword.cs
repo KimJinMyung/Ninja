@@ -2,7 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Atk_Sword : MonoBehaviour
+public class Atk_Sword : MonoBehaviour,IArk
 {
-    [SerializeField] private GameObject _weaponPrefab;
+    public float attackRange { get; set; }
+    public float attackSpeed { get; set; }
+
+    private void Start()
+    {
+        attackRange = 4f;
+        attackSpeed = 1.0f;
+    }
 }

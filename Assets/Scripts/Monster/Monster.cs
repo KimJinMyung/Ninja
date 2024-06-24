@@ -9,6 +9,7 @@ using static UnityEngine.UI.GridLayoutGroup;
 public enum monsterType
 {
     monster_A,
+    monster_B,
     Boss
 }
 
@@ -42,6 +43,7 @@ public class Monster : MonoBehaviour
     public Monster_Status_ViewModel MonsterViewModel { get { return _monsterState; } }
 
     protected Monster_data monster_Info;
+
     public Monster_data Monster_Info { get { return monster_Info; } set { monster_Info = value; } }
 
     [SerializeField] protected bool isPatrolMonster;
@@ -96,6 +98,11 @@ public class Monster : MonoBehaviour
         agent.speed = monster_Info.WalkSpeed;
     }
 
+    public bool IsCurrentState(State state)
+    {
+        return _monsterState.MonsterState == state;
+    }
+
     protected virtual void Start()
     {
         _monsterState.RegisterStateChanged(_monsterId, true);
@@ -120,6 +127,7 @@ public class Monster : MonoBehaviour
         if (monster == null) return;
 
         monster_Info = monster;        
+        _monsterState.RequestMonsterInfoChanged(monsterId, monster_Info);   
 
         SetAttackMethod(monster);
     }
@@ -129,12 +137,16 @@ public class Monster : MonoBehaviour
         var attakList = monster.AttackMethodName;
         if (attakList.Count > 0)
         {
-            foreach(var attackName in attakList)
+            foreach(string attackName in attakList)
             {
                 var attack = DataManager.Instance.GetAttackMethodName(attackName);
                 string attackScriptName = attack.AttackScriptName;
                 Type atk = Type.GetType(attackScriptName);
                 gameObject.AddComponent(atk);
+                var ark = gameObject.GetComponent<IArk>();
+
+                if(_attackRange < ark.attackRange)
+                    _attackRange = ark.attackRange;
             }
         }
     }
@@ -153,11 +165,19 @@ public class Monster : MonoBehaviour
 
     protected virtual void FixedUpdate()
     {
-        Debug.Log(_monsterState.MonsterState);        
+        MonsterAI();                
 
-        MonsterAI();        
+        animator.SetFloat("MoveSpeed", (float)agent.speed / MoveSpeed);
+    }
 
-        animator.SetFloat("MoveSpeed", (float)agent.speed / _agentSpeed);
+    protected virtual void Update()
+    {
+        Debug.Log(_monsterState.MonsterState);
+
+        if(_monsterState.TraceTarget != null)
+        {
+            CombatMovementTimer += Time.deltaTime;
+        }
     }
 
     protected virtual void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -172,6 +192,16 @@ public class Monster : MonoBehaviour
                 if (_monsterState.TraceTarget == null) animator.SetBool("ComBatMode", true);
                 else animator.SetBool("ComBatMode", false);
                 break;
+            case nameof(_monsterState.MonsterInfo):
+                if (_monsterState.MonsterInfo.HP <= 0) _monsterState.RequestStateChanged(monsterId, State.Die);
+                else if(_monsterState.MonsterInfo.HP < monster_Info.HP)
+                {
+                    monster_Info = _monsterState.MonsterInfo;
+                    _monsterState.RequestStateChanged(monsterId, State.Hurt);
+                }
+
+                Debug.Log(_monsterState.MonsterInfo.HP);
+                break;
         }
     }
 
@@ -182,7 +212,6 @@ public class Monster : MonoBehaviour
             case State.Idle:
                 Init_IdleState();
                 agent.angularSpeed = 1000;
-                Debug.Log("시작");
                 break;
             case State.Walk:
                 ////if (owner.IsPatrolMonster)
@@ -196,14 +225,14 @@ public class Monster : MonoBehaviour
                 ////        //패트롤 지점 지정
                 ////    }
                 ////}
-                _agentSpeed = monster_Info.WalkSpeed;
+                MoveSpeed = monster_Info.WalkSpeed;
                 StartPos = transform.position;
                 patrolEndPos = StartPos;
                 RandomPoint();
                 agent.destination = patrolEndPos;
                 break;
             case State.Trace:
-                _agentSpeed = monster_Info.RunSpeed;
+                MoveSpeed = monster_Info.RunSpeed;
                 agent.angularSpeed = 3000;
                 _distanceToTarget = 0;                
                 traceTargetPos = MonsterViewModel.TraceTarget.position;
@@ -217,24 +246,30 @@ public class Monster : MonoBehaviour
                 break;
             case State.Battle:
                 _time = 0f;
+                MoveSpeed = 0f;
+                agent.speed = 0f;
                 _circleDelay = UnityEngine.Random.Range(2f, 5f);
                 agent.destination = default;
                 animator.SetBool("Circling", false);
-                agent.speed = 0f;
                 break;
             case State.Circling:
                 _time = 0f;
                 _circleTimeRange = UnityEngine.Random.Range(3f, 6f);
                 _circlingDir = UnityEngine.Random.Range(0, 2) == 0 ? 1 : -1;   
                 agent.ResetPath();
-                _agentSpeed = monster_Info.WalkSpeed;
                 animator.SetBool("Circling", true);
+                break;
+            case State.Attack:
+                animator.SetTrigger("Attack");
+                break;
+            case State.Die:
+                gameObject.layer = LayerMask.NameToLayer("Default");
                 break;
 
         }
     }
 
-    protected float _agentSpeed;
+    protected float MoveSpeed;
     #region PatrolState
     private float _time;
     private float _PatrolDelay;
@@ -248,8 +283,8 @@ public class Monster : MonoBehaviour
     #endregion
     #region Trace
     [Header("Trace 여유 범위")]
-    [SerializeField] protected float _distanceToStand = 4f;
-
+    [SerializeField] protected float _attackRange = 0f;
+    public float AttackRange { get { return _attackRange; } }
     protected float _distanceToTarget;
     protected Vector3 traceTargetPos;
     #endregion
@@ -264,14 +299,15 @@ public class Monster : MonoBehaviour
     #endregion
     #region BattleState
     protected float _circleDelay;
-    //임시
-    protected float _attackDelay;
-    protected float _attackRange;
     #endregion
     #region Circling
     protected float _circleTimeRange;
     protected float _circlingSpeed;
     protected int _circlingDir = 1;
+    #endregion
+    #region AttackState
+    public float CombatMovementTimer;
+    [SerializeField] public Vector2 AttackDelayRange { get; private set; } = new Vector2(1f, 4f);
     #endregion
 
     protected virtual void RandomPoint()
@@ -317,7 +353,7 @@ public class Monster : MonoBehaviour
                 break;
             case State.Walk:
 
-                agent.speed = Mathf.Lerp(agent.speed, _agentSpeed, 10f * Time.fixedDeltaTime);
+                agent.speed = Mathf.Lerp(agent.speed, MoveSpeed, 10f * Time.fixedDeltaTime);
 
                 if (MonsterViewModel.TraceTarget != null)
                 {
@@ -325,7 +361,7 @@ public class Monster : MonoBehaviour
                 }
                 else
                 {
-                    if (patrolEndPos != StartPos && Vector3.Distance(transform.position, patrolEndPos) <= 0.2f)
+                    if (patrolEndPos != StartPos && Vector3.Distance(transform.position, patrolEndPos) <= 0.5f)
                     {
                         MonsterViewModel.RequestStateChanged(monsterId, State.Idle);
                     }
@@ -347,20 +383,20 @@ public class Monster : MonoBehaviour
 
                 _distanceToTarget = Vector3.Distance(transform.position, MonsterViewModel.TraceTarget.transform.position);
 
-                if (_distanceToTarget <= _distanceToStand + 0.03f)
+                if (_distanceToTarget <= _attackRange + 8f + 0.03f)
                 {
-                    agent.speed = Mathf.Lerp(agent.speed, 0f, 10f * Time.fixedDeltaTime);
+                    agent.speed = Mathf.Lerp(agent.speed, 0f, 10f * MoveSpeed * Time.fixedDeltaTime);
 
-                    if(agent.speed <= 0.5f)
+                    if(agent.speed <= 0.8f)
                     {
-                        agent.speed = 0.1f;
+                        agent.speed = 0f;
                         MonsterViewModel.RequestStateChanged(monsterId, State.Battle);
                         return;
                     }                    
                 }
                 else
-                {
-                    agent.speed = Mathf.Lerp(agent.speed, _agentSpeed, 10f * Time.fixedDeltaTime);
+                {                    
+                    agent.speed = Mathf.Lerp(agent.speed, MoveSpeed, MoveSpeed * Time.fixedDeltaTime);
                 }
 
                 break;
@@ -410,7 +446,7 @@ public class Monster : MonoBehaviour
 
                 transform.LookAt(MonsterViewModel.TraceTarget);
 
-                if (Vector3.Distance(transform.position, MonsterViewModel.TraceTarget.transform.position) > _distanceToStand + 0.03f)
+                if (Vector3.Distance(transform.position, MonsterViewModel.TraceTarget.transform.position) > _attackRange +3f + 0.03f)
                 {
                     MonsterViewModel.RequestStateChanged(monsterId, State.Trace);
                 }
@@ -419,12 +455,13 @@ public class Monster : MonoBehaviour
             case State.Circling:
                 if(MonsterViewModel.TraceTarget == null)
                 {
-
+                    MonsterViewModel.RequestStateChanged(monsterId, State.Idle);
+                    return;
                 }
 
                 traceTargetPos = _monsterState.TraceTarget.position;
 
-                agent.speed = Mathf.Lerp(agent.speed, _agentSpeed, 10f * Time.fixedDeltaTime);
+                agent.speed = Mathf.Lerp(agent.speed, MoveSpeed, 10f * Time.fixedDeltaTime);
                 _circlingSpeed = Mathf.Lerp(_circlingSpeed, 20f, 10f * Time.fixedDeltaTime);
 
                 _time = Mathf.Clamp(_time + Time.fixedDeltaTime, 0f, _circleTimeRange);
@@ -444,6 +481,9 @@ public class Monster : MonoBehaviour
 
                 animator.SetFloat("CirclingDir", _circlingDir);
                 //animator.SetFloat("MoveSpeed", (float)agent.speed / monster_Info.WalkSpeed);
+                break;
+            case State.Attack:
+
                 break;
         }
     }

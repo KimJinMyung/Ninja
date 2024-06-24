@@ -1,15 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <MonsterAttack>
   <dataCategory>
     <data DataName="SwordAttack" AttackScriptName="Atk_Sword" />
-  </dataCategory>
-  <dataCategory>
     <data DataName="SpearAttack" AttackScriptName="Atk_Spear" />
-  </dataCategory>
-  <dataCategory>
     <data DataName="ShurikenAttack" AttackScriptName="Atk_Shuriken" />
-  </dataCategory>
-  <dataCategory>
+    <data DataName="DaggerAttack" AttackScriptName="Atk_Dagger" />
     <data DataName="BowAttack" AttackScriptName="Atk_Bow" />
   </dataCategory>
 </MonsterAttack>

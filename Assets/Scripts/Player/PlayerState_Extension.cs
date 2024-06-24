@@ -54,20 +54,20 @@ namespace Player_State.Extension
         }
         #endregion
 
-        #region HP
-        public static void ReigsterHpChanged(this InputViewModel input, int actorId, bool isRegister)
+        #region player_info
+        public static void ReigsterPlayerInfoChanged(this InputViewModel input, int actorId, bool isRegister)
         {
-            ActorLogicManager._instance.RegisterHpChangedCallback(actorId, input.OnResponseHpChangedEvent, isRegister);
+            ActorLogicManager._instance.RegisterPlayerInfoChangedCallback(actorId, input.OnResponsePlayerInfoChangedEvent, isRegister);
         }
 
-        public static void RequstHp(this InputViewModel input, int actorId, float damage)
+        public static void RequestOnPlayerInfo(this InputViewModel input, int actorId, Player_data data)
         {
-            ActorLogicManager._instance.OnHpChanged(actorId, damage);
+            ActorLogicManager._instance.OnPlayerInfoChanged(actorId, data);
         }
 
-        public static void OnResponseHpChangedEvent(this InputViewModel input, float damage)
+        public static void OnResponsePlayerInfoChangedEvent(this InputViewModel input, Player_data data)
         {
-            input.HP = Mathf.Clamp(input.HP - damage, 0, input.MaxHp);
+            input.player_Data = data;
         }
         #endregion
 

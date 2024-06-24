@@ -1,6 +1,7 @@
 using Player_State.Extension;
 using System.Collections.Generic;
 using System.ComponentModel;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -24,6 +25,10 @@ public class PlayerLockOnZone : MonoBehaviour
 
     protected readonly int hashLockOn = Animator.StringToHash("LockOn");
 
+    PlayerInput _playerInput;
+    InputActionMap actionMap;
+    InputAction lockOnAction;
+
     private void Awake()
     {
         _player = transform.root.GetComponent<Player>();
@@ -33,6 +38,16 @@ public class PlayerLockOnZone : MonoBehaviour
     {
         _mask = (1 << 6) | (1 << 7) | (1 << 8) | (1 << 9) | (1 << 10);
         _ViewAngle = 50f;
+
+        _playerInput = transform.root.GetComponent<PlayerInput>();
+        actionMap = _playerInput.actions.FindActionMap("Player");
+        lockOnAction = actionMap.FindAction("LockOn");
+        lockOnAction.performed += OnLockOnMode;
+    }
+
+    private void OnDisable()
+    {
+        lockOnAction.performed -= OnLockOnMode;
     }
 
     private void Start()
@@ -109,23 +124,29 @@ public class PlayerLockOnZone : MonoBehaviour
 
     public void OnLockOnMode(InputAction.CallbackContext context)
     {
-        if (_player.InputVm == null) return;
+        if (hitColliders.Count <= 0) return;
 
-        if (context.started)
+        if (context.performed)
         {
             //_lockOnAbleTarget = DetectingLookOnTarget();
 
-            if(_isLockOnMode && _lockOnAbleTarget == _lockOnTarget)
+            if (_isLockOnMode && _lockOnAbleTarget == _lockOnTarget)
             {
                 _isLockOnMode = false;
                 _viewModel.RequestLockOnTarget(null, _player.InputVm);
+                Debug.Log($"조건 1. {_isLockOnMode}");
+                Debug.Log($"조건 2. {_lockOnAbleTarget} / {_lockOnTarget}");
             }
             else
             {
                 _isLockOnMode = true;
                 _lockOnTarget = _lockOnAbleTarget;
                 _viewModel.RequestLockOnTarget(_lockOnTarget, _player.InputVm);
+
+                Debug.Log("타겟지정");
             }
+
+            
         }
     }
 

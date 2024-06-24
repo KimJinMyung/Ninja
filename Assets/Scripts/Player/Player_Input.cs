@@ -3,6 +3,19 @@ using UnityEngine;
 
 public class InputViewModel
 {
+    private Player_data _player_Data;
+    public Player_data player_Data
+    {
+        get { return _player_Data; }
+        set
+        {
+            if(_player_Data == value) return;
+
+            _player_Data = value;
+            OnPropertyChanged(nameof(player_Data));
+        }
+    }
+
     private State _playerState;
     public State PlayerState
     {
@@ -36,18 +49,6 @@ public class InputViewModel
         {
             _rotation = value;    
             OnPropertyChanged(nameof(Rotation));
-        }
-    }
-
-    private float _hp;
-    public float HP
-    {
-        get { return _hp; }
-        set
-        {
-            if (_hp == value) return;
-            _hp = value;
-            OnPropertyChanged(nameof(HP));
         }
     }
 

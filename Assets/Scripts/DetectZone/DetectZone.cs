@@ -5,11 +5,6 @@ using UnityEngine.InputSystem;
 
 public class DetectZone : MonoBehaviour
 {
-    PlayerInput _playerInput;
-    InputActionMap actionMap;
-    InputAction lockOnAction;
-    PlayerLockOnZone _playerLockOnZone;
-
     private void OnEnable()
     {
         this.gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
@@ -17,23 +12,11 @@ public class DetectZone : MonoBehaviour
         {
             Rigidbody playerZone = gameObject.AddComponent<Rigidbody>();
             playerZone.useGravity = false;
-            _playerLockOnZone = gameObject.AddComponent<PlayerLockOnZone>();            
-            _playerInput = transform.root.GetComponent<PlayerInput>();
-            actionMap = _playerInput.actions.FindActionMap("Player");
-            lockOnAction = actionMap.FindAction("LockOn");
-            lockOnAction.performed += _playerLockOnZone.OnLockOnMode;
+            gameObject.AddComponent<PlayerLockOnZone>();                   
         }
         else
         {
             gameObject.AddComponent<MonsterDetectZone>();
         }
-    }
-
-    private void OnDisable()
-    {
-        if (transform.root.CompareTag("Player"))
-        {
-            lockOnAction.performed -= _playerLockOnZone.OnLockOnMode;
-        }        
     }
 }

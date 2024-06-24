@@ -7,8 +7,6 @@ public class MonsterDetectZone : MonoBehaviour
     private Transform player;
     public Transform Player {  get { return player; } }
 
-    private Transform ViewObject;
-
     private Monster owner;
 
     private Transform Eyes;
@@ -46,21 +44,9 @@ public class MonsterDetectZone : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             player = null;
+            owner.MonsterViewModel.RequestTraceTargetChanged(owner.monsterId, null);
+            owner.CombatMovementTimer = 0;
         }
-    }
-
-    private void Update()
-    {
-        if (ViewObject == null)
-        {
-            if (Player == null)
-            {
-                owner.MonsterViewModel.RequestTraceTargetChanged(owner.monsterId, null);
-                return;
-            }
-        }
-
-        owner.MonsterViewModel.RequestTraceTargetChanged(owner.monsterId, player);
     }
 
     private void FixedUpdate()
@@ -79,11 +65,10 @@ public class MonsterDetectZone : MonoBehaviour
 
         if(angleMonAndPlayer < owner.ViewAngle / 2f)
         {
-            ViewObject = player;
+            owner.MonsterViewModel.RequestTraceTargetChanged(owner.monsterId, player);            
             return;
         }
 
-        ViewObject = null;
         //owner.MonsterViewModel.RequestTraceTargetChanged(owner.monsterId, null);
     }
 }

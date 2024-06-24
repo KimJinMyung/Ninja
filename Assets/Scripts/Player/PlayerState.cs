@@ -23,6 +23,8 @@ public class PlayerState : ActorStateMachine.ActorState
     protected readonly int hashDefence = Animator.StringToHash("Defence");
     protected readonly int hashParry = Animator.StringToHash("Parry");
 
+    protected readonly int hashHurt = Animator.StringToHash("Hurt");
+    protected readonly int hashDie = Animator.StringToHash("Die");
     public override void Update()
     {
         base.Update();
@@ -362,6 +364,12 @@ public class HurtState : PlayerState
 {
     public HurtState(Player owner) : base(owner) { }
 
+    public override void Enter()
+    {
+        base.Enter();
+        owner.Animator.SetTrigger(hashHurt);
+    }
+
 }
 public class DieState : PlayerState
 {
@@ -369,6 +377,7 @@ public class DieState : PlayerState
     public override void Enter()
     {
         base.Enter();
+        owner.Animator.SetTrigger(hashDie);
     }
 
     public override void Update()

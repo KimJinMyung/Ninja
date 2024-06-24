@@ -18,15 +18,11 @@ public class Player : MonoBehaviour
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private Transform _lookAt;
 
-    [Header("Move Speed")]
-    [SerializeField] private float _walkSpeed;
-    [SerializeField] private float _runSpeed;
-
-    private float moveSpeed;
-
     [Header("Player Cinemachine Setting")]
     public Cinemachine.AxisState x_Axis;
     public Cinemachine.AxisState y_Axis;
+
+    private Player_data player_Data;
 
     //Movement
     private Vector3 _inputMoveDir;
@@ -54,6 +50,8 @@ public class Player : MonoBehaviour
 
     [SerializeField] private float _attackDelay;
     public float AttackDelay { get { return _attackDelay; } }
+
+    private float moveSpeed;
 
     #region isGround
     public float MaxDistance { get { return maxDistance; } }
@@ -116,9 +114,21 @@ public class Player : MonoBehaviour
             _inputVm.RegisterMoveVelocity(true);
             _inputVm.RegisterActorRotate(true);
             _inputVm.ReigsterLockOnTargetChanged(true);
-            _inputVm.ReigsterHpChanged(_playerId, true);
+            _inputVm.ReigsterPlayerInfoChanged(_playerId, true);
         }
+
+        SetPlayerInfo();
+        moveSpeed = player_Data.WalkSpeed;
     } 
+
+    private void SetPlayerInfo()
+    {
+        var player = DataManager.Instance.GetPlayerData(0);
+        if (player == null) return;
+
+        player_Data = player;
+        _inputVm.RequestOnPlayerInfo(PlayerId,player_Data);
+    }
 
     private void Update()
     {
@@ -156,8 +166,6 @@ public class Player : MonoBehaviour
 
     private void OnEnable()
     {
-        moveSpeed = _walkSpeed;
-
         InitRotation();
     }
 
@@ -167,7 +175,7 @@ public class Player : MonoBehaviour
 
         if ( _inputVm != null )
         {
-            _inputVm.ReigsterHpChanged(_playerId, false);
+            _inputVm.ReigsterPlayerInfoChanged(_playerId, false);
             _inputVm.ReigsterLockOnTargetChanged(false);
             _inputVm.RegisterActorRotate(false);
             _inputVm.RegisterMoveVelocity(false);
@@ -211,6 +219,14 @@ public class Player : MonoBehaviour
         if (context.ReadValue<float>() > 0.5f) _inputVm.RequestStateChanged(_playerId, State.Defence);
         else _inputVm.RequestStateChanged(_playerId, State.Battle);
     }
+
+    public void OnSprint(InputAction.CallbackContext context)
+    {
+        if (_inputVm == null) return;
+        
+        if(context.ReadValue<float>() > 0.5f) moveSpeed = player_Data.RunSpeed;
+        else moveSpeed = player_Data.WalkSpeed;
+    }
     #endregion
 
     private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -221,14 +237,12 @@ public class Player : MonoBehaviour
                 _stateMachine.ChangeState(_inputVm.PlayerState);
                 break;
             case nameof(_inputVm.LockOnTarget):
-                if (_inputVm.LockOnTarget != null)
-                {
-                    Animator.SetBool(hashLockOn, true);
-                }
-                else
-                {
-                    Animator.SetBool(hashLockOn, false);
-                }
+                if (_inputVm.LockOnTarget != null) Animator.SetBool(hashLockOn, true);
+                else Animator.SetBool(hashLockOn, false);
+                break;
+            case nameof(_inputVm.player_Data):
+                if(_inputVm.player_Data.HP <= 0) _inputVm.RequestStateChanged(PlayerId, State.Die);
+                else _inputVm.RequestStateChanged(PlayerId, State.Hurt);
                 break;
         }
     }

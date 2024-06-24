@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.18028331, g: 0.2257133, b: 0.3069217, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028352, g: 0.22571376, b: 0.30692244, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -259,7 +259,8 @@ MonoBehaviour:
   SpawnPoint: {fileID: 1240986154}
   _monsterList:
   - {fileID: 793704502297144107, guid: f959bcf813f25a147908fee598f73cf4, type: 3}
-  count: 1
+  - {fileID: 4491459015433446465, guid: 29136527eed515b478988137c8377fb8, type: 3}
+  count: 2
 --- !u!4 &552792162
 Transform:
   m_ObjectHideFlags: 0
@@ -776,6 +777,17 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1659054158 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 226982435, guid: bf82a012913ebea429c9886230dad46c, type: 3}
+  m_PrefabInstance: {fileID: 2391910382590879930}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70e627e0198baaa4ea9a1a51b5fff6c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1910358625
 GameObject:
   m_ObjectHideFlags: 0
@@ -1115,17 +1127,69 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 3067419914426327637, guid: bf82a012913ebea429c9886230dad46c, type: 3}
-      propertyPath: m_UseGravity
+    - target: {fileID: 226982433, guid: bf82a012913ebea429c9886230dad46c, type: 3}
+      propertyPath: m_ActionEvents.Array.size
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 226982433, guid: bf82a012913ebea429c9886230dad46c, type: 3}
+      propertyPath: m_ActionEvents.Array.data[4].m_ActionId
+      value: bbf6a843-f1c8-4fe3-8462-135e97b74ac9
+      objectReference: {fileID: 0}
+    - target: {fileID: 226982433, guid: bf82a012913ebea429c9886230dad46c, type: 3}
+      propertyPath: m_ActionEvents.Array.data[4].m_ActionName
+      value: Player/Run[/Keyboard/shift]
+      objectReference: {fileID: 0}
+    - target: {fileID: 226982433, guid: bf82a012913ebea429c9886230dad46c, type: 3}
+      propertyPath: m_ActionEvents.Array.data[3].m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 226982433, guid: bf82a012913ebea429c9886230dad46c, type: 3}
+      propertyPath: m_ActionEvents.Array.data[4].m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 226982433, guid: bf82a012913ebea429c9886230dad46c, type: 3}
+      propertyPath: m_ActionEvents.Array.data[3].m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 226982433, guid: bf82a012913ebea429c9886230dad46c, type: 3}
+      propertyPath: m_ActionEvents.Array.data[4].m_PersistentCalls.m_Calls.Array.data[0].m_Mode
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3420220915716357727, guid: bf82a012913ebea429c9886230dad46c, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0.50000024
+    - target: {fileID: 226982433, guid: bf82a012913ebea429c9886230dad46c, type: 3}
+      propertyPath: m_ActionEvents.Array.data[3].m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
       objectReference: {fileID: 0}
-    - target: {fileID: 3420220915716357727, guid: bf82a012913ebea429c9886230dad46c, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -2.8
+    - target: {fileID: 226982433, guid: bf82a012913ebea429c9886230dad46c, type: 3}
+      propertyPath: m_ActionEvents.Array.data[4].m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1659054158}
+    - target: {fileID: 226982433, guid: bf82a012913ebea429c9886230dad46c, type: 3}
+      propertyPath: m_ActionEvents.Array.data[4].m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 226982433, guid: bf82a012913ebea429c9886230dad46c, type: 3}
+      propertyPath: m_ActionEvents.Array.data[3].m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 226982433, guid: bf82a012913ebea429c9886230dad46c, type: 3}
+      propertyPath: m_ActionEvents.Array.data[4].m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: OnSprint
+      objectReference: {fileID: 0}
+    - target: {fileID: 226982433, guid: bf82a012913ebea429c9886230dad46c, type: 3}
+      propertyPath: m_ActionEvents.Array.data[3].m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 226982433, guid: bf82a012913ebea429c9886230dad46c, type: 3}
+      propertyPath: m_ActionEvents.Array.data[4].m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: Player, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 226982433, guid: bf82a012913ebea429c9886230dad46c, type: 3}
+      propertyPath: m_ActionEvents.Array.data[3].m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 226982433, guid: bf82a012913ebea429c9886230dad46c, type: 3}
+      propertyPath: m_ActionEvents.Array.data[4].m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 3691939246712788806, guid: bf82a012913ebea429c9886230dad46c, type: 3}
       propertyPath: m_RootOrder
@@ -1175,6 +1239,5 @@ PrefabInstance:
       propertyPath: m_Name
       value: PlayerCharacter
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 3067419914426327637, guid: bf82a012913ebea429c9886230dad46c, type: 3}
+    m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bf82a012913ebea429c9886230dad46c, type: 3}

@@ -1,11 +1,6 @@
-using JetBrains.Annotations;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Threading;
 using System.Xml.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class DataManager : MonoBehaviour
@@ -17,19 +12,28 @@ public class DataManager : MonoBehaviour
     public Dictionary<string, Monster_Attack> LoadedMonsterAttackList { get; private set; }
 
     private Dictionary<MonsterFileType, TextAsset> textAssetDic = new Dictionary<MonsterFileType, TextAsset>();
+
+    public Dictionary<int, Player_data> LoadPlayerData { get; private set; }
+
+    private TextAsset playerTextAsset;
+
     void LoadFile()
     {
         textAssetDic.Add(MonsterFileType.Monster_Info, Resources.Load(nameof(Monster_data)) as TextAsset);
         textAssetDic.Add(MonsterFileType.Monster_Attack, Resources.Load(nameof(Monster_Attack)) as TextAsset);
+
+
+        playerTextAsset = Resources.Load(nameof(Player_data)) as TextAsset;
     }
 
     private void ReadDataOnAwake()
     {
-        ReadData(nameof(Monster_data), MonsterFileType.Monster_Info);
-        ReadData(nameof(Monster_Attack), MonsterFileType.Monster_Attack);
+        ReadMonsterData(nameof(Monster_data), MonsterFileType.Monster_Info);
+        ReadMonsterData(nameof(Monster_Attack), MonsterFileType.Monster_Attack);
+        ReadPlayerData();
     }
 
-    private void ReadData(string tableName, MonsterFileType fileType)
+    private void ReadMonsterData(string tableName, MonsterFileType fileType)
     {       
         var textAsset = textAssetDic[fileType];
         if (textAsset == null) return;
@@ -47,6 +51,14 @@ public class DataManager : MonoBehaviour
                 FileType_MonsterAttack(xmlAsset);
                 break;
         }      
+    }
+
+    private void ReadPlayerData()
+    {
+        XDocument xmlAsset = XDocument.Parse(playerTextAsset.text);
+        if (xmlAsset == null) return;
+
+        FileType_PlayerData(xmlAsset);
     }
 
     private void FileType_MonsterData(XDocument xmlAsset)
@@ -100,6 +112,29 @@ public class DataManager : MonoBehaviour
 
             LoadedMonsterAttackList.Add(attack.DataName, attack);
         }
+    }
+
+    private void FileType_PlayerData(XDocument xmlAsset)
+    {
+        LoadPlayerData = new Dictionary<int, Player_data>();
+
+        foreach (var data in xmlAsset.Descendants("data"))
+        {
+            Player_data player_Data = new Player_data();
+            player_Data.PlayerId = int.Parse(data.Attribute(nameof(player_Data.PlayerId)).Value);
+            player_Data.HP = float.Parse(data.Attribute(nameof(player_Data.HP)).Value);
+            player_Data.ATK = float.Parse(data.Attribute(nameof(player_Data.ATK)).Value);
+            player_Data.WalkSpeed = float.Parse(data.Attribute(nameof(player_Data.WalkSpeed)).Value);
+            player_Data.RunSpeed = float.Parse(data.Attribute(nameof(player_Data.RunSpeed)).Value);
+            player_Data.Strength = float.Parse(data.Attribute(nameof(player_Data.Strength)).Value);
+            player_Data.Stamina = float.Parse(data.Attribute(nameof(player_Data.Stamina)).Value);
+            player_Data.HP_Plus = float.Parse(data.Attribute(nameof(player_Data.HP_Plus)).Value);
+            player_Data.ATK_Plus = float.Parse(data.Attribute(nameof(player_Data.ATK_Plus)).Value);
+            player_Data.Strength_Plus = float.Parse(data.Attribute(nameof(player_Data.Strength_Plus)).Value);
+            player_Data.Stamina_Plus = float.Parse(data.Attribute(nameof(player_Data.Stamina_Plus)).Value);
+
+            LoadPlayerData.Add(player_Data.PlayerId, player_Data);
+        }        
     }
 
 

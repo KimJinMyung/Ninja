@@ -2,17 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Atk_Shuriken : MonoBehaviour
+public class Atk_Shuriken : MonoBehaviour,IArk
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    public float attackRange { get; set; }
+    public float attackSpeed { get; set; }
 
-    // Update is called once per frame
-    void Update()
+    private void Start()
     {
-        
+        attackRange = 10f;
+        attackSpeed = 1.0f;
     }
 }

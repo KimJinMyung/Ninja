@@ -131,6 +131,12 @@ public class Monster_HurtState : MonsterState
 {
     public Monster_HurtState(Monster owner) : base(owner) { }
 
+    public override void Enter()
+    {
+        base.Enter();
+
+        Debug.Log($"{owner.transform.name} 데미지 받음");
+    }
 }
 
 //사망
@@ -145,6 +151,6 @@ public class Monster_DeadState : MonsterState
         //사망시 비활성화
         owner.gameObject.SetActive(false);
         //GameManagerDic에서 제거
-        MonsterManager.instance.RemoveMonsters(owner.monsterId);
+        //MonsterManager.instance.RemoveMonsters(owner.monsterId);
     }
 }

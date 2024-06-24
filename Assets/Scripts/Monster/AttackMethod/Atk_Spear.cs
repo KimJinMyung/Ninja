@@ -2,17 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Atk_Spear : MonoBehaviour
+public class Atk_Spear : MonoBehaviour, IArk
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    public float attackRange {  get; set; }
+    public float attackSpeed { get; set; }
 
-    // Update is called once per frame
-    void Update()
+    private void Start()
     {
-        
+        attackRange = 4f;
+        attackSpeed = 1.0f;
     }
 }
+   
