@@ -259,8 +259,7 @@ MonoBehaviour:
   SpawnPoint: {fileID: 1240986154}
   _monsterList:
   - {fileID: 793704502297144107, guid: f959bcf813f25a147908fee598f73cf4, type: 3}
-  - {fileID: 4491459015433446465, guid: 29136527eed515b478988137c8377fb8, type: 3}
-  count: 1
+  count: 2
 --- !u!4 &552792162
 Transform:
   m_ObjectHideFlags: 0
