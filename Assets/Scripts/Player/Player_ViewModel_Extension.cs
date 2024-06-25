@@ -7,6 +7,7 @@ public static class Player_ViewModel_Extension
     #region State
     public static void RegisterStateChanged(this Player_ViewModel input, int ActirId, bool isRegister)
     {
+        Debug.Log(ActorLogicManager._instance == null);
         ActorLogicManager._instance.RegisterStateChangedCallback(ActirId, input.OnResponseStateChangedEvent, isRegister);
     }
     public static void RequestStateChanged(this Player_ViewModel input, int ActirId, State state)

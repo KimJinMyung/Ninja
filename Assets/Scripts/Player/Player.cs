@@ -89,19 +89,20 @@ public class Player : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.Confined;
         Cursor.visible = false;
+
+        if (_viewModel == null)
+        {
+            _viewModel = new Player_ViewModel();
+        }
     }
 
     private void OnEnable()
     {
         player_id = GetInstanceID();
 
-        if (_viewModel == null)
-        {
-            _viewModel = new Player_ViewModel();
-            _viewModel.PropertyChanged += OnPropertyChanged;
-            _viewModel.RegisterStateChanged(player_id, true);
-            _viewModel.RegisterMoveVelocity(true);
-        }
+        _viewModel.PropertyChanged += OnPropertyChanged;
+        _viewModel.RegisterStateChanged(player_id, true);
+        _viewModel.RegisterMoveVelocity(true);
 
         SetPlayerInfo();
         InitRotation();        
@@ -123,6 +124,7 @@ public class Player : MonoBehaviour
         if (player == null) return;
 
         player_info = player;
+        UnityEngine.Debug.Log(player_info.HP);
     }
 
     public void OnMovement(InputAction.CallbackContext context)
@@ -171,6 +173,8 @@ public class Player : MonoBehaviour
 
     private void MoveSpeed()
     {
+        if(player_info == null) return;
+
         if (_isRun)
         {
             movementSpeed = player_info.RunSpeed;
