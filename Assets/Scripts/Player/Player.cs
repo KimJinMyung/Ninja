@@ -185,11 +185,6 @@ public class Player : MonoBehaviour
             movementSpeed = player_info.WalkSpeed;
         }
     }
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.red;
-        Gizmos.DrawRay(transform.position + new Vector3(0, 0.05f * 0.5f, 0), -transform.up * 1.5f);
-    }
 
     private void Movement()
     {
