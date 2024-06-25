@@ -60,7 +60,7 @@ public class ActorLogicManager : MonoBehaviour
             }
             else
             {
-                _InfoChangedCallback[actorId] += infoChangedCallback;
+                _InfoChangedCallback.Add(actorId, infoChangedCallback);
             }
         }
         else

@@ -5,6 +5,10 @@ using UnityEngine.AI;
 using ActorStateMachine;
 using Cinemachine;
 using static UnityEngine.UI.GridLayoutGroup;
+using System.Collections;
+using System.Buffers;
+using System.Reflection;
+using Player_State.Extension;
 
 public enum monsterType
 {
@@ -54,6 +58,8 @@ public class Monster : MonoBehaviour
     protected NavMeshAgent agent;
     public NavMeshAgent Agent { get { return agent; } }
     protected Animator animator;
+    public Animator Animator { get { return animator; } }
+    protected Rigidbody rb;
 
     protected virtual void Awake()
     {
@@ -79,6 +85,7 @@ public class Monster : MonoBehaviour
     protected virtual void OnEnable()
     {
         _monsterId = GetInstanceID();
+        Debug.Log(_monsterId);
 
         if (_monsterState == null)
         {
@@ -91,7 +98,12 @@ public class Monster : MonoBehaviour
         }
     }
 
-    protected void Init_IdleState()
+    protected float _time;
+    public float _Time { get { return _time; } set { _time = value; } }
+    private float _PatrolDelay;
+    public float PatrolDelay { get => _PatrolDelay; set { _PatrolDelay = value; } }
+
+    public void Init_IdleState()
     {
         _time = 0f;
         _PatrolDelay = UnityEngine.Random.Range(0.2f, 3f);
@@ -175,9 +187,10 @@ public class Monster : MonoBehaviour
 
     protected virtual void Update()
     {
-        Debug.Log(_monsterState.MonsterState);
+        //Debug.Log(_monsterState.MonsterState);
+        Debug.Log($"{monsterId} : {monster_Info.HP}");
 
-        if(_monsterState.TraceTarget != null)
+        if (_monsterState.TraceTarget != null)
         {
             CombatMovementTimer += Time.deltaTime;
         }
@@ -189,100 +202,22 @@ public class Monster : MonoBehaviour
         {
             case nameof(_monsterState.MonsterState):
                 _stateMachine.ChangeState(_monsterState.MonsterState);
-                NewStateEnter(_monsterState.MonsterState);
+                //NewStateEnter(_monsterState.MonsterState);
                 break;
             case nameof(_monsterState.TraceTarget):
                 if (_monsterState.TraceTarget == null) animator.SetBool("ComBatMode", true);
                 else animator.SetBool("ComBatMode", false);
                 break;
-            case nameof(_monsterState.MonsterInfo):
-                if (_monsterState.MonsterInfo.HP <= 0) _monsterState.RequestStateChanged(monsterId, State.Die);
-                else if(_monsterState.MonsterInfo.HP < monster_Info.HP)
-                {
-                    monster_Info = _monsterState.MonsterInfo;
-                    _monsterState.RequestStateChanged(monsterId, State.Hurt);
-                }
-
-                //Debug.Log(_monsterState.MonsterInfo.HP);
-                break;
         }
     }
 
-    protected virtual void NewStateEnter(State newState)
-    {
-        switch (newState)
-        {
-            case State.Idle:
-                Init_IdleState();
-                agent.angularSpeed = 1000;
-                break;
-            case State.Walk:
-                ////if (owner.IsPatrolMonster)
-                ////{
-                ////    if (owner.IsRandomPatrolMonster)
-                ////    {
-                ////        RandomPoint();
-                ////    }
-                ////    else
-                ////    {
-                ////        //패트롤 지점 지정
-                ////    }
-                ////}
-                MoveSpeed = monster_Info.WalkSpeed;
-                StartPos = transform.position;
-                patrolEndPos = StartPos;
-                RandomPoint();
-                agent.destination = patrolEndPos;
-                break;
-            case State.Trace:
-                MoveSpeed = monster_Info.RunSpeed;
-                agent.angularSpeed = 3000;
-                animator.SetBool("ComBatMode", true);
-                //_distanceToTarget = 0;                
-                break;
-            case State.Alert:
-                _time = 0f;
-                break;
-            case State.Incapacitated:
-                _time = 0f;
-                break;
-            case State.Battle:
-                _time = 0f;
-                MoveSpeed = 0f;
-                agent.speed = 0f;
-                _circleDelay = UnityEngine.Random.Range(2f, 5f);
-                agent.destination = default;                
-                animator.SetBool("Circling", false);
-                break;
-            case State.Circling:
-                _time = 0f;
-                _circleTimeRange = UnityEngine.Random.Range(3f, 6f);
-                _circlingDir = UnityEngine.Random.Range(0, 2) == 0 ? 1 : -1;   
-                agent.ResetPath();
-                animator.SetBool("Circling", true);
-                break;
-            case State.Attack:
-                Debug.Log("공격 시작...");
-                animator.SetTrigger("Attack");
-                break;
-            case State.Die:
-                gameObject.layer = LayerMask.NameToLayer("Default");
-                break;
-
-        }
-    }
-
-    protected float MoveSpeed;
-    #region PatrolState
-    private float _time;
-    private float _PatrolDelay;
-    public float PatrolDelay { get => _PatrolDelay; set { _PatrolDelay = value; } }
-
+    protected float _moveSpeed;
+    public float MoveSpeed { get { return _moveSpeed; } set { _moveSpeed = value; } }
+    #region PatrolStates
     protected Vector3 patrolEndPos;
-    protected Vector3 StartPos;
-
-    [Header("Patrol 가능 길이")]
-    [SerializeField] protected float _distance = 15f;
+    public Vector3 PatrolEndPos { get { return patrolEndPos; } set { patrolEndPos = value; } }
+    protected Vector3 startPos;
+    public Vector3 StartPos { get { return startPos; } set {  startPos = value; } }
     #endregion
     #region Trace
     [Header("Trace 여유 범위")]
@@ -301,29 +236,19 @@ public class Monster : MonoBehaviour
     #endregion
     #region BattleState
     protected float _circleDelay;
+    public float CircleDelay { get { return _circleDelay; } set { _circleDelay = value; } }
     #endregion
     #region Circling
     protected float _circleTimeRange;
+    public float CircleTimeRange { get { return _circleTimeRange; } set { _circleTimeRange = value; } }
     protected float _circlingSpeed;
     protected int _circlingDir = 1;
+    public int CirclingDir { get { return _circlingDir; } set { _circlingDir = value; } }
     #endregion
     #region AttackState
     public float CombatMovementTimer;
     public float AttackDelay { get; protected set; }
     #endregion
-
-    protected virtual void RandomPoint()
-    {
-        while (patrolEndPos == transform.position)
-        {
-            Vector3 randomPoint = transform.position + UnityEngine.Random.insideUnitSphere * _distance;
-            if (NavMesh.SamplePosition(randomPoint, out NavMeshHit hit, 1.0f, (1 << NavMesh.GetAreaFromName("Walkable"))))
-            {
-                patrolEndPos = hit.position;
-                break;
-            }
-        }
-    }
 
     protected void MonsterAI()
     {
@@ -363,7 +288,7 @@ public class Monster : MonoBehaviour
                 }
                 else
                 {
-                    if (patrolEndPos != StartPos && Vector3.Distance(transform.position, patrolEndPos) <= 0.5f)
+                    if (patrolEndPos != startPos && Vector3.Distance(transform.position, patrolEndPos) <= 0.5f)
                     {
                         MonsterViewModel.RequestStateChanged(monsterId, State.Idle);
                     }
@@ -484,7 +409,7 @@ public class Monster : MonoBehaviour
                 break;
             case State.Attack:
 
-                break;
+                break;            
         }
     }
 
@@ -492,5 +417,51 @@ public class Monster : MonoBehaviour
     {
         MonsterViewModel.RequestStateChanged(monsterId, State.Battle);
         CombatMovementTimer = 0f;
+    }
+
+
+    public void Hurt(int monsterid,Player attacker)
+    {
+        if (monsterid != this.monsterId) return;
+
+        monster_Info.HP -= attacker.InputVm.player_Data.ATK;
+
+        _monsterState.RequestMonsterInfoChanged(monsterId, monster_Info);
+
+        if (_monsterState.TraceTarget == null) _monsterState.RequestTraceTargetChanged(monsterId, attacker.transform);
+
+        if(monster_Info.HP > 0)
+        {
+            _monsterState.RequestStateChanged(monsterId, State.Hurt);
+            animator.SetTrigger("Hurt");
+            agent.enabled = false;
+
+            if(rb == null) rb = gameObject.AddComponent<Rigidbody>();
+
+            Vector3 dir = (attacker.transform.position - transform.position).normalized;
+            rb.AddForce(dir * 1f, ForceMode.Impulse);
+
+            StartCoroutine(RemoveRigidbody(rb));
+        }
+        else
+        {
+            _monsterState.RequestStateChanged(monsterId, State.Die);
+            attacker.InputVm.RequestLockOnTarget(null);
+        }
+    }
+
+    IEnumerator RemoveRigidbody(Rigidbody rb)
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(Time.deltaTime);
+
+            if (_monsterState.MonsterState != State.Hurt) break;
+        }
+
+        rb.velocity = Vector3.zero;
+        Destroy(rb);
+        agent.enabled = true;
+        yield break;
     }
 }

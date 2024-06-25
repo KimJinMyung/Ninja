@@ -1651,7 +1651,6 @@ MonoBehaviour:
   _viewAngle: 50
   isPatrolMonster: 1
   isRandomPatrolMonster: 1
-  _distance: 15
   _attackRange: 0
   SubduedEndTime: 0
   CombatMovementTimer: 0
@@ -3842,6 +3841,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 793704502296932633}
     m_Modifications:
+    - target: {fileID: 3323190902401426790, guid: db59af7818cb81247b9f5955ff195904, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5414510894979934749, guid: db59af7818cb81247b9f5955ff195904, type: 3}
       propertyPath: m_Name
       value: Monster_Spear

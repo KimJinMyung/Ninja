@@ -12,6 +12,8 @@ public class PlayerLockOnZone : MonoBehaviour
     [Header("시야 각도")]
     [SerializeField] private float _ViewAngle;
 
+    private SphereCollider ZoneCollider;
+
     private Transform _lockOnAbleTarget;
     private Transform _lockOnTarget;
 
@@ -32,11 +34,13 @@ public class PlayerLockOnZone : MonoBehaviour
     private void Awake()
     {
         _player = transform.root.GetComponent<Player>();
+        ZoneCollider = GetComponent<SphereCollider>();
     }
 
     private void OnEnable()
     {
         _mask = (1 << 6) | (1 << 7) | (1 << 8) | (1 << 9) | (1 << 10);
+        layermask = LayerMask.GetMask("Monster", "Map_Gimmixk", "Item", "LoxkOnAble", "LockOnTarget");
         _ViewAngle = 50f;
 
         _playerInput = transform.root.GetComponent<PlayerInput>();
@@ -118,6 +122,7 @@ public class PlayerLockOnZone : MonoBehaviour
         _lockOnAbleTarget = DetectingLookOnTarget();
 
         if (_lockOnAbleTarget == null) return;
+        if (_lockOnAbleTarget.CompareTag("Dead")) return;
         if (_lockOnAbleTarget.gameObject.layer == LayerMask.NameToLayer("Monster"))
             _viewModel.RequestLockOnAbleTarget(_lockOnAbleTarget);
     }
@@ -134,22 +139,20 @@ public class PlayerLockOnZone : MonoBehaviour
             {
                 _isLockOnMode = false;
                 _viewModel.RequestLockOnTarget(null, _player.InputVm);
-                Debug.Log($"조건 1. {_isLockOnMode}");
-                Debug.Log($"조건 2. {_lockOnAbleTarget} / {_lockOnTarget}");
             }
             else
             {
                 _isLockOnMode = true;
                 _lockOnTarget = _lockOnAbleTarget;
                 _viewModel.RequestLockOnTarget(_lockOnTarget, _player.InputVm);
-
-                Debug.Log("타겟지정");
             }
 
             
         }
     }
 
+    private LayerMask layermask;
+    
     #region
     private Transform DetectingLookOnTarget()
     {
@@ -168,16 +171,25 @@ public class PlayerLockOnZone : MonoBehaviour
 
             if (angleToTarget < _ViewAngle)
             {
-                tempLockOnAbleList.Add(collider.transform);
-
                 distance = Vector3.Distance(Camera.main.transform.position, collider.transform.position);
                 combinedMetric = angleToTarget + distance * 0.1f; // 각도와 거리를 결합한 메트릭
 
-                if (combinedMetric < closestAngle)
+                if(Physics.Raycast(Camera.main.transform.position, dirTarget, out RaycastHit hit, ZoneCollider.radius))
                 {
-                    closestAngle = combinedMetric;
-                    closestTarget = collider.transform;
+                    if(hit.collider == collider)
+                    {
+                        if (hit.transform.CompareTag("Dead")) continue;
+
+                        tempLockOnAbleList.Add(collider.transform);
+
+                        if (combinedMetric < closestAngle)
+                        {
+                            closestAngle = combinedMetric;
+                            closestTarget = collider.transform;
+                        }
+                    }
                 }
+                
             }            
         }
 

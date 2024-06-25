@@ -9,7 +9,6 @@ public class AttackZone : MonoBehaviour
     Player ownerPlayer;
     Monster ownerMonster;
 
-
     private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player") && !other.CompareTag("Monster")) return;
@@ -28,14 +27,23 @@ public class AttackZone : MonoBehaviour
         }
         else
         {
-            Monster monster = other.GetComponent<Monster>();
+
+
+            Monster monster = other.transform.GetComponent<Monster>();
+            Debug.Log(monster.monsterId);
             ownerPlayer = transform.root.GetComponent<Player>();
 
             if (ownerPlayer == null) return;
 
-            Monster_data monster_info = monster.MonsterViewModel.MonsterInfo;
-            monster_info.HP -= ownerPlayer.InputVm.player_Data.ATK;
-            monster.MonsterViewModel.RequestMonsterInfoChanged(monster.monsterId, monster_info);
+            monster.Hurt(monster.monsterId,ownerPlayer);
+            //Monster_data monster_info = monster.MonsterViewModel.MonsterInfo;
+            //monster_info.HP -= ownerPlayer.InputVm.player_Data.ATK;
+            //monster.MonsterViewModel.RequestMonsterInfoChanged(monster.monsterId, monster_info);
+            //if(monster.Monster_Info.HP > 0)
+            //{
+            //    Vector3 moveDir = (monster.transform.position - ownerPlayer.transform.position).normalized;
+            //    monster.transform.position = Vector3.Lerp(monster.transform.position, monster.transform.position + moveDir * 3f, 10f / Time.deltaTime);
+            //}            
         }
     }
 }

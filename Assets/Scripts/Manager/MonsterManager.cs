@@ -19,7 +19,7 @@ public class MonsterManager : MonoBehaviour
         DontDestroyOnLoad(this.gameObject);
     }    
 
-    private Dictionary<int, Monster> _monsterLists = new Dictionary<int, Monster>();
+    private Dictionary<int, Transform> _monsterLists = new Dictionary<int, Transform>();
 
     private List<Transform> _lockOnAbleMonsterList = new List<Transform>();
     public List<Transform> LockOnAbleMonsterList { get { return _lockOnAbleMonsterList; } }
@@ -32,8 +32,8 @@ public class MonsterManager : MonoBehaviour
 
         if(newMonster == null) return;
 
-        if (!_monsterLists.ContainsKey(actorId)) _monsterLists.Add(actorId, newMonster); 
-        else _monsterLists[actorId] = newMonster;
+        if (!_monsterLists.ContainsKey(actorId)) _monsterLists.Add(actorId, newMonster.transform); 
+        else _monsterLists[actorId] = newMonster.transform;
     }
 
     public void RemoveMonsters(int actorId)
@@ -73,7 +73,7 @@ public class MonsterManager : MonoBehaviour
                     }
                 }
 
-                Debug.Log($"공격 사거리 : {range}");
+
                 if (Vector3.Distance(attackMonster.transform.position, attackMonster.MonsterViewModel.TraceTarget.position) <= range + 1.03f)
                 {
                     attackMonster.Agent.speed = 0f;
@@ -98,11 +98,14 @@ public class MonsterManager : MonoBehaviour
 
         foreach (var monsterTransform in _monsterLists.Values)
         {
-            if (monsterTransform != null && monsterTransform.MonsterViewModel.TraceTarget != null)
+            Monster newMonster = monsterTransform.GetComponent<Monster>();
+
+
+            if (newMonster != null && newMonster.MonsterViewModel.TraceTarget != null)
             {
                 hasTarget = true;
 
-                if (monsterTransform.IsCurrentState(State.Attack)) return false;                
+                if (newMonster.IsCurrentState(State.Attack)) return false;                
             } 
             
         }
@@ -122,9 +125,10 @@ public class MonsterManager : MonoBehaviour
 
         foreach(var monster in _monsterLists.Values)
         {
-            if(monster.MonsterViewModel.TraceTarget != null)
+            Monster newMonster = monster.GetComponent<Monster>();
+            if(newMonster.MonsterViewModel.TraceTarget != null)
             {
-                monsterList.Add(monster);
+                monsterList.Add(newMonster);
             }
         }
 

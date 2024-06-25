@@ -152,8 +152,6 @@ public class Player : MonoBehaviour
         Rotation();
 
         //_lockOnTarget = DetectingLockOnTarget();
-
-
     }
 
     private void OnDrawGizmos()
