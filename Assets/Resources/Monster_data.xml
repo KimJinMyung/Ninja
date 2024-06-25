@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Monster_data>
+  <dataCategory>
+    <data DataId = "1" Name="병사" Description="성을 지키는 일반적인 보병이다." HP="100" ATK="10" WalkSpeed="1.5" RunSpeed="3.5" Strength="5" Stamina="25" AttackMethodName="{SpearAttack}" />
+  </dataCategory>
+  <dataCategory>
+    <data DataId = "2" Name="닌자" Description="성 내부의 이상 현상을 제거하는 암살자, 주군에 대한 충성심이 매우 높다." HP="150" ATK="30" WalkSpeed="3" RunSpeed="4.5" Strength="8" Stamina="100" AttackMethodName="{ShurikenAttack,DaggerAttack}" />
+  </dataCategory>
+  <dataCategory>
+    <data DataId = "3" Name="사무라이" Description="무거운 갑주를 입고 있어 방어력이 매우 높고 일반적인 병사와는 다르게 근력이 높다." HP="200" ATK="25" WalkSpeed="1.5" RunSpeed="4" Strength="10" Stamina="250" AttackMethodName="{SwordAttack,BowAttack}" />
+  </dataCategory>
+</Monster_data>

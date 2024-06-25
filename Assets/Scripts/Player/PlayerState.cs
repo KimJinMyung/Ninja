@@ -1,0 +1,209 @@
+using UnityEngine;
+using ActorStateMachine;
+using System.Runtime.CompilerServices;
+
+//Player의 동작 제어
+public class PlayerState : ActorState
+{
+    protected Player owner;
+    public PlayerState(Player owner)
+    {
+        this.owner = owner;
+    }
+
+    protected readonly int hashMoveZ = Animator.StringToHash("Z_Value");
+    protected readonly int hashMoveX = Animator.StringToHash("X_Value");
+
+    protected readonly int hashLockOn = Animator.StringToHash("LockOn");
+    protected readonly int hashAttack = Animator.StringToHash("Attack");
+    protected readonly int hashIsMoveAble = Animator.StringToHash("IsMoveAble");
+
+    protected readonly int hashDefence = Animator.StringToHash("Defence");
+    protected readonly int hashParry = Animator.StringToHash("Parry");
+
+    protected readonly int hashHurt = Animator.StringToHash("Hurt");
+    protected readonly int hashDie = Animator.StringToHash("Die");
+    public override void Update()
+    {
+        base.Update();
+
+        PlayerMeshAnimation();
+    }
+
+    private void PlayerMeshAnimation()
+    {
+        if (!owner.Animator.GetBool(hashLockOn))
+        {
+            //float angleValue = Vector3.Dot(owner.transform.forward, owner._moveDir.normalized * 0.3f);
+
+            float MoveValue = Mathf.Abs(owner.ViewModel.Move.y) < 0.1f && Mathf.Abs(owner.ViewModel.Move.x) < 0.1f ? 0f : owner._isRun? 3f : 1f;
+
+            owner.Animator.SetFloat(hashMoveZ, Mathf.Lerp(owner.Animator.GetFloat(hashMoveZ), MoveValue, 10f * Time.deltaTime));
+        }
+        else
+        {
+            float MoveValue = Mathf.Abs(owner.ViewModel.Move.y) < 0.1f && Mathf.Abs(owner.ViewModel.Move.x) < 0.1f ? 0f : owner._isRun? 3f : 1f;          
+
+            owner.Animator.SetFloat(hashMoveZ, Mathf.Lerp(owner.Animator.GetFloat(hashMoveZ), owner.ViewModel.Move.y * MoveValue, 10f * Time.deltaTime));
+            owner.Animator.SetFloat(hashMoveX, Mathf.Lerp(owner.Animator.GetFloat(hashMoveX), owner.ViewModel.Move.x * MoveValue, 10f * Time.deltaTime));
+        }
+    }
+}
+
+public class Player_IdleState : PlayerState
+{
+    public Player_IdleState(Player owner) : base(owner) { }
+    public override void Enter()
+    {
+        base.Enter();
+    }
+
+    public override void Update()
+    {
+        base.Update();
+
+        if (owner.ViewModel.Move.magnitude > 0.1f)
+        {
+            owner.ViewModel.RequestStateChanged(owner.player_id, State.Walk);
+        }
+    }
+}
+
+public class WalkState : PlayerState
+{
+    public WalkState(Player owner) : base(owner) { }
+    public override void Enter()
+    {
+        base.Enter();
+    }
+
+    public override void Update()
+    {
+        base.Update();
+    }
+}
+public class RunState : PlayerState
+{
+    public RunState(Player owner) : base(owner) { }
+
+}
+
+public class CrouchState : PlayerState
+{
+    public CrouchState(Player owner) : base(owner) { }
+
+}
+public class JumpState : PlayerState
+{
+    public JumpState(Player owner) : base(owner) { }
+}
+public class FallingState : PlayerState
+{
+    public FallingState(Player owner) : base(owner) { }
+
+    public override void Update()
+    {
+        base.Update();
+    }
+}
+public class ClimbingState : PlayerState
+{
+    public ClimbingState(Player owner) : base(owner) { }
+}
+public class HideState : PlayerState
+{
+    public HideState(Player owner) : base(owner) { } 
+}
+
+public class DetectionState : PlayerState
+{
+    public DetectionState(Player owner) : base(owner) { }
+}
+public class BattleState : PlayerState
+{
+    public BattleState(Player owner) : base(owner) { }
+
+    private float _timer;
+
+    public override void Enter()
+    {
+        base.Enter();
+
+        _timer = 0;
+
+        owner.Animator.SetBool(hashDefence, false);
+    }
+
+    public override void Update()
+    {
+        base.Update();
+
+        _timer = Mathf.Clamp(_timer + Time.deltaTime, 0f, 3f);
+
+        if (_timer > 10f)
+        {
+            owner.ViewModel.RequestStateChanged(owner.player_id, State.Idle);
+        }
+    }
+}
+public class AttackState : PlayerState
+{
+    public AttackState(Player owner) : base(owner) { }
+
+    public override void Enter()
+    {
+        base.Enter();
+        owner.Animator.SetTrigger(hashAttack);
+    }
+
+}
+public class DefenceState : PlayerState
+{
+    public DefenceState(Player owner) : base(owner) { }
+    public override void Enter()
+    {
+        base.Enter();
+        owner.Animator.SetBool(hashDefence, true);
+    }
+
+    public override void Exit()
+    {
+        if (owner.ViewModel.playerState == State.Parry) return;
+
+        owner.Animator.SetBool(hashDefence, false);
+    }
+}
+public class ParryState : PlayerState
+{
+    public ParryState(Player owner) : base(owner) { }
+}
+public class IncapacitatedState : PlayerState
+{
+    public IncapacitatedState(Player owner) : base(owner) { }
+
+}
+public class UsingItemState : PlayerState
+{
+    public UsingItemState(Player owner) : base(owner) { }
+
+}
+
+public class HurtState : PlayerState
+{
+    public HurtState(Player owner) : base(owner) { }
+
+    public override void Enter()
+    {
+        base.Enter();
+        owner.Animator.SetTrigger(hashHurt);
+    }
+}
+public class DieState : PlayerState
+{
+    public DieState(Player owner) : base(owner) { }
+    public override void Enter()
+    {
+        base.Enter();
+        owner.Animator.SetTrigger(hashDie);
+    }
+}
