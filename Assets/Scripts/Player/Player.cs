@@ -125,6 +125,7 @@ public class Player : MonoBehaviour
 
         player_info = player;
         UnityEngine.Debug.Log(player_info.HP);
+        UnityEngine.Debug.Log(player_info.ATK);
     }
 
     public void OnMovement(InputAction.CallbackContext context)
@@ -204,8 +205,6 @@ public class Player : MonoBehaviour
     }
     private void Gravity()
     {
-        //colliders = Physics.OverlapBox(overlapPos.position, new Vector3(0.3f, 0.1f, 0.3f), Quaternion.identity, gravityLayermask);
-        //colliders.Length > 0 && _velocity <= 0.0f
         if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 1f, gravityLayermask) && _velocity <= 0.1f)
         {
             _velocity = 0f;
