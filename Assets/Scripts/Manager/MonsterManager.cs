@@ -78,7 +78,7 @@ public class MonsterManager : MonoBehaviour
                 {
                     attackMonster.Agent.speed = 0f;
 
-                    _attackingTimer = Random.Range(attackMonster.AttackDelayRange.x, attackMonster.AttackDelayRange.y);
+                    _attackingTimer = Random.Range(attackMonster.AttackDelay - 1.5f, attackMonster.AttackDelay + 1.5f);
                     attackMonster.MonsterViewModel.RequestStateChanged(attackMonster.monsterId, State.Attack);
                 }                
             }

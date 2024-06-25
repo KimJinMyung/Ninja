@@ -18,4 +18,7 @@ public class Monster_Attack
 {
     public string DataName { get; set; }
     public string AttackScriptName { get; set; }
+
+    public float AttackSpeed { get; set;}
+    public float AttackRange { get; set;}
 }

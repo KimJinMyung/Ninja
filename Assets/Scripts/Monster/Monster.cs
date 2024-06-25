@@ -142,14 +142,14 @@ public class Monster : MonoBehaviour
             {
                 var attack = DataManager.Instance.GetAttackMethodName(attackName);
                 string attackScriptName = attack.AttackScriptName;
+
+                _attackRange = attack.AttackRange;
+                AttackDelay = attack.AttackSpeed;
+
                 Type atk = Type.GetType(attackScriptName);
+                gameObject.AddComponent(atk);
+
                 
-                var ark = gameObject.AddComponent(atk).GetComponent<IArk>();
-
-                if (_attackRange < ark.attackRange)
-                    _attackRange = ark.attackRange;
-
-                Debug.Log($"공격 사거리 {_attackRange}");
             }
         }
     }
@@ -309,7 +309,7 @@ public class Monster : MonoBehaviour
     #endregion
     #region AttackState
     public float CombatMovementTimer;
-    [SerializeField] public Vector2 AttackDelayRange { get; private set; } = new Vector2(1f, 4f);
+    public float AttackDelay { get; protected set; }
     #endregion
 
     protected virtual void RandomPoint()

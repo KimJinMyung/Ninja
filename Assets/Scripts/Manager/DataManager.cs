@@ -109,6 +109,8 @@ public class DataManager : MonoBehaviour
             Monster_Attack attack = new Monster_Attack();
             attack.DataName = data.Attribute(nameof(attack.DataName)).Value;
             attack.AttackScriptName = data.Attribute(nameof(attack.AttackScriptName)).Value;
+            attack.AttackRange = float.Parse(data.Attribute(nameof(attack.AttackRange)).Value);
+            attack.AttackSpeed = float.Parse(data.Attribute(nameof(attack.AttackSpeed)).Value);
 
             LoadedMonsterAttackList.Add(attack.DataName, attack);
         }
