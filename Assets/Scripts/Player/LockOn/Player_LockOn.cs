@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Player_LockOn : MonoBehaviour
 {
@@ -23,6 +24,8 @@ public class Player_LockOn : MonoBehaviour
 
     private LockOnViewModel _viewModel;
     public LockOnViewModel ViewModel { get { return _viewModel; } }
+
+    private Transform _lockOnAbleObject;
 
     private void Awake()
     {
@@ -60,15 +63,35 @@ public class Player_LockOn : MonoBehaviour
             case nameof(_viewModel.HitColliders):
                 break;
             case nameof(_viewModel.LockOnTarget):
-                if (_viewModel.LockOnTarget != null)
-                    _viewModel.LockOnTarget.gameObject.layer = LayerMask.NameToLayer("LockOnTarget");
+                //if (_viewModel.LockOnTarget != null)
+                //    _viewModel.LockOnTarget.gameObject.layer = LayerMask.NameToLayer("LockOnTarget");
                 break;
         }
     }
 
-    private void FixedUpdate()
+    private void Update()
     {
-        Debug.Log(DetectingTarget());
+        _lockOnAbleObject = DetectingTarget();
+        _viewModel.RequestLockOnAbleTarget(_lockOnAbleObject);        
+    }
+
+    public void OnLockOnMode(InputAction.CallbackContext context)
+    {
+        if (_viewModel.HitColliders.Count <= 0) return;
+
+        if (context.performed)
+        {
+            if (isLockOnMode && _lockOnAbleObject == _viewModel.LockOnTarget)
+            {
+                isLockOnMode = false;
+                _viewModel.RequestLockOnTarget(null, owner.ViewModel);
+            }
+            else
+            {
+                isLockOnMode = true;
+                _viewModel.RequestLockOnTarget(_lockOnAbleObject, owner.ViewModel);
+            }
+        }
     }
 
     private void OnDrawGizmos()
@@ -77,42 +100,38 @@ public class Player_LockOn : MonoBehaviour
         Gizmos.DrawWireSphere(Eye.position, _viewRange);
     }
 
-
     private Transform DetectingTarget()
+    {       
+        Collider[] colliders = Physics.OverlapSphere(Eye.position, _viewRange, _lockOnAbleMask);
+
+        return ReturnTarget(colliders);
+    }
+
+    Transform ReturnTarget(Collider[] colliders)
     {
         Transform closestTarget = null;
         float closestAngle = Mathf.Infinity;
 
         List<Transform> tempLockOnAbleList = new List<Transform>();
 
-        Collider[] colliders = Physics.OverlapSphere(Eye.position, _viewRange, _lockOnAbleMask);
-        if (colliders.Length <= 0) return null;
-
-        foreach(var collider in colliders) 
-        {
+        foreach (var collider in colliders)
+        {            
             Vector3 dirTarget = (collider.transform.position - Camera.main.transform.position).normalized;
             float angleToTarget = Vector3.Angle(Camera.main.transform.forward, dirTarget);
 
-            float distance;
-            float combinedMetric;
-
             if (angleToTarget < _viewAngle)
             {
-                distance = Vector3.Distance(Camera.main.transform.position, collider.transform.position);
-                combinedMetric = angleToTarget + distance * 0.1f; // 각도와 거리를 결합한 메트릭
-
-                if (Physics.Raycast(Camera.main.transform.position, dirTarget, out RaycastHit hit, _viewRange))
+                float cameraDis = Vector3.Distance(new Vector3(Camera.main.transform.position.x, 0, Camera.main.transform.position.z), new Vector3(transform.position.x, 0, transform.position.z));
+                if (Physics.Raycast(Camera.main.transform.position, dirTarget, out RaycastHit hit, _viewRange + cameraDis, _lockOnAbleMask))
                 {
                     if (hit.collider == collider)
                     {
-                        if (hit.transform.gameObject.layer == LayerMask.NameToLayer("Dead")) continue;
-
                         tempLockOnAbleList.Add(collider.transform);
 
-                        if (combinedMetric < closestAngle)
+                        if (angleToTarget < closestAngle)
                         {
-                            closestAngle = combinedMetric;
-                            closestTarget = collider.transform;
+                            closestAngle = angleToTarget;
+                            closestTarget = hit.transform;
                         }
                     }
                 }

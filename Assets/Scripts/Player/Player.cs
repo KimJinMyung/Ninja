@@ -124,8 +124,6 @@ public class Player : MonoBehaviour
         if (player == null) return;
 
         player_info = player;
-        UnityEngine.Debug.Log(player_info.HP);
-        UnityEngine.Debug.Log(player_info.ATK);
     }
 
     public void OnMovement(InputAction.CallbackContext context)
