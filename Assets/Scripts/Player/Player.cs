@@ -161,7 +161,7 @@ public class Player : MonoBehaviour
 
         CameraRotation();
         Movement();
-
+        
         _stateMachine.OnUpdate();
     }
 
@@ -185,14 +185,10 @@ public class Player : MonoBehaviour
             movementSpeed = player_info.WalkSpeed;
         }
     }
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.red;
-        Gizmos.DrawRay(transform.position + new Vector3(0, 0.05f * 0.5f, 0), -transform.up * 1.5f);
-    }
 
     private void Movement()
     {
+        if (!animator.GetBool(hashIsMoveAble)) return;
         moveDir = new Vector3(_viewModel.Move.x, 0, _viewModel.Move.y).normalized;
 
         if(moveDir.magnitude >= 0.1f)
@@ -217,12 +213,11 @@ public class Player : MonoBehaviour
         }
 
         playerController.Move(new Vector3(0, _velocity, 0) * Time.deltaTime);
-        UnityEngine.Debug.Log(isGround);
     }
 
     private void Rotation()
     {
-        if (!Animator.GetBool(hashIsMoveAble)) return;
+        if (!animator.GetBool(hashIsMoveAble)) return;
 
         if (animator.GetBool(hashLockOn))
         {

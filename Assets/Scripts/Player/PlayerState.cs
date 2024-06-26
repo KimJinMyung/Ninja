@@ -153,9 +153,9 @@ public class AttackState : PlayerState
     public override void Enter()
     {
         base.Enter();
-        owner.Animator.SetTrigger(hashAttack);
-    }
 
+        owner.Animator.SetBool(hashIsMoveAble, false);
+    }
 }
 public class DefenceState : PlayerState
 {
