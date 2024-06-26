@@ -17,7 +17,7 @@ public class Player : MonoBehaviour
 
     #region gravity
     //중력 값
-    private float gravity = -9.81f;
+    private float gravity = -20;
     //현재 중력 가속도
     private float _velocity;
 
@@ -158,7 +158,7 @@ public class Player : MonoBehaviour
         Gravity();
         MoveSpeed();
 
-        CameraRotation();
+        CamearaRotation();
         Movement();
         
         _stateMachine.OnUpdate();
@@ -267,7 +267,27 @@ public class Player : MonoBehaviour
         mouseRotation = initRotation;
     }
 
-    private void CameraRotation()
+    private void CamearaRotation()
+    {
+        if (animator.GetBool(hashLockOn))
+        {
+            CamearaRotation_Target(_viewModel.LockOnTarget);
+        }
+        else
+        {
+            CameraRotation_Move();
+        }
+    }
+
+    private void CamearaRotation_Target(Transform target)
+    {
+        if (target == null) return;
+
+        _lookAt.LookAt(target);
+        InitRotation();
+    }
+
+    private void CameraRotation_Move()
     {
         x_Axis.Update(Time.fixedDeltaTime);
         y_Axis.Update(Time.fixedDeltaTime);

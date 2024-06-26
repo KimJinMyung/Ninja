@@ -11,7 +11,7 @@ public class DataManager : MonoBehaviour
     public Dictionary<int, Monster_data> LoadedMonsterDataList { get; private set; }
     public Dictionary<string, Monster_Attack> LoadedMonsterAttackList { get; private set; }
 
-    //private Dictionary<MonsterFileType, TextAsset> textAssetDic = new Dictionary<MonsterFileType, TextAsset>();
+    private Dictionary<MonsterFileType, TextAsset> textAssetDic = new Dictionary<MonsterFileType, TextAsset>();
 
     public Dictionary<int, Player_data> LoadPlayerData { get; private set; }
 
@@ -19,8 +19,8 @@ public class DataManager : MonoBehaviour
 
     void LoadFile()
     {
-        //textAssetDic.Add(MonsterFileType.Monster_Info, Resources.Load(nameof(Monster_data)) as TextAsset);
-        //textAssetDic.Add(MonsterFileType.Monster_Attack, Resources.Load(nameof(Monster_Attack)) as TextAsset);
+        textAssetDic.Add(MonsterFileType.Monster_Info, Resources.Load(nameof(Monster_data)) as TextAsset);
+        textAssetDic.Add(MonsterFileType.Monster_Attack, Resources.Load(nameof(Monster_Attack)) as TextAsset);
 
 
         playerTextAsset = Resources.Load(nameof(Player_data)) as TextAsset;
@@ -28,30 +28,30 @@ public class DataManager : MonoBehaviour
 
     private void ReadDataOnAwake()
     {
-        //ReadMonsterData(nameof(Monster_data), MonsterFileType.Monster_Info);
-        //ReadMonsterData(nameof(Monster_Attack), MonsterFileType.Monster_Attack);
+        ReadMonsterData(nameof(Monster_data), MonsterFileType.Monster_Info);
+        ReadMonsterData(nameof(Monster_Attack), MonsterFileType.Monster_Attack);
         ReadPlayerData();
     }
 
-    //private void ReadMonsterData(string tableName, MonsterFileType fileType)
-    //{
-    //    var textAsset = textAssetDic[fileType];
-    //    if (textAsset == null) return;
+    private void ReadMonsterData(string tableName, MonsterFileType fileType)
+    {
+        var textAsset = textAssetDic[fileType];
+        if (textAsset == null) return;
 
-    //    XDocument xmlAsset = XDocument.Parse(textAsset.text);
-    //    if (xmlAsset == null) return;
-    //    //string dataString = textAsset.text;
+        XDocument xmlAsset = XDocument.Parse(textAsset.text);
+        if (xmlAsset == null) return;
+        //string dataString = textAsset.text;
 
-    //    switch (fileType)
-    //    {
-    //        case MonsterFileType.Monster_Info:
-    //            FileType_MonsterData(xmlAsset);
-    //            break;
-    //        case MonsterFileType.Monster_Attack:
-    //            FileType_MonsterAttack(xmlAsset);
-    //            break;
-    //    }
-    //}
+        switch (fileType)
+        {
+            case MonsterFileType.Monster_Info:
+                FileType_MonsterData(xmlAsset);
+                break;
+            case MonsterFileType.Monster_Attack:
+                FileType_MonsterAttack(xmlAsset);
+                break;
+        }
+    }
 
     private void ReadPlayerData()
     {
@@ -77,6 +77,8 @@ public class DataManager : MonoBehaviour
             monster.Strength = float.Parse(data.Attribute(nameof(monster.Strength)).Value);
             monster.Stamina = float.Parse(data.Attribute(nameof(monster.Stamina)).Value);
             monster.Description = data.Attribute(nameof(monster.Description)).Value;
+            monster.ViewRange = float.Parse(data.Attribute(nameof(monster.ViewRange)).Value);
+            monster.ViewAngel = float.Parse(data.Attribute(nameof(monster.ViewAngel)).Value);
 
             string AttackMethodNameString = data.Attribute(nameof(monster.AttackMethodName)).Value;
             if (!string.IsNullOrEmpty(AttackMethodNameString))

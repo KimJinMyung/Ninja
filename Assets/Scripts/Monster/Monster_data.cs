@@ -11,6 +11,8 @@ public class Monster_data
     public float RunSpeed { get; set; }
     public float Strength { get; set; }
     public float Stamina { get; set; }
+    public float ViewRange { get; set; }
+    public float ViewAngel { get; set; }
     public List<string> AttackMethodName { get; set; }
 }
 

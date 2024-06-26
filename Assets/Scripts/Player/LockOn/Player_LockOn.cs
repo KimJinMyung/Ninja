@@ -72,8 +72,6 @@ public class Player_LockOn : MonoBehaviour
 
     private void Update()
     {
-        Debug.Log(isLockOnMode);
-
         _lockOnAbleObject = DetectingTarget();
         _viewModel.RequestLockOnAbleTarget(_lockOnAbleObject);        
     }

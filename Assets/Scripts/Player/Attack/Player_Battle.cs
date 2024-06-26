@@ -2,10 +2,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class Player_Attack : MonoBehaviour
+public class Player_Battle : MonoBehaviour
 {
     [SerializeField]
     private Transform AttackColliderPos;
+
+    [SerializeField] private Transform DefenceColliderPos;
 
     private Player owner;
 
@@ -39,6 +41,20 @@ public class Player_Attack : MonoBehaviour
                 hitMonsters.Clear();
                 owner.Animator.SetTrigger("Attack");
             }
+        }
+    }
+
+    public void OnDefence(InputAction.CallbackContext context)
+    {
+        bool isDefence = context.ReadValue<float>() > 0.5f;
+
+        if (isDefence)
+        {
+
+        }
+        else
+        {
+
         }
     }
 
