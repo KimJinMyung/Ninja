@@ -128,7 +128,7 @@ public class Player_LockOn : MonoBehaviour
                         tempLockOnAbleList.Add(collider.transform);
 
                         if (angleToTarget < closestAngle)
-                        {
+                        {                            
                             closestAngle = angleToTarget;
                             closestTarget = hit.transform;
                         }

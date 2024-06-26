@@ -243,7 +243,6 @@ public class Monster_TraceState : MonsterState
 
         owner.Agent.SetDestination(owner.MonsterViewModel.TraceTarget.position);
 
-        Debug.Log($"{owner.Agent.remainingDistance} / {owner.Agent.stoppingDistance}");
         if (owner.Agent.remainingDistance <= owner.Agent.stoppingDistance)
         {
             owner.MonsterViewModel.RequestStateChanged(monsterId, State.Battle);

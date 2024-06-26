@@ -1,4 +1,5 @@
 using ActorStateMachine;
+using Cinemachine;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Security.Cryptography;
@@ -158,15 +159,28 @@ public class Player : MonoBehaviour
         Gravity();
         MoveSpeed();
 
-        CamearaRotation();
+        if (!animator.GetBool(hashLockOn))
+        {
+            CameraRotation_Move();
+        }
+        else
+        {
+            CamearaRotation_Target(_viewModel.LockOnTarget);
+        }
+
         Movement();
         
         _stateMachine.OnUpdate();
     }
 
     private void FixedUpdate()
-    {       
+    {
         _stateMachine.OnFixedUpdate();
+
+        //if (animator.GetBool(hashLockOn))
+        //{
+        //    CamearaRotation_Target(_viewModel.LockOnTarget);
+        //}
 
         Rotation();
     }       
@@ -267,23 +281,15 @@ public class Player : MonoBehaviour
         mouseRotation = initRotation;
     }
 
-    private void CamearaRotation()
-    {
-        if (animator.GetBool(hashLockOn))
-        {
-            CamearaRotation_Target(_viewModel.LockOnTarget);
-        }
-        else
-        {
-            CameraRotation_Move();
-        }
-    }
-
     private void CamearaRotation_Target(Transform target)
     {
         if (target == null) return;
 
-        _lookAt.LookAt(target);
+        // target을 향한 회전 값을 계산
+        Quaternion targetRotation = Quaternion.LookRotation(target.position - _lookAt.position);
+
+        // 부드러운 회전을 위해 Slerp 사용
+        _lookAt.rotation = Quaternion.Slerp(_lookAt.rotation, targetRotation, Time.deltaTime * 10f);
         InitRotation();
     }
 

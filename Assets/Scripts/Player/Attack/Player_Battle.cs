@@ -12,7 +12,6 @@ public class Player_Battle : MonoBehaviour
     private Player owner;
 
     private HashSet<Collider> hitMonsters = new HashSet<Collider>();
-    private bool isAttackAble;
 
     private void Awake()
     {
@@ -21,7 +20,7 @@ public class Player_Battle : MonoBehaviour
 
     private void OnEnable()
     {
-        isAttackAble = true;
+        owner.Animator.SetBool("IsAttackAble", true);
     }
 
     public void OnAttack(InputAction.CallbackContext context)
@@ -30,14 +29,14 @@ public class Player_Battle : MonoBehaviour
 
         if (context.started)
         {
-            if(!isAttackAble) return;
+            if(!owner.Animator.GetBool("IsAttackAble")) return;
             //if (owner.ViewModel.playerState == State.Attack) return;
 
             if (owner.ViewModel.playerState == State.Defence) owner.ViewModel.RequestStateChanged(owner.player_id, State.Parry);
             else
             {
                 if (owner.ViewModel.playerState == State.Parry) return;
-                isAttackAble = false;
+                owner.Animator.SetBool("IsAttackAble", false);
                 hitMonsters.Clear();
                 owner.Animator.SetTrigger("Attack");
             }
@@ -50,11 +49,11 @@ public class Player_Battle : MonoBehaviour
 
         if (isDefence)
         {
-
+            owner.Animator.SetBool("Defence", true);
         }
         else
         {
-
+            owner.Animator.SetBool("Defence", false);
         }
     }
 
@@ -100,7 +99,7 @@ public class Player_Battle : MonoBehaviour
 
     public void AttackEnd()
     {
-        isAttackAble = true;
+        owner.Animator.SetBool("IsAttackAble", true);
         owner.ViewModel.RequestStateChanged(owner.player_id, State.Battle);
     }
 }

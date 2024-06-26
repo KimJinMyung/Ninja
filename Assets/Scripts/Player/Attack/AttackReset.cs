@@ -1,4 +1,5 @@
 using UnityEngine;
+using static UnityEditor.Experimental.GraphView.GraphView;
 using static UnityEngine.UI.GridLayoutGroup;
 
 public class AttackReset : StateMachineBehaviour
@@ -9,6 +10,7 @@ public class AttackReset : StateMachineBehaviour
 
     protected readonly int hashIsAttackCount = Animator.StringToHash("AttackCount");
     protected readonly int hashIsMoveAble = Animator.StringToHash("IsMoveAble");
+    protected readonly int hashIsAttackAble = Animator.StringToHash("IsAttackAble");
 
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
@@ -28,6 +30,7 @@ public class AttackReset : StateMachineBehaviour
     public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         animator.SetBool(hashIsMoveAble, true);
+        animator.SetBool(hashIsAttackAble, true);
         animator.ResetTrigger(_triggerName);
     }
 

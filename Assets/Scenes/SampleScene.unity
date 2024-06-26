@@ -285,6 +285,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Eyes: {fileID: 687877029}
+  aa: {fileID: 303397420}
 --- !u!1 &303397420 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 372432206759774204, guid: 9a77fa629deedb04ea2cd2370a260676, type: 3}
@@ -873,7 +874,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 80
   m_CollisionDetection: 0
 --- !u!136 &1192437054
 CapsuleCollider:
@@ -1040,7 +1041,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1597691450}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.9933648, y: 0, z: 1.795368}
+  m_LocalPosition: {x: 12.34, y: 0, z: 5.84}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1409,5 +1410,6 @@ PrefabInstance:
       propertyPath: JumpForce
       value: 8
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 372432206542042499, guid: 9a77fa629deedb04ea2cd2370a260676, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 9a77fa629deedb04ea2cd2370a260676, type: 3}
