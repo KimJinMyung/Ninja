@@ -103,6 +103,7 @@ public class Player : MonoBehaviour
         _viewModel.PropertyChanged += OnPropertyChanged;
         _viewModel.RegisterStateChanged(player_id, true);
         _viewModel.RegisterMoveVelocity(true);
+        _viewModel.ReigsterLockOnTargetChanged(true);
 
         SetPlayerInfo();
         InitRotation();        
@@ -112,6 +113,7 @@ public class Player : MonoBehaviour
     {
         if (_viewModel != null)
         {
+            _viewModel.ReigsterLockOnTargetChanged(false);
             _viewModel.RegisterMoveVelocity(false);
             _viewModel.RegisterStateChanged(player_id, false);
             _viewModel.PropertyChanged -= OnPropertyChanged;
@@ -149,7 +151,6 @@ public class Player : MonoBehaviour
         if (_viewModel == null) return;
 
         _isRun = context.ReadValue<float>() > 0.5f;
-        UnityEngine.Debug.Log(_isRun);
     }
 
     private void Update()
@@ -229,6 +230,8 @@ public class Player : MonoBehaviour
 
     private void LookAtTargetOnYAxis(Transform target, Transform playerMesh)
     {
+        if(target == null) return;
+
         Vector3 dirTarget = target.position - playerMesh.position;
         dirTarget.y = 0;
         Quaternion rotation = Quaternion.LookRotation(dirTarget);

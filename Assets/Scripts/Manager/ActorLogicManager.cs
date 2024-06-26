@@ -14,8 +14,8 @@ public class ActorLogicManager : MonoBehaviour
     private Dictionary<int, Action<Player_data>> _playerInfoChangedCallbacks = new Dictionary<int, Action<Player_data>>();
     private Action<List<Transform>> _lockOnTargetListChangedCallback;
     private Action<Transform> _lockOnAbleTargetChangedCallback;
-    private Action<Transform, Player_ViewModel> _playerLockOnTargetChangedCallback;
-    private Action<Transform> _lockOnModel_TargetChangeCallback;
+    private Action<Transform, Player> _lockOnViewModel_TargetChangedCallback;
+    private Action<Transform> _lockOnModelPlayer_TargetChangeCallback;
     private Dictionary<int, Action<Transform>> _traceTargetChangedCallback = new Dictionary<int, Action<Transform>>();
 
     private void Awake()
@@ -148,16 +148,16 @@ public class ActorLogicManager : MonoBehaviour
         else _lockOnTargetListChangedCallback -= lockOnTargetListChangedCallback;
     }
 
-    public void RegisterLockOnTargetChangedCallback(Action<Transform, Player_ViewModel> lockOnTargetChangedCallback, bool isRegister)
+    public void RegisterLockOnViewModel_TargetChangedCallback(Action<Transform, Player> lockOnTargetChangedCallback, bool isRegister)
     {
-        if (isRegister) _playerLockOnTargetChangedCallback += lockOnTargetChangedCallback;
-        else _playerLockOnTargetChangedCallback -= lockOnTargetChangedCallback;
+        if (isRegister) _lockOnViewModel_TargetChangedCallback += lockOnTargetChangedCallback;
+        else _lockOnViewModel_TargetChangedCallback -= lockOnTargetChangedCallback;
     }
 
     public void RegisterLockOnTargetChangedCallback(Action<Transform> lockOnTargetChangedCallback, bool isRegister)
     {
-        if (isRegister) _lockOnModel_TargetChangeCallback += lockOnTargetChangedCallback;
-        else _lockOnModel_TargetChangeCallback -= lockOnTargetChangedCallback;
+        if (isRegister) _lockOnModelPlayer_TargetChangeCallback += lockOnTargetChangedCallback;
+        else _lockOnModelPlayer_TargetChangeCallback -= lockOnTargetChangedCallback;
     }
 
     public void RegisterLockOnAbleTargetChangedCallback(Action<Transform> lockOnAbleTargetChangedCallback, bool isRegister)
@@ -233,16 +233,16 @@ public class ActorLogicManager : MonoBehaviour
         if (_lockOnAbleTargetChangedCallback == null) return;
         _lockOnAbleTargetChangedCallback.Invoke(target);
     }
-    public void OnLockOnTarget(Transform target, Player_ViewModel player)
+    public void OnLockOnTarget_LockOnViewModel(Transform target, Player player)
     {
-        if(_playerLockOnTargetChangedCallback == null) return;
-        _playerLockOnTargetChangedCallback.Invoke(target, player);
+        if(_lockOnViewModel_TargetChangedCallback == null) return;
+        _lockOnViewModel_TargetChangedCallback.Invoke(target, player);
     }
 
     public void OnLockOnTarget(Transform target)
     {
-        if (_lockOnModel_TargetChangeCallback == null) return;
-        _lockOnModel_TargetChangeCallback.Invoke(target);
+        if (_lockOnModelPlayer_TargetChangeCallback == null) return;
+        _lockOnModelPlayer_TargetChangeCallback.Invoke(target);
     }
     public void OnTraceTarget(int actorId, Transform target)
     {

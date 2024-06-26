@@ -63,7 +63,7 @@ public static class Player_ViewModel_Extension
 
     public static void OnResponseLockOnTargetChangedEvent(this Player_ViewModel input, Transform tartget)
     {
-        input.LockOnTarget = tartget;
+        input.LockOnTarget = tartget;        
     }
     #endregion
 }

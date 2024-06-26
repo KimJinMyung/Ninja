@@ -16,10 +16,12 @@ public class LockOn_UI : MonoBehaviour
         _thisCanvas = GetComponent<Canvas>();
     }
 
-    private void FixedUpdate()
+    private void Update()
     {
         foreach (var monster in MonsterManager.instance.LockOnAbleMonsterList)
         {
+            if(monster == null) continue;
+
             if (!monsterIcons.ContainsKey(monster))
             {
                 GameObject newIcon;
@@ -50,6 +52,7 @@ public class LockOn_UI : MonoBehaviour
 
         foreach (var monster in removeList)
         {
+            if (monster.gameObject.layer == LayerMask.NameToLayer("LockOnAble")) return;
             monsterIcons[monster].gameObject.SetActive(false);
             monsterIcons.Remove(monster);
         }

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -40,7 +41,7 @@ public class Player_LockOn : MonoBehaviour
             _viewModel.PropertyChanged += OnPropertyChanged;
             _viewModel.RegisterLockOnTargetListChanged(true);
             _viewModel.RegisterLockOnAbleTargetChanged(true);
-            _viewModel.RegisterLockOnTargetChanged(true);
+            _viewModel.RegisterLockOnViewModel_TargetChanged(true);
         }
     }
 
@@ -48,7 +49,7 @@ public class Player_LockOn : MonoBehaviour
     {
         if (_viewModel != null)
         {
-            _viewModel.RegisterLockOnTargetChanged(false);
+            _viewModel.RegisterLockOnViewModel_TargetChanged(false);
             _viewModel.RegisterLockOnAbleTargetChanged(false);
             _viewModel.RegisterLockOnTargetListChanged(false);
             _viewModel.PropertyChanged -= OnPropertyChanged;
@@ -63,14 +64,16 @@ public class Player_LockOn : MonoBehaviour
             case nameof(_viewModel.HitColliders):
                 break;
             case nameof(_viewModel.LockOnTarget):
-                //if (_viewModel.LockOnTarget != null)
-                //    _viewModel.LockOnTarget.gameObject.layer = LayerMask.NameToLayer("LockOnTarget");
+                isLockOnMode = (_viewModel.LockOnTarget != null);
+                owner.Animator.SetBool("LockOn", isLockOnMode);
                 break;
         }
     }
 
     private void Update()
     {
+        Debug.Log(isLockOnMode);
+
         _lockOnAbleObject = DetectingTarget();
         _viewModel.RequestLockOnAbleTarget(_lockOnAbleObject);        
     }
@@ -82,15 +85,13 @@ public class Player_LockOn : MonoBehaviour
         if (context.performed)
         {
             if (isLockOnMode && _lockOnAbleObject == _viewModel.LockOnTarget)
-            {
-                isLockOnMode = false;
-                _viewModel.RequestLockOnTarget(null, owner.ViewModel);
+            {                
+                _viewModel.RequestLockOnViewModel_Target(null, owner);
             }
             else
             {
-                isLockOnMode = true;
-                _viewModel.RequestLockOnTarget(_lockOnAbleObject, owner.ViewModel);
-            }
+                _viewModel.RequestLockOnViewModel_Target(_lockOnAbleObject, owner);
+            }          
         }
     }
 
@@ -101,7 +102,7 @@ public class Player_LockOn : MonoBehaviour
     }
 
     private Transform DetectingTarget()
-    {       
+    {
         Collider[] colliders = Physics.OverlapSphere(Eye.position, _viewRange, _lockOnAbleMask);
 
         return ReturnTarget(colliders);
@@ -139,6 +140,9 @@ public class Player_LockOn : MonoBehaviour
             }
         }
 
+        if (owner.ViewModel.LockOnTarget !=null && !tempLockOnAbleList.Contains(owner.ViewModel.LockOnTarget)) tempLockOnAbleList.Add(owner.ViewModel.LockOnTarget);
+
+        //Debug.Log($"{tempLockOnAbleList.Count}");
         _viewModel.RequestLockOnTargetList(tempLockOnAbleList);
 
         return closestTarget;
