@@ -48,6 +48,7 @@ public class Monster_IdleState : MonsterState
         if(owner.MonsterViewModel.TraceTarget != null)
         {
             owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.Trace);
+            return;
         }
         else
         {
@@ -55,6 +56,7 @@ public class Monster_IdleState : MonsterState
             if(_timer >= _patrolDelay)
             {
                 owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.Walk);
+                return;
             }
         }
     }
@@ -75,21 +77,21 @@ public class Monster_PatrolState : MonsterState
     {
         base.Enter();
         MovementSpeed = owner.MonsterViewModel.MonsterInfo.WalkSpeed;
+        owner.Agent.stoppingDistance = 0f;
         PatrolEndPos = RandomPoint();
-        StartPos = owner.transform.position;        
+        StartPos = owner.transform.position;
     }
 
     public override void Update()
     {
-        base.Update();
+        base.Update();        
 
         owner.Agent.speed = Mathf.Lerp(owner.Agent.speed, MovementSpeed, 10f * Time.deltaTime);
-
-        Debug.Log($"{PatrolEndPos} / {owner.transform.position}");
 
         if (owner.MonsterViewModel.TraceTarget != null)
         {
             owner.MonsterViewModel.RequestStateChanged(monsterId, State.Run);
+            return;
         }
         else
         {
@@ -98,6 +100,7 @@ public class Monster_PatrolState : MonsterState
             if (StartPos != PatrolEndPos && Vector3.Distance(owner.transform.position, PatrolEndPos) <= 0.5f)
             {
                 owner.MonsterViewModel.RequestStateChanged(monsterId, State.Idle);
+                return;
             }
         }        
     }
@@ -125,16 +128,27 @@ public class Monster_TraceState : MonsterState
         base.Enter();
         MovementSpeed = owner.MonsterViewModel.MonsterInfo.RunSpeed;
         owner.Agent.angularSpeed = 3000;
-        owner.animator.SetBool("ComBatMode", true);        
+        owner.Agent.stoppingDistance = 3f;
+        //owner.animator.SetBool("ComBatMode", true);        
     }
 
     public override void Update()
     {
         base.Update();
+
+        owner.Agent.speed = Mathf.Lerp(owner.Agent.speed, MovementSpeed, 10f * Time.deltaTime);
+
+        //if (owner.MonsterViewModel.TraceTarget == null)
+        //{
+        //    owner.MonsterViewModel.RequestStateChanged(monsterId, State.Alert);
+        //    return;
+        //}
+
+        owner.transform.LookAt(owner.MonsterViewModel.TraceTarget);
         owner.Agent.SetDestination(owner.MonsterViewModel.TraceTarget.position);
 
         //임시 5f => AttackRange로 교체 예정
-        if(Vector3.Distance(owner.transform.position, owner.MonsterViewModel.TraceTarget.position) <= 5f)
+        if(owner.Agent.velocity == Vector3.zero)
         {
             owner.MonsterViewModel.RequestStateChanged(monsterId, State.Battle);
         }
@@ -179,9 +193,31 @@ public class Monster_BattleState : MonsterState
 {
     public Monster_BattleState(Monster owner) : base(owner) { }
 
+    private float _timer;
+
     public override void Enter()
     {
         base.Enter();
+        _timer = 0f;
+        owner.Agent.speed = 0f;
+        MovementSpeed = owner.MonsterViewModel.MonsterInfo.WalkSpeed;
+    }
+
+    public override void Update()
+    {
+        base.Update();
+
+        //if(owner.MonsterViewModel.TraceTarget == null)
+        //{
+        //    owner.MonsterViewModel.RequestStateChanged(monsterId, State.Alert);
+        //    return;
+        //}
+
+        if(Vector3.Distance(owner.transform.position, owner.MonsterViewModel.TraceTarget.position) > owner.Agent.stoppingDistance)
+        {
+            //TraceTarget 이 null이 되는 이유 찾으면 됨
+            owner.MonsterViewModel.RequestStateChanged(monsterId, State.Run);
+        }
     }
 }
 

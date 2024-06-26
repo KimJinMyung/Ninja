@@ -48,9 +48,10 @@ public class Monster : MonoBehaviour
         _monsterStateMachine.AddState(State.Walk, new Monster_PatrolState(this));
         _monsterStateMachine.AddState(State.Run, new Monster_TraceState(this)); 
         _monsterStateMachine.AddState(State.Battle, new Monster_BattleState(this));
+        _monsterStateMachine.AddState(State.Alert, new Monster_AlertState(this));
         _monsterStateMachine.AddState(State.Circling, new Monster_CirclingState(this));
         _monsterStateMachine.AddState(State.Attack, new Monster_AttackState(this));
-        _monsterStateMachine.AddState(State.Hurt, new Monster_AttackState(this));
+        _monsterStateMachine.AddState(State.Hurt, new Monster_HurtState(this));
         _monsterStateMachine.AddState(State.Incapacitated, new Monster_SubduedState(this));
         _monsterStateMachine.AddState(State.Die, new Monster_DeadState(this));
 
