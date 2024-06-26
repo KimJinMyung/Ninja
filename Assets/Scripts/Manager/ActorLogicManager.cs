@@ -37,7 +37,7 @@ public class ActorLogicManager : MonoBehaviour
             }
             else
             {
-                _stateChangedCallback[actorId] += stateChangedCallback;
+                _stateChangedCallback.Add(actorId, stateChangedCallback);
             }
         }
         else
@@ -107,7 +107,7 @@ public class ActorLogicManager : MonoBehaviour
             }
             else
             {
-                _hpChangedCallbacks[actorId] += hpChangedCallback;
+                _hpChangedCallbacks.Add(actorId, hpChangedCallback);
             }
         }
         else
@@ -129,7 +129,7 @@ public class ActorLogicManager : MonoBehaviour
             }
             else
             {
-                _playerInfoChangedCallbacks[actorId] += playerInfoChangedCallback;
+                _playerInfoChangedCallbacks.Add(actorId, playerInfoChangedCallback);
             }
         }
         else
@@ -178,7 +178,7 @@ public class ActorLogicManager : MonoBehaviour
                 }
                 else
                 {
-                    _traceTargetChangedCallback[actorId] += TraceTargetChangedCallback;
+                    _traceTargetChangedCallback.Add(actorId, TraceTargetChangedCallback);
                 }
             }
             else

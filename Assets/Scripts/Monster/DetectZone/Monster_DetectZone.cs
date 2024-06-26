@@ -18,8 +18,8 @@ public class Monster_DetectZone : MonoBehaviour
     }
 
     private void OnEnable()
-    {        
-        collider.radius = owner.MonsterViewModel.MonsterInfo.ViewRange;
+    {
+        DefaultDetectRange();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -28,6 +28,11 @@ public class Monster_DetectZone : MonoBehaviour
         {
             player = other.transform;
         }
+    }
+
+    private void DefaultDetectRange()
+    {
+        collider.radius = owner.MonsterViewModel.MonsterInfo.ViewRange;
     }
 
     private void OnTriggerExit(Collider other)
@@ -47,21 +52,31 @@ public class Monster_DetectZone : MonoBehaviour
 
     private void FixedUpdate()
     {
-        Detecting();
-        Debug.Log(owner.MonsterViewModel.TraceTarget);
+        if (Detecting()) collider.radius = owner.MonsterViewModel.MonsterInfo.ViewRange + 1f;
+        else if (!collider.radius.Equals(owner.MonsterViewModel.MonsterInfo.ViewRange)) DefaultDetectRange();
     }
 
-    private void Detecting()
-    {
-        if (player == null) return;
+    [SerializeField] private GameObject aa;
 
-        Vector3 playerDir = (player.position - transform.position).normalized;
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawRay(transform.position, (aa.transform.position - transform.position).normalized * 5f);
+    }
+
+    private bool Detecting()
+    {
+        if (player == null) return false;
+
+        Vector3 playerDir = (new Vector3(player.transform.position.x,0,player.transform.position.z) - new Vector3(transform.position.x,0,transform.position.z)).normalized;
         float angleMonAndPlayer = Vector3.Angle(Eyes.forward, playerDir);
 
         if (angleMonAndPlayer < owner.MonsterViewModel.MonsterInfo.ViewAngel / 2f)
         {
-            owner.MonsterViewModel.RequestTraceTargetChanged(owner.monsterId, player);
-            return;
+            owner.MonsterViewModel.RequestTraceTargetChanged(owner.monsterId, player);            
+            return true;
         }
+
+        return false;
     }
 }

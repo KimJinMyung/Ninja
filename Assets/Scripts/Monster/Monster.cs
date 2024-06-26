@@ -104,8 +104,9 @@ public class Monster : MonoBehaviour
     private void Update()
     {
         _monsterStateMachine.OnUpdate();
-
         Debug.Log(_monsterState.MonsterState);
+
+        
     }
 
     protected float _attackRange = 0;

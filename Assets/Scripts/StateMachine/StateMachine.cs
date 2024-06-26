@@ -24,7 +24,6 @@ public enum State
     Hurt,
     Die,
     //몬스터 전용
-    Trace,
     Alert,
     Circling
 }

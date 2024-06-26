@@ -8,7 +8,6 @@ public class MonsterState : ActorState
 { 
     protected Monster owner;
 
-    protected float MovementSpeed;
     protected int monsterId;
 
     public MonsterState(Monster owner)
@@ -38,7 +37,6 @@ public class Monster_IdleState : MonsterState
         _patrolDelay = Random.Range(2f, 5f);
         owner.Agent.speed = 0f;
         owner.Agent.angularSpeed = 1000;
-        Debug.Log(_patrolDelay);
     }
 
     public override void Update()
@@ -47,7 +45,7 @@ public class Monster_IdleState : MonsterState
 
         if(owner.MonsterViewModel.TraceTarget != null)
         {
-            owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.Trace);
+            owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.Battle);
             return;
         }
         else
@@ -68,7 +66,7 @@ public class Monster_PatrolState : MonsterState
     public Monster_PatrolState(Monster owner) : base(owner) { }
 
     [Header("Patrol 가능 길이")]
-    [SerializeField] protected float _distance = 15f;
+    protected float _distance;
 
     private Vector3 StartPos;
     private Vector3 PatrolEndPos;
@@ -76,7 +74,8 @@ public class Monster_PatrolState : MonsterState
     public override void Enter()
     {
         base.Enter();
-        MovementSpeed = owner.MonsterViewModel.MonsterInfo.WalkSpeed;
+        _distance = owner.MonsterViewModel.MonsterInfo.ViewRange;
+        owner.Agent.speed = owner.MonsterViewModel.MonsterInfo.WalkSpeed;
         owner.Agent.stoppingDistance = 0f;
         PatrolEndPos = RandomPoint();
         StartPos = owner.transform.position;
@@ -86,11 +85,9 @@ public class Monster_PatrolState : MonsterState
     {
         base.Update();        
 
-        owner.Agent.speed = Mathf.Lerp(owner.Agent.speed, MovementSpeed, 10f * Time.deltaTime);
-
         if (owner.MonsterViewModel.TraceTarget != null)
         {
-            owner.MonsterViewModel.RequestStateChanged(monsterId, State.Run);
+            owner.MonsterViewModel.RequestStateChanged(monsterId, State.Battle);
             return;
         }
         else
@@ -111,46 +108,9 @@ public class Monster_PatrolState : MonsterState
         {
             Vector3 randomPoint = owner.transform.position + Random.insideUnitSphere * _distance;
             if (NavMesh.SamplePosition(randomPoint, out NavMeshHit hit, 1.0f, (1 << NavMesh.GetAreaFromName("Walkable"))))
-            {                
+            {
                 return hit.position;
             }
-        }
-    }
-}
-
-//따라가기
-public class Monster_TraceState : MonsterState
-{
-    public Monster_TraceState(Monster owner) : base(owner) { }
-
-    public override void Enter()
-    {
-        base.Enter();
-        MovementSpeed = owner.MonsterViewModel.MonsterInfo.RunSpeed;
-        owner.Agent.angularSpeed = 3000;
-        owner.Agent.stoppingDistance = 3f;
-        //owner.animator.SetBool("ComBatMode", true);        
-    }
-
-    public override void Update()
-    {
-        base.Update();
-
-        owner.Agent.speed = Mathf.Lerp(owner.Agent.speed, MovementSpeed, 10f * Time.deltaTime);
-
-        //if (owner.MonsterViewModel.TraceTarget == null)
-        //{
-        //    owner.MonsterViewModel.RequestStateChanged(monsterId, State.Alert);
-        //    return;
-        //}
-
-        owner.transform.LookAt(owner.MonsterViewModel.TraceTarget);
-        owner.Agent.SetDestination(owner.MonsterViewModel.TraceTarget.position);
-
-        //임시 5f => AttackRange로 교체 예정
-        if(owner.Agent.velocity == Vector3.zero)
-        {
-            owner.MonsterViewModel.RequestStateChanged(monsterId, State.Battle);
         }
     }
 }
@@ -160,14 +120,32 @@ public class Monster_AlertState : MonsterState
 {
     public Monster_AlertState(Monster owner) : base(owner) { }
 
+    private float _time;
+    private float AlertStateEndTime;
+
     public override void Enter()
     {
         base.Enter();
+        _time = 0.0f;
+        owner.Agent.speed = 0f;
+        AlertStateEndTime = Random.Range(2f, 3f);
     }
 
     public override void Update()
     {
-        base.Enter();       
+        base.Enter();
+        if (owner.MonsterViewModel.TraceTarget != null)
+        {
+            owner.MonsterViewModel.RequestStateChanged(monsterId, State.Run);
+        }
+        else
+        {
+            _time = Mathf.Clamp(_time + Time.fixedDeltaTime, 0f, AlertStateEndTime);
+            if (_time >= AlertStateEndTime)
+            {
+                owner.MonsterViewModel.RequestStateChanged(monsterId, State.Idle);
+            }
+        }
     }
 
 }
@@ -193,30 +171,83 @@ public class Monster_BattleState : MonsterState
 {
     public Monster_BattleState(Monster owner) : base(owner) { }
 
-    private float _timer;
+    private float _time;
+    private float _circleDelay;
 
     public override void Enter()
     {
         base.Enter();
-        _timer = 0f;
-        owner.Agent.speed = 0f;
-        MovementSpeed = owner.MonsterViewModel.MonsterInfo.WalkSpeed;
+        _time = 0;
+        _circleDelay = Random.Range(2f, 5f);
+        owner.Agent.stoppingDistance = 3f;
+        Debug.Log(owner.transform.position);
+        //owner.animator.SetBool("Circling", false);
+    }
+
+    public override void Update()
+    {
+        base.Update();
+        if (owner.MonsterViewModel.TraceTarget == null)
+        {
+            owner.MonsterViewModel.RequestStateChanged(monsterId, State.Alert);
+            return;
+        }
+
+        _time = Mathf.Clamp(_time + Time.fixedDeltaTime, 0f, _circleDelay);
+        if (_time >= _circleDelay)
+        {
+            if (UnityEngine.Random.Range(0, 2) == 0)
+            {
+                //가만히 있을지
+                _time = 0f;
+            }
+            else
+            {
+                //천천히 주위를 돌것인지
+                owner.MonsterViewModel.RequestStateChanged(monsterId, State.Circling);
+                return;
+            }
+        }
+
+        //owner.transform.LookAt(owner.MonsterViewModel.TraceTarget);
+
+        if (Vector3.Distance(owner.transform.position, owner.MonsterViewModel.TraceTarget.transform.position) > owner.Agent.stoppingDistance + 0.5f)
+        {
+            owner.MonsterViewModel.RequestStateChanged(monsterId, State.Run);
+        }
+    }
+}
+
+//따라가기
+public class Monster_TraceState : MonsterState
+{
+    public Monster_TraceState(Monster owner) : base(owner) { }
+
+    public override void Enter()
+    {
+        base.Enter();
+        owner.Agent.speed = owner.MonsterViewModel.MonsterInfo.RunSpeed;
+        owner.Agent.angularSpeed = 3000f;
+        owner.Agent.stoppingDistance = 3f;
     }
 
     public override void Update()
     {
         base.Update();
 
-        //if(owner.MonsterViewModel.TraceTarget == null)
-        //{
-        //    owner.MonsterViewModel.RequestStateChanged(monsterId, State.Alert);
-        //    return;
-        //}
-
-        if(Vector3.Distance(owner.transform.position, owner.MonsterViewModel.TraceTarget.position) > owner.Agent.stoppingDistance)
+        if (owner.MonsterViewModel.TraceTarget == null)
         {
-            //TraceTarget 이 null이 되는 이유 찾으면 됨
-            owner.MonsterViewModel.RequestStateChanged(monsterId, State.Run);
+            owner.MonsterViewModel.RequestStateChanged(monsterId, State.Alert);
+            return;
+        }
+
+        owner.Agent.SetDestination(owner.MonsterViewModel.TraceTarget.position);
+
+        Debug.Log($"{owner.Agent.remainingDistance} / {owner.Agent.stoppingDistance}");
+        if (owner.Agent.remainingDistance <= owner.Agent.stoppingDistance)
+        {
+            owner.MonsterViewModel.RequestStateChanged(monsterId, State.Battle);
+            return;
         }
     }
 }
@@ -226,9 +257,50 @@ public class Monster_CirclingState : MonsterState
 {
     public Monster_CirclingState(Monster owner) : base(owner) { }
 
+    private float _time;
+
+    private float _circlingSpeed;
+    private float _circleTimeRange;
+    private int _circlingDir;
+
     public override void Enter()
     {
         base.Enter();
+        _time = 0f;
+        owner.Agent.speed = owner.MonsterViewModel.MonsterInfo.WalkSpeed;
+        _circleTimeRange = Random.Range(3f, 6f);
+        _circlingDir = Random.Range(0, 2) == 0 ? 1 : -1;
+        //owner.animator.SetBool("Circling", true);
+    }
+
+    public override void Update()
+    {
+        base.Update();
+
+        if (owner.MonsterViewModel.TraceTarget == null)
+        {
+            owner.MonsterViewModel.RequestStateChanged(monsterId, State.Idle);
+            return;
+        }
+
+        _circlingSpeed = Mathf.Lerp(_circlingSpeed, 20f, 10f * Time.fixedDeltaTime);
+
+        _time = Mathf.Clamp(_time + Time.fixedDeltaTime, 0f, _circleTimeRange);
+        if (_time >= _circleTimeRange)
+        {
+            owner.MonsterViewModel.RequestStateChanged(monsterId, State.Battle);
+            return;
+        }
+
+        //transform.RotateAround(traceTargetPos, Vector3.up, _circlingDir * _circlingSpeed * Time.fixedDeltaTime);
+
+        var VecToTarget = owner.transform.position - owner.MonsterViewModel.TraceTarget.position;
+        var rotatedPos = Quaternion.Euler(0, _circlingDir * _circlingSpeed * Time.fixedDeltaTime, 0) * VecToTarget;
+
+        owner.Agent.Move(rotatedPos - VecToTarget);
+        owner.transform.rotation = Quaternion.LookRotation(-rotatedPos);
+
+        //owner.animator.SetFloat("CirclingDir", _circlingDir);
     }
 }
 
