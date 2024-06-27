@@ -26,5 +26,11 @@ public class MonsterManager : MonoBehaviour
         _lockOnAbleMonsterList = monster;
     }
 
-
+    public void DeadMonster_Update(int monster_id)
+    {
+        if (_monsterLists.ContainsKey(monster_id))
+        {
+            _monsterLists.Remove(monster_id);
+        }
+    }
 }

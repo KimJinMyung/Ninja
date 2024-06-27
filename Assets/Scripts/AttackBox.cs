@@ -13,20 +13,25 @@ public class AttackBox : MonoBehaviour
     private List<Transform> _attackedMonster = new List<Transform>();
     public List<Transform> AttackedMonster {  get { return _attackedMonster; } }
 
-    private Player owner;
-    private Collider attackCollider;
+    private Player owner_player;
 
     private void Awake()
     {
-        owner = transform.root.GetComponentInChildren<Player>();
-        attackCollider = GetComponent<Collider>();
-        _attackLayer = LayerMask.GetMask("Monster", "LockOnAble", "LockOnTarget");
+        owner_player = transform.root.GetComponentInChildren<Player>();
+
+        if(owner_player != null)
+        {
+            _attackLayer = LayerMask.GetMask("Monster", "LockOnAble", "LockOnTarget");
+        }
     }
 
     private void OnEnable()
     {
         hitCollider = new List<Transform>();
-        owner.Animator.SetBool("IsAttackAble", true);
+        if(owner_player != null)
+        {
+            owner_player.Animator.SetBool("IsAttackAble", true);
+        }
     }
 
     private void OnDisable()
@@ -53,15 +58,18 @@ public class AttackBox : MonoBehaviour
 
     private void Update()
     {
-        if (owner.ViewModel.playerState != State.Attack) return;
+        if (owner_player.ViewModel.playerState != State.Attack) return;
 
         Attacking();
-        Debug.Log(owner.ViewModel.playerState);
+        Debug.Log(owner_player.ViewModel.playerState);
     }
 
     public void Attacking()
     {
-        if (owner.ViewModel == null) return;
+        if(owner_player != null)
+        {
+            if (owner_player.ViewModel == null) return;
+        }
 
         foreach (var collider in hitCollider)
         {
@@ -70,6 +78,14 @@ public class AttackBox : MonoBehaviour
             {
                 //데미지 부여 로직 추가
                 Debug.Log($"{collider.name} 데미지 부여");
+                if(owner_player != null)
+                {
+                    Monster target = collider.GetComponent<Monster>();
+                    if(target != null)
+                    {
+                        target.Hurt(owner_player.Player_Info.ATK, owner_player);
+                    }                    
+                }
 
                 //데미지 부여한 몬스터 목록 추가
                 _attackedMonster.Add(collider);

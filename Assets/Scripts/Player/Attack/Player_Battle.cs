@@ -48,20 +48,14 @@ public class Player_Battle : MonoBehaviour
         }
     }
 
-    private int index1;
-    private int index2;
     public void AttackStart()
     {
-        index1++;
-        Debug.Log($"공격 시작 {index1}");
         owner.ViewModel.RequestStateChanged(owner.player_id, State.Attack);
         AttackCollider.SetActive(true);
     }
 
     public void AttackEnd()
     {
-        index2++;
-        Debug.Log($"공격 끝 {index2}");
         AttackCollider.SetActive(false);
         owner.Animator.SetBool("IsAttackAble", true);
         owner.ViewModel.RequestStateChanged(owner.player_id, State.Battle);

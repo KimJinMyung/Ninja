@@ -333,7 +333,8 @@ public class Monster_HurtState : MonsterState
 
     public override void Enter()
     {
-        base.Enter();        
+        base.Enter();
+        owner.animator.SetTrigger("Hurt");
     }
 }
 
@@ -342,8 +343,12 @@ public class Monster_DeadState : MonsterState
 {
     public Monster_DeadState(Monster owner) : base(owner) { }
 
+    private int _DeadMonsterLayer = LayerMask.NameToLayer("Dead");
+
     public override void Enter()
     {
         base.Enter();
+        owner.gameObject.layer = _DeadMonsterLayer;
+        owner.gameObject.SetActive(false);        
     }
 }

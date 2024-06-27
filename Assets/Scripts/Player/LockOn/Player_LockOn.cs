@@ -114,7 +114,7 @@ public class Player_LockOn : MonoBehaviour
         List<Transform> tempLockOnAbleList = new List<Transform>();
 
         foreach (var collider in colliders)
-        {            
+        {
             Vector3 dirTarget = (collider.transform.position - Camera.main.transform.position).normalized;
             float angleToTarget = Vector3.Angle(Camera.main.transform.forward, dirTarget);
 
@@ -128,7 +128,7 @@ public class Player_LockOn : MonoBehaviour
                         tempLockOnAbleList.Add(collider.transform);
 
                         if (angleToTarget < closestAngle)
-                        {                            
+                        {
                             closestAngle = angleToTarget;
                             closestTarget = hit.transform;
                         }
@@ -138,9 +138,10 @@ public class Player_LockOn : MonoBehaviour
             }
         }
 
-        if (owner.ViewModel.LockOnTarget !=null && !tempLockOnAbleList.Contains(owner.ViewModel.LockOnTarget)) tempLockOnAbleList.Add(owner.ViewModel.LockOnTarget);
+        Transform _lockOnTarget = owner.ViewModel.LockOnTarget;
+        if (_lockOnTarget != null && !tempLockOnAbleList.Contains(_lockOnTarget)) tempLockOnAbleList.Add(_lockOnTarget);
 
-        //Debug.Log($"{tempLockOnAbleList.Count}");
+        Debug.Log($"{tempLockOnAbleList.Count}");
         _viewModel.RequestLockOnTargetList(tempLockOnAbleList);
 
         return closestTarget;

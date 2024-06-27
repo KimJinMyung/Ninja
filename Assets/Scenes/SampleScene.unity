@@ -1314,6 +1314,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Monster_A
       objectReference: {fileID: 0}
+    - target: {fileID: 9199670548363021253, guid: 3f89fe1ac60cb0c4f97a11f1be2239c6, type: 3}
+      propertyPath: m_Constraints
+      value: 80
+      objectReference: {fileID: 0}
     - target: {fileID: 9199670549289361725, guid: 3f89fe1ac60cb0c4f97a11f1be2239c6, type: 3}
       propertyPath: aa
       value: 

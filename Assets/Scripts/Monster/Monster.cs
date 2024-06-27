@@ -26,6 +26,7 @@ public class Monster : MonoBehaviour
     public Monster_Status_ViewModel MonsterViewModel { get { return _monsterState; } }
 
     protected Monster_data monster_Info;
+    public Monster_data Monster_Info { get { return  monster_Info; } }
 
     protected StateMachine _monsterStateMachine;
     public StateMachine MonsterStateMachine {  get { return _monsterStateMachine; } }
@@ -38,6 +39,7 @@ public class Monster : MonoBehaviour
     protected virtual void Awake()
     {
         Agent = GetComponent<NavMeshAgent>();
+        animator = GetComponent<Animator>();
 
         _monsterStateMachine = gameObject.AddComponent<StateMachine>();
 
@@ -101,7 +103,7 @@ public class Monster : MonoBehaviour
     private void Update()
     {
         _monsterStateMachine.OnUpdate();
-        //Debug.Log(MonsterViewModel.MonsterState);
+        Debug.Log(MonsterViewModel.MonsterState);
     }
 
     private void FixedUpdate()
@@ -147,5 +149,24 @@ public class Monster : MonoBehaviour
                 _monsterStateMachine.ChangeState(_monsterState.MonsterState);
                 break;
         }
+    }
+
+    public void Hurt(float damage, Player attacker)  
+    {
+        monster_Info.HP -= damage;
+
+        if(monster_Info.HP > 0)
+        {
+            _monsterState.RequestStateChanged(monsterId, State.Hurt);
+        }
+        else
+        {
+            _monsterState.RequestStateChanged(monsterId, State.Die);
+            if (attacker.ViewModel.LockOnTarget == transform)
+            {
+                attacker.ViewModel.RequestLockOnTarget(null);
+            }
+        }
+        
     }
 }

@@ -34,6 +34,7 @@ public class Player : MonoBehaviour
     [SerializeField] private float JumpForce;
 
     private Player_data player_info;
+    public Player_data Player_Info { get { return player_info; } }
     public int player_id {  get; private set; }
 
     [Header("Player Cinemachine Setting")]
@@ -310,6 +311,11 @@ public class Player : MonoBehaviour
             case nameof(ViewModel.playerState):
                 _stateMachine.ChangeState(ViewModel.playerState);
                 break;
+            case nameof(ViewModel.LockOnTarget):
+                if (ViewModel.LockOnTarget != null) animator.SetBool(hashLockOn, true);
+                else animator.SetBool(hashLockOn, false);
+                break;
+
         }
     }
 }
