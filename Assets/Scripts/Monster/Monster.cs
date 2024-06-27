@@ -170,7 +170,7 @@ public class Monster : MonoBehaviour
         KnockBackEnd();
         Debug.Log(MonsterViewModel.MonsterState);
         //임시
-        Debug.Log($"공격 사거리 : {0}");
+        Debug.Log($"공격 사거리 : {_monsterState.CurrentAttackMethod.AttackRange}");
     }
 
     private void FixedUpdate()
@@ -204,7 +204,7 @@ public class Monster : MonoBehaviour
     {
         foreach(var weapon in monsterWeapons)
         {
-            if(_monsterState.CurrentAttackMethod.DataName == nameof(weapon.WeaponsType))
+            if(_monsterState.CurrentAttackMethod.DataName == Enum.GetName(typeof(WeaponsType), weapon.WeaponsType))
             {
                 weapon.weaponMesh.SetActive(true);
                 continue;

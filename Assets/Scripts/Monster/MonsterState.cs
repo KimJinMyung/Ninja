@@ -19,6 +19,12 @@ public class MonsterState : ActorState
         base.Enter();
         monsterId = owner.monsterId;
     }
+
+    public override void Update()
+    {
+        base.Update();
+        owner.animator.SetBool("ComBatMode", owner.MonsterViewModel.TraceTarget != null);
+    }
 }
 
 //기본 상태
@@ -183,7 +189,7 @@ public class Monster_BattleState : MonsterState
         _time = 0;
         _circleDelay = Random.Range(2f, 5f);
         owner.Agent.speed = 0;
-        owner.Agent.stoppingDistance = 3f;
+        owner.Agent.stoppingDistance = owner.MonsterViewModel.CurrentAttackMethod.AttackRange;
         //owner.animator.SetBool("Circling", false);
     }
 
@@ -234,7 +240,7 @@ public class Monster_TraceState : MonsterState
         base.Enter();
         owner.Agent.speed = owner.MonsterViewModel.MonsterInfo.RunSpeed;
         owner.Agent.angularSpeed = 3000f;
-        owner.Agent.stoppingDistance = 3f;
+        owner.Agent.stoppingDistance = owner.MonsterViewModel.CurrentAttackMethod.AttackRange;
     }
 
     public override void Update()
@@ -329,7 +335,8 @@ public class Monster_AttackState : MonsterState
         base.Enter();
         //임시
         //공격 사거리를 받아와야한다.
-        owner.Agent.stoppingDistance = 5f;
+        owner.Agent.stoppingDistance = owner.MonsterViewModel.CurrentAttackMethod.AttackRange;
+        owner.animator.SetTrigger("Attack");
     }
 }
 

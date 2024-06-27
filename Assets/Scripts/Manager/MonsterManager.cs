@@ -51,6 +51,12 @@ public class MonsterManager : MonoBehaviour
             _monsterLists.Remove(monster_id);
         }
     }
+
+    //private void OnEnable()
+    //{
+    //    AttackEnd();
+    //}
+
     private void Update()
     {
         if (_monsterLists.Count <= 0) return;
@@ -67,18 +73,12 @@ public class MonsterManager : MonoBehaviour
 
                 //var AttackRange = attackMonster.GetComponentsInChildren<IArk>();
 
-                float range = 0;    //공격 사거리
+                float range = attackMonster.MonsterViewModel.CurrentAttackMethod.AttackRange;    //공격 사거리
 
-                //foreach (var Rangelist in AttackRange)
-                //{
-                //    if (range < Rangelist.attackRange)
-                //    {
-                //        range = Rangelist.attackRange;
-                //    }
-                //}
+                attackMonster.Agent.destination = attackMonster.MonsterViewModel.TraceTarget.position;
+                attackMonster.Agent.stoppingDistance = range;
 
-
-                if (Vector3.Distance(attackMonster.transform.position, attackMonster.MonsterViewModel.TraceTarget.position) <= range + 1.03f)
+                if (attackMonster.Agent.remainingDistance <= range + 0.03f)
                 {
                     attackMonster.Agent.speed = 0f;
 
@@ -87,6 +87,11 @@ public class MonsterManager : MonoBehaviour
                 }
             }
         }
+    }
+
+    public void AttackEnd()
+    {
+        _attackingTimer = Random.Range(1.5f, 3f);
     }
 
     private bool IsAttackAble()
