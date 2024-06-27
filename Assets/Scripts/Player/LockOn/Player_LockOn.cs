@@ -141,7 +141,6 @@ public class Player_LockOn : MonoBehaviour
         Transform _lockOnTarget = owner.ViewModel.LockOnTarget;
         if (_lockOnTarget != null && !tempLockOnAbleList.Contains(_lockOnTarget)) tempLockOnAbleList.Add(_lockOnTarget);
 
-        Debug.Log($"{tempLockOnAbleList.Count}");
         _viewModel.RequestLockOnTargetList(tempLockOnAbleList);
 
         return closestTarget;

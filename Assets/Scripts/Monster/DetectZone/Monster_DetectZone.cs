@@ -48,12 +48,14 @@ public class Monster_DetectZone : MonoBehaviour
     {
         if(collider.transform.position != Eyes.position)
             collider.transform.position = Eyes.position;
+
+        if (owner.MonsterViewModel.TraceTarget != null) collider.radius = owner.MonsterViewModel.MonsterInfo.ViewRange + 1f;
+        else if (!collider.radius.Equals(owner.MonsterViewModel.MonsterInfo.ViewRange)) DefaultDetectRange();
     }
 
     private void FixedUpdate()
     {
-        if (Detecting()) collider.radius = owner.MonsterViewModel.MonsterInfo.ViewRange + 1f;
-        else if (!collider.radius.Equals(owner.MonsterViewModel.MonsterInfo.ViewRange)) DefaultDetectRange();
+        Detecting();
     }
 
     [SerializeField] private GameObject aa;
@@ -64,19 +66,29 @@ public class Monster_DetectZone : MonoBehaviour
         Gizmos.DrawRay(transform.position, (aa.transform.position - transform.position).normalized * 5f);
     }
 
-    private bool Detecting()
+    private void Detecting()
     {
-        if (player == null) return false;
+        if (player == null) return;
 
-        Vector3 playerDir = (new Vector3(player.transform.position.x,0,player.transform.position.z) - new Vector3(transform.position.x,0,transform.position.z)).normalized;
+        Vector3 playerDir = (new Vector3(player.transform.position.x, 0, player.transform.position.z) - new Vector3(transform.position.x, 0, transform.position.z)).normalized;
         float angleMonAndPlayer = Vector3.Angle(Eyes.forward, playerDir);
 
-        if (angleMonAndPlayer < owner.MonsterViewModel.MonsterInfo.ViewAngel / 2f)
-        {
-            owner.MonsterViewModel.RequestTraceTargetChanged(owner.monsterId, player);            
-            return true;
-        }
+        float viewAngle = owner.MonsterViewModel.MonsterInfo.ViewAngel;
 
-        return false;
+        if (owner.MonsterViewModel.TraceTarget == null)
+        {
+            if (angleMonAndPlayer < viewAngle / 2f)
+            {
+                owner.MonsterViewModel.RequestTraceTargetChanged(owner.monsterId, player);
+            }
+        }
+        else
+        {
+            viewAngle += 20f;
+            if (angleMonAndPlayer < viewAngle / 2f)
+            {
+                owner.MonsterViewModel.RequestTraceTargetChanged(owner.monsterId, player);
+            }
+        }
     }
 }

@@ -4,6 +4,18 @@ using UnityEngine;
 
 public class Monster_Status_ViewModel
 {
+    private monsterType _monsterType;
+    public monsterType MonsterType
+    {
+        get { return _monsterType; }
+        set
+        {
+            if (_monsterType == value) return;
+            _monsterType = value;
+            OnPropertyChanged(nameof(MonsterType));
+        }
+    }
+
     private State _monsterState;
     public State MonsterState
     {

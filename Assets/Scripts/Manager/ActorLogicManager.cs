@@ -6,6 +6,7 @@ public class ActorLogicManager : MonoBehaviour
 {
     public static ActorLogicManager _instance = null;
 
+    private Dictionary<int, Action<monsterType>> _monsterTypeChangedCallback = new Dictionary<int, Action<monsterType>>();
     private Dictionary<int, Action<State>> _stateChangedCallback = new Dictionary<int, Action<State>>();
     private Dictionary<int, Action<Monster_data>> _InfoChangedCallback = new Dictionary<int, Action<Monster_data>>();
     private Action<float, float> _moveVelocityChangedCallback;
@@ -27,6 +28,29 @@ public class ActorLogicManager : MonoBehaviour
     }
 
     #region Register 연결부
+    public void RegisterMonsterTypeChangedCallback(int actorId, Action<monsterType> monsterTypeChangedCallback, bool isRegister)
+    {
+        if (isRegister)
+        {
+            if (!_monsterTypeChangedCallback.ContainsKey(actorId))
+            {
+                _monsterTypeChangedCallback[actorId] = monsterTypeChangedCallback;
+            }
+            else
+            {
+                _monsterTypeChangedCallback.Add(actorId, monsterTypeChangedCallback);
+            }
+        }
+        else
+        {
+            if (_monsterTypeChangedCallback.ContainsKey(actorId))
+            {
+                _monsterTypeChangedCallback[actorId] -= monsterTypeChangedCallback;
+                if (_monsterTypeChangedCallback[actorId] == null) _stateChangedCallback.Remove(actorId);
+            }
+        }
+    }
+
     public void RegisterStateChangedCallback(int actorId,Action<State> stateChangedCallback, bool isRegister)
     {
         if (isRegister)
@@ -194,6 +218,10 @@ public class ActorLogicManager : MonoBehaviour
     #endregion
 
     #region Request 연결부
+    public void OnChangedMonsterType(int actorId, monsterType type)
+    {
+        if (_monsterTypeChangedCallback.ContainsKey(actorId)) _monsterTypeChangedCallback[actorId]?.Invoke(type);
+    }
     public void OnChangedState(int actorId,State state)
     {
         if (_stateChangedCallback.ContainsKey(actorId)) _stateChangedCallback[actorId]?.Invoke(state);

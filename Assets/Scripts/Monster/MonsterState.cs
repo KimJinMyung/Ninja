@@ -135,7 +135,11 @@ public class Monster_AlertState : MonsterState
         base.Enter();
         if (owner.MonsterViewModel.TraceTarget != null)
         {
-            owner.MonsterViewModel.RequestStateChanged(monsterId, State.Run);
+            if (owner.Agent.remainingDistance > owner.Agent.stoppingDistance + 1.5f)
+            {
+                owner.MonsterViewModel.RequestStateChanged(monsterId, State.Run);
+                return;
+            }
         }
         else
         {
@@ -216,7 +220,7 @@ public class Monster_BattleState : MonsterState
             }
         }
 
-        //owner.transform.LookAt(owner.MonsterViewModel.TraceTarget);
+        owner.transform.LookAt(owner.MonsterViewModel.TraceTarget);
     }
 }
 

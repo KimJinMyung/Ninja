@@ -2408,7 +2408,7 @@ Animator:
   m_GameObject: {fileID: 9199670548106812684}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: 2ba66718d3169ae42a05d8facf302228, type: 3}
-  m_Controller: {fileID: 9100000, guid: d62af11c372059a4d9c2feacf46a754a, type: 2}
+  m_Controller: {fileID: 9100000, guid: cfb1fe01761d837488b68d36d567a945, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
   m_ApplyRootMotion: 1
@@ -2484,6 +2484,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   type: 0
+  monsterMeshes:
+  - _monsterType: 0
+    mesh: {fileID: 9199670548106708892}
+    animation_controller: {fileID: 9100000, guid: cfb1fe01761d837488b68d36d567a945, type: 2}
+  - _monsterType: 1
+    mesh: {fileID: 9199670548106833806}
+    animation_controller: {fileID: 9100000, guid: cfb1fe01761d837488b68d36d567a945, type: 2}
+  - _monsterType: 2
+    mesh: {fileID: 9199670548106834930}
+    animation_controller: {fileID: 9100000, guid: cfb1fe01761d837488b68d36d567a945, type: 2}
 --- !u!1 &9199670548106813154
 GameObject:
   m_ObjectHideFlags: 0
@@ -2674,7 +2684,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9199670548106816872}
-  m_LocalRotation: {x: -0.57854766, y: 0.6324858, z: -0.3525135, w: -0.37547135}
+  m_LocalRotation: {x: -0.5785476, y: 0.63248575, z: -0.35251346, w: -0.3754713}
   m_LocalPosition: {x: -5.8011727, y: -4.1914477, z: -7.447154}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -3041,7 +3051,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9199670548106825392}
-  m_LocalRotation: {x: 0.6324858, y: 0.57854766, z: 0.37547132, w: -0.3525135}
+  m_LocalRotation: {x: 0.63248575, y: 0.57854766, z: 0.37547126, w: -0.3525135}
   m_LocalPosition: {x: -5.801534, y: -4.191418, z: 7.44715}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0

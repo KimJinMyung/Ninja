@@ -4,6 +4,21 @@ using UnityEngine;
 
 public static class Monster_Extension
 {
+    #region Monster_Type
+    public static void RegisterMonsterTypeChanged(this Monster_Status_ViewModel monster_A, int acotrId, bool isRegister)
+    {
+        ActorLogicManager._instance.RegisterMonsterTypeChangedCallback(acotrId, monster_A.OnResponseMonsterTypeChangedEvent, isRegister);
+    }
+    public static void RequestMonsterTypeChanged(this Monster_Status_ViewModel monster_A, int acotrId, monsterType type)
+    {
+        ActorLogicManager._instance.OnChangedMonsterType(acotrId, type);
+    }
+    public static void OnResponseMonsterTypeChangedEvent(this Monster_Status_ViewModel monster_A, monsterType type)
+    {
+        monster_A.MonsterType = type;
+    }
+    #endregion
+
     #region Monster_Data
     public static void RegisterMonsterInfoChanged(this Monster_Status_ViewModel monster_A, int acotrId, bool isRegister)
     {
