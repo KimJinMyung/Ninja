@@ -101,7 +101,7 @@ public class Monster : MonoBehaviour
     private void Update()
     {
         _monsterStateMachine.OnUpdate();
-        Debug.Log(MonsterViewModel.MonsterState);
+        //Debug.Log(MonsterViewModel.MonsterState);
     }
 
     private void FixedUpdate()

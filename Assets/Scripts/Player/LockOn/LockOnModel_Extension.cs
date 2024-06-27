@@ -119,7 +119,6 @@ public static class LockOnModel_Extension
         if (target != null)
             target.gameObject.layer = LayerMask.NameToLayer("LockOnTarget");
 
-        Debug.Log(player.transform.name);
         player.ViewModel.RequestLockOnTarget(target);
 
         model.LockOnTarget = target;

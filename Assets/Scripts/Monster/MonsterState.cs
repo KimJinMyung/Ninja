@@ -180,7 +180,6 @@ public class Monster_BattleState : MonsterState
         _circleDelay = Random.Range(2f, 5f);
         owner.Agent.speed = 0;
         owner.Agent.stoppingDistance = 3f;
-        Debug.Log(owner.transform.position);
         //owner.animator.SetBool("Circling", false);
     }
 

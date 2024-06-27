@@ -1729,7 +1729,6 @@ GameObject:
   - component: {fileID: 6370631659372928071}
   - component: {fileID: 6727319014848963203}
   - component: {fileID: 6727319014848963206}
-  - component: {fileID: 158738816}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -1859,7 +1858,7 @@ MonoBehaviour:
     m_ActionName: Player/Sprint[/Keyboard/leftShift]
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 158738816}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: Player_Attack, Assembly-CSharp
         m_MethodName: OnAttack
         m_Mode: 0
@@ -1950,19 +1949,6 @@ CharacterController:
   m_SkinWidth: 0.0001
   m_MinMoveDistance: 0
   m_Center: {x: 0, y: 0.9, z: 0}
---- !u!114 &158738816
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 372432206759774204}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0fe7b8ff4f6211248b0f08847080935a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  AttackColliderPos: {fileID: 329241559566744247}
 --- !u!1 &372432206759774432
 GameObject:
   m_ObjectHideFlags: 0

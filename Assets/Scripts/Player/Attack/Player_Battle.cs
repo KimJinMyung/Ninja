@@ -4,23 +4,15 @@ using UnityEngine.InputSystem;
 
 public class Player_Battle : MonoBehaviour
 {
-    [SerializeField]
-    private Transform AttackColliderPos;
-
-    [SerializeField] private Transform DefenceColliderPos;
-
     private Player owner;
 
-    private HashSet<Collider> hitMonsters = new HashSet<Collider>();
+    private GameObject AttackCollider;
 
     private void Awake()
     {
         owner = GetComponent<Player>();
-    }
-
-    private void OnEnable()
-    {
-        owner.Animator.SetBool("IsAttackAble", true);
+        AttackBox attackBox = GetComponentInChildren<AttackBox>();
+        AttackCollider = attackBox.GetComponent<Collider>().gameObject;
     }
 
     public void OnAttack(InputAction.CallbackContext context)
@@ -37,7 +29,6 @@ public class Player_Battle : MonoBehaviour
             {
                 if (owner.ViewModel.playerState == State.Parry) return;
                 owner.Animator.SetBool("IsAttackAble", false);
-                hitMonsters.Clear();
                 owner.Animator.SetTrigger("Attack");
             }
         }
@@ -57,48 +48,21 @@ public class Player_Battle : MonoBehaviour
         }
     }
 
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.red;
-        Gizmos.matrix = Matrix4x4.TRS(AttackColliderPos.position, AttackColliderPos.rotation, Vector3.one);
-        Gizmos.DrawWireCube(Vector3.zero, new Vector3(0.05f, 0.9f, 0.05f));
-    }
-
-    private void Update()
-    {
-        if (owner.ViewModel.playerState != State.Attack) return;
-
-        Attacking();
-
-        Debug.Log(owner.ViewModel.playerState);
-    }
-
-    public void Attacking()
-    {
-        if (owner.ViewModel == null) return;
-
-        Collider[] hitColliders = Physics.OverlapBox(AttackColliderPos.position, new Vector3(0.05f, 0.9f, 0.05f), AttackColliderPos.rotation, LayerMask.NameToLayer("Monster"));
-        foreach (Collider collider in hitColliders)
-        {
-            if (collider.transform == this.transform) continue;
-            if (!hitMonsters.Contains(collider))
-            {
-                //데미지 부여 로직 추가
-                Debug.Log($"{collider.name} 데미지 부여");
-
-                //데미지 부여한 몬스터 목록 추가
-                hitMonsters.Add(collider);
-            }                
-        }
-    }
-
+    private int index1;
+    private int index2;
     public void AttackStart()
     {
+        index1++;
+        Debug.Log($"공격 시작 {index1}");
         owner.ViewModel.RequestStateChanged(owner.player_id, State.Attack);
+        AttackCollider.SetActive(true);
     }
 
     public void AttackEnd()
     {
+        index2++;
+        Debug.Log($"공격 끝 {index2}");
+        AttackCollider.SetActive(false);
         owner.Animator.SetBool("IsAttackAble", true);
         owner.ViewModel.RequestStateChanged(owner.player_id, State.Battle);
     }
