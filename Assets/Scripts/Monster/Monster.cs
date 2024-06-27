@@ -22,9 +22,6 @@ public class Monster : MonoBehaviour
     [Header("Monster Type")]
     [SerializeField] protected monsterType type;
 
-    [Header("Monster Mesh")]
-    [SerializeField] protected GameObject monsterMesh;
-
     protected Monster_Status_ViewModel _monsterState;
     public Monster_Status_ViewModel MonsterViewModel { get { return _monsterState; } }
 
@@ -40,7 +37,7 @@ public class Monster : MonoBehaviour
 
     protected virtual void Awake()
     {
-        Agent = GetComponentInChildren<NavMeshAgent>();
+        Agent = GetComponent<NavMeshAgent>();
 
         _monsterStateMachine = gameObject.AddComponent<StateMachine>();
 
@@ -104,7 +101,12 @@ public class Monster : MonoBehaviour
     private void Update()
     {
         _monsterStateMachine.OnUpdate();
-        
+        Debug.Log(MonsterViewModel.MonsterState);
+    }
+
+    private void FixedUpdate()
+    {
+        _monsterStateMachine.OnFixedUpdate();
     }
 
     protected float _attackRange = 0;

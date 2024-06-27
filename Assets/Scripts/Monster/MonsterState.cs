@@ -1,8 +1,7 @@
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 using ActorStateMachine;
-using static UnityEngine.UI.GridLayoutGroup;
+using System.Drawing;
 
 public class MonsterState : ActorState
 { 
@@ -179,6 +178,7 @@ public class Monster_BattleState : MonsterState
         base.Enter();
         _time = 0;
         _circleDelay = Random.Range(2f, 5f);
+        owner.Agent.speed = 0;
         owner.Agent.stoppingDistance = 3f;
         Debug.Log(owner.transform.position);
         //owner.animator.SetBool("Circling", false);
@@ -193,10 +193,18 @@ public class Monster_BattleState : MonsterState
             return;
         }
 
+        //Debug.Log($"{owner.MonsterViewModel.MonsterState} {owner.Agent.remainingDistance}/{owner.Agent.stoppingDistance + 1.5f}");
+
+        if (owner.Agent.remainingDistance > owner.Agent.stoppingDistance + 1.5f)
+        {
+            owner.MonsterViewModel.RequestStateChanged(monsterId, State.Run);
+            return;
+        }
+
         _time = Mathf.Clamp(_time + Time.fixedDeltaTime, 0f, _circleDelay);
         if (_time >= _circleDelay)
         {
-            if (UnityEngine.Random.Range(0, 2) == 0)
+            if (Random.Range(0, 2) == 0)
             {
                 //가만히 있을지
                 _time = 0f;
@@ -210,11 +218,6 @@ public class Monster_BattleState : MonsterState
         }
 
         //owner.transform.LookAt(owner.MonsterViewModel.TraceTarget);
-
-        if (Vector3.Distance(owner.transform.position, owner.MonsterViewModel.TraceTarget.transform.position) > owner.Agent.stoppingDistance + 0.5f)
-        {
-            owner.MonsterViewModel.RequestStateChanged(monsterId, State.Run);
-        }
     }
 }
 
@@ -243,7 +246,7 @@ public class Monster_TraceState : MonsterState
 
         owner.Agent.SetDestination(owner.MonsterViewModel.TraceTarget.position);
 
-        if (owner.Agent.remainingDistance <= owner.Agent.stoppingDistance)
+        if (owner.Agent.remainingDistance < owner.Agent.stoppingDistance + 0.5f)
         {
             owner.MonsterViewModel.RequestStateChanged(monsterId, State.Battle);
             return;
@@ -265,7 +268,9 @@ public class Monster_CirclingState : MonsterState
     public override void Enter()
     {
         base.Enter();
+
         _time = 0f;
+        _circlingSpeed = 20f;
         owner.Agent.speed = owner.MonsterViewModel.MonsterInfo.WalkSpeed;
         _circleTimeRange = Random.Range(3f, 6f);
         _circlingDir = Random.Range(0, 2) == 0 ? 1 : -1;
@@ -278,28 +283,36 @@ public class Monster_CirclingState : MonsterState
 
         if (owner.MonsterViewModel.TraceTarget == null)
         {
-            owner.MonsterViewModel.RequestStateChanged(monsterId, State.Idle);
+            owner.MonsterViewModel.RequestStateChanged(monsterId, State.Alert);
             return;
         }
 
-        _circlingSpeed = Mathf.Lerp(_circlingSpeed, 20f, 10f * Time.fixedDeltaTime);
+        owner.Agent.destination = owner.MonsterViewModel.TraceTarget.position;
 
-        _time = Mathf.Clamp(_time + Time.fixedDeltaTime, 0f, _circleTimeRange);
-        if (_time >= _circleTimeRange)
+        if (owner.Agent.remainingDistance > owner.Agent.stoppingDistance + 1.5f)
+        {
+            owner.MonsterViewModel.RequestStateChanged(monsterId, State.Run);
+            return;
+        }
+        //Debug.Log($"{owner.MonsterViewModel.MonsterState} {owner.Agent.remainingDistance}/{owner.Agent.stoppingDistance + 1.5f}");
+
+        _time = Mathf.Clamp(_time + Time.deltaTime, 0f, _circleTimeRange);
+        if(_time >= _circleTimeRange)
         {
             owner.MonsterViewModel.RequestStateChanged(monsterId, State.Battle);
             return;
         }
+    }
 
-        //transform.RotateAround(traceTargetPos, Vector3.up, _circlingDir * _circlingSpeed * Time.fixedDeltaTime);
+    public override void FixedUpdate()
+    {
+        base.FixedUpdate();
 
         var VecToTarget = owner.transform.position - owner.MonsterViewModel.TraceTarget.position;
         var rotatedPos = Quaternion.Euler(0, _circlingDir * _circlingSpeed * Time.fixedDeltaTime, 0) * VecToTarget;
 
         owner.Agent.Move(rotatedPos - VecToTarget);
         owner.transform.rotation = Quaternion.LookRotation(-rotatedPos);
-
-        //owner.animator.SetFloat("CirclingDir", _circlingDir);
     }
 }
 

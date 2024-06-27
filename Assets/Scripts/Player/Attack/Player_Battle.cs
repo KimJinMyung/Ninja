@@ -77,7 +77,7 @@ public class Player_Battle : MonoBehaviour
     {
         if (owner.ViewModel == null) return;
 
-        Collider[] hitColliders = Physics.OverlapBox(AttackColliderPos.position, new Vector3(0.05f, 0.9f, 0.05f), AttackColliderPos.rotation);
+        Collider[] hitColliders = Physics.OverlapBox(AttackColliderPos.position, new Vector3(0.05f, 0.9f, 0.05f), AttackColliderPos.rotation, LayerMask.NameToLayer("Monster"));
         foreach (Collider collider in hitColliders)
         {
             if (collider.transform == this.transform) continue;

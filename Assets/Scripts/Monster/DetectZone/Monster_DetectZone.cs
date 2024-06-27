@@ -13,7 +13,7 @@ public class Monster_DetectZone : MonoBehaviour
     private SphereCollider collider;
     private void Awake()
     {
-        owner = transform.parent.GetComponent<Monster>();
+        owner = transform.parent.GetComponentInChildren<Monster>();
         collider = GetComponent<SphereCollider>();    
     }
 
