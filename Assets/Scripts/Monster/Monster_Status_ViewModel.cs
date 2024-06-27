@@ -1,6 +1,7 @@
 
 using System.ComponentModel;
 using UnityEngine;
+using UnityEngine.InputSystem.iOS;
 
 public class Monster_Status_ViewModel
 {
@@ -51,6 +52,18 @@ public class Monster_Status_ViewModel
 
             _traceTarget = value;
             OnPropertyChanged(nameof(TraceTarget));
+        }
+    }
+
+    private Monster_Attack _currentAttackMethod;
+    public Monster_Attack CurrentAttackMethod
+    {
+        get { return _currentAttackMethod; }
+        set
+        {
+            if(value == _currentAttackMethod) return;
+            _currentAttackMethod = value;
+            OnPropertyChanged(nameof(CurrentAttackMethod));
         }
     }
 

@@ -18,6 +18,7 @@ public class ActorLogicManager : MonoBehaviour
     private Action<Transform, Player> _lockOnViewModel_TargetChangedCallback;
     private Action<Transform> _lockOnModelPlayer_TargetChangeCallback;
     private Dictionary<int, Action<Transform>> _traceTargetChangedCallback = new Dictionary<int, Action<Transform>>();
+    private Dictionary<int, Action<List<Monster_Attack>, Monster>> _AttackMethodChangedCallback = new Dictionary<int, Action<List<Monster_Attack>, Monster>>();
 
     private void Awake()
     {
@@ -215,6 +216,32 @@ public class ActorLogicManager : MonoBehaviour
             }
         }
     }
+
+    public void RegisterAttackMethodChangedCallback(Action<List<Monster_Attack>, Monster> AttackMethodChangedCallback, int actorId, bool isRegister)
+    {
+        if (isRegister)
+        {
+            if (isRegister)
+            {
+                if (!_AttackMethodChangedCallback.ContainsKey(actorId))
+                {
+                    _AttackMethodChangedCallback[actorId] = AttackMethodChangedCallback;
+                }
+                else
+                {
+                    _AttackMethodChangedCallback.Add(actorId, AttackMethodChangedCallback);
+                }
+            }
+            else
+            {
+                if (_AttackMethodChangedCallback.ContainsKey(actorId))
+                {
+                    _AttackMethodChangedCallback[actorId] -= AttackMethodChangedCallback;
+                    if (_AttackMethodChangedCallback[actorId] == null) _AttackMethodChangedCallback.Remove(actorId);
+                }
+            }
+        }
+    }
     #endregion
 
     #region Request ¿¬°áºÎ
@@ -275,6 +302,10 @@ public class ActorLogicManager : MonoBehaviour
     public void OnTraceTarget(int actorId, Transform target)
     {
         if (_traceTargetChangedCallback.ContainsKey(actorId)) _traceTargetChangedCallback[actorId]?.Invoke(target);
+    }
+    public void OnAttackMethodChanged(int actorId, List<Monster_Attack> attackList, Monster owner)
+    {
+        if (_AttackMethodChangedCallback.ContainsKey(actorId)) _AttackMethodChangedCallback[actorId]?.Invoke(attackList, owner);
     }
     #endregion
 

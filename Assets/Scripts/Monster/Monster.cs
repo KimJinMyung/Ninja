@@ -2,6 +2,7 @@ using ActorStateMachine;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.AI;
@@ -33,8 +34,18 @@ public class Monster : MonoBehaviour
         public AnimatorController animation_controller;
     }
 
+    [Serializable]
+    public class WeaponsMesh
+    {
+        public WeaponsType WeaponsType;
+        public GameObject weaponMesh;
+    }
+
     [SerializeField]
     MonsterMesh[] monsterMeshes;
+
+    [SerializeField]
+    WeaponsMesh[] monsterWeapons;
 
     private Dictionary<monsterType, MonsterMesh> monsterMesh;
 
@@ -42,7 +53,8 @@ public class Monster : MonoBehaviour
     public Monster_Status_ViewModel MonsterViewModel { get { return _monsterState; } }
 
     private Monster_data monster_Info;
-    public Monster_data Monster_Info { get { return  monster_Info; } }
+
+    private List<Monster_Attack> monsterAttackMethodList = new List<Monster_Attack>();
 
     private StateMachine _monsterStateMachine;
     public StateMachine MonsterStateMachine {  get { return _monsterStateMachine; } }
@@ -96,6 +108,7 @@ public class Monster : MonoBehaviour
             _monsterState.RegisterMonsterTypeChanged(monsterId, true);
             _monsterState.RegisterStateChanged(monsterId, true);
             _monsterState.RegisterMonsterInfoChanged(monsterId, true);
+            _monsterState.RegisterAttackMethodChanged(monsterId, true);
             _monsterState.RegisterTraceTargetChanged(monsterId, true);
         }
 
@@ -103,6 +116,8 @@ public class Monster : MonoBehaviour
         _monsterState.RequestStateChanged(monsterId, State.Idle);
         
         ReadData_MonsterInfo(type);
+
+        MonsterManager.instance.SpawnMonster(this);
     }
 
     private void OnDisable()
@@ -110,6 +125,7 @@ public class Monster : MonoBehaviour
         if(_monsterState != null)
         {
             _monsterState.RegisterTraceTargetChanged(monsterId, false);
+            _monsterState.RegisterAttackMethodChanged(monsterId, false);
             _monsterState.RegisterMonsterInfoChanged(monsterId, false);
             _monsterState.RegisterStateChanged(monsterId, false);
             _monsterState.RegisterMonsterTypeChanged(monsterId, false);
@@ -129,7 +145,7 @@ public class Monster : MonoBehaviour
         _monsterState.RequestMonsterInfoChanged(monsterId, monster_Info);
 
         ChangedCharacterMesh(type);
-        //SetAttackMethod(monster);
+        GetAttackMethod_Data(monster);
     }
 
     private void ChangedCharacterMesh(monsterType type)
@@ -149,9 +165,12 @@ public class Monster : MonoBehaviour
             }
         }
 
+        UpdateAttackMethod();
         _monsterStateMachine.OnUpdate();
         KnockBackEnd();
         Debug.Log(MonsterViewModel.MonsterState);
+        //임시
+        Debug.Log($"공격 사거리 : {0}");
     }
 
     private void FixedUpdate()
@@ -159,25 +178,46 @@ public class Monster : MonoBehaviour
         _monsterStateMachine.OnFixedUpdate();
     }
 
-    private float _attackRange = 0;
-    public float AttackRange { get { return _attackRange; } }
-    public float AttackDelay { get; protected set; }
-
     //두개 이상의 공격 방식을 가지고 있다면
     //플레이어와의 거리가 가까우면 근접으로 멀면 원거리로 변경
-    private void SetAttackMethod(Monster_data monster)
+    private void GetAttackMethod_Data(Monster_data monster)
     {
+        if(monsterAttackMethodList.Count > 0) monsterAttackMethodList.Clear();
+
         var attakList = monster.AttackMethodName;
         if (attakList.Count > 0)
         {
             foreach (string attackName in attakList)
             {
                 var attack = DataManager.Instance.GetAttackMethodName(attackName);
-                string attackScriptName = attack.AttackScriptName;
-                Type atk = Type.GetType(attackScriptName);
-                gameObject.AddComponent(atk);
+                monsterAttackMethodList.Add(attack);                
             }
         }
+
+        //AttackRange가 작고 AttackSpeed가 빠른 순서대로 나열
+        monsterAttackMethodList = monsterAttackMethodList.OrderByDescending(e => e.AttackRange).ThenBy(e => e.AttackSpeed).ToList();
+        _monsterState.RequestAttackMethodChanged(monsterId, monsterAttackMethodList, this);
+        ChangedWeaponsMesh();
+    }    
+
+    private void ChangedWeaponsMesh()
+    {
+        foreach(var weapon in monsterWeapons)
+        {
+            if(_monsterState.CurrentAttackMethod.DataName == nameof(weapon.WeaponsType))
+            {
+                weapon.weaponMesh.SetActive(true);
+                continue;
+            }
+            weapon.weaponMesh.SetActive(false);
+        }
+    }
+
+    private void UpdateAttackMethod()
+    {
+        if(_monsterState.TraceTarget == null) return;
+
+        _monsterState.RequestAttackMethodChanged(monsterId, monsterAttackMethodList, this);
     }
 
     public bool IsCurrentState(State state)
@@ -195,6 +235,9 @@ public class Monster : MonoBehaviour
             case nameof(_monsterState.MonsterType):
                 ReadData_MonsterInfo(_monsterState.MonsterType);
                 break;
+            case nameof(_monsterState.CurrentAttackMethod):
+                ChangedWeaponsMesh();
+                break;
         }        
     }
 
@@ -202,6 +245,7 @@ public class Monster : MonoBehaviour
     {
         monster_Info.HP -= damage;
 
+        //임시
         if(true/*monster_Info.HP > 0*/)
         {
             _monsterState.RequestTraceTargetChanged(monsterId, attacker.transform);

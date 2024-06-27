@@ -327,6 +327,9 @@ public class Monster_AttackState : MonsterState
     public override void Enter()
     {
         base.Enter();
+        //임시
+        //공격 사거리를 받아와야한다.
+        owner.Agent.stoppingDistance = 5f;
     }
 }
 
@@ -353,6 +356,8 @@ public class Monster_DeadState : MonsterState
     {
         base.Enter();
         owner.gameObject.layer = _DeadMonsterLayer;
-        owner.gameObject.SetActive(false);        
+        owner.gameObject.SetActive(false);      
+
+        MonsterManager.instance.DieMonster(owner);
     }
 }

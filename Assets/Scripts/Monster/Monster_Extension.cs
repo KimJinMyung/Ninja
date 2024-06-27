@@ -1,5 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using UnityEngine;
 
 public static class Monster_Extension
@@ -60,6 +63,47 @@ public static class Monster_Extension
     public static void OnResponseTraceTargetChangedEvent(this Monster_Status_ViewModel monster_A, Transform traceTarget)
     {
         monster_A.TraceTarget = traceTarget;    
+    }
+    #endregion
+    #region Target
+    public static void RegisterAttackMethodChanged(this Monster_Status_ViewModel monster_A, int actorId, bool isRegister)
+    {
+        ActorLogicManager._instance.RegisterAttackMethodChangedCallback(monster_A.OnResponseAttackMethodChangedEvent, actorId, isRegister);
+    }
+    public static void RequestAttackMethodChanged(this Monster_Status_ViewModel monster_A, int actorId, List<Monster_Attack> attackList, Monster owner)
+    {
+        ActorLogicManager._instance.OnAttackMethodChanged(actorId, attackList, owner);
+    }
+
+    public static void OnResponseAttackMethodChangedEvent(this Monster_Status_ViewModel monster_A, List<Monster_Attack> attackList, Monster owner)
+    {
+        if(monster_A.TraceTarget == null || monster_A.CurrentAttackMethod == null)
+        {
+            monster_A.CurrentAttackMethod = attackList.Last();
+        }
+        else
+        {
+            float distance = Vector3.Distance(monster_A.TraceTarget.position, owner.transform.position);
+
+            int index = attackList.IndexOf(monster_A.CurrentAttackMethod);
+
+            while (true)
+            {
+                if (index >= attackList.Count)
+                {
+                    monster_A.CurrentAttackMethod = attackList.Last();
+                    return;
+                }
+
+                if (attackList[index].AttackRange < distance - 1.5)
+                {
+                    monster_A.CurrentAttackMethod = attackList[index];
+                    return;
+                }
+
+                index++;
+            }
+        }
     }
     #endregion
 }

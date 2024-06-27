@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <MonsterAttack>
   <dataCategory>
-    <data DataName="SwordAttack" AttackScriptName="Atk_Sword" AttackRange="2.5" AttackSpeed="5" />
-    <data DataName="SpearAttack" AttackScriptName="Atk_Spear" AttackRange="2.8" AttackSpeed="5" />
-    <data DataName="ShurikenAttack" AttackScriptName="Atk_Shuriken" AttackRange="8" AttackSpeed="6" />
-    <data DataName="DaggerAttack" AttackScriptName="Atk_Dagger" AttackRange="2" AttackSpeed="3" />
-    <data DataName="BowAttack" AttackScriptName="Atk_Bow" AttackRange="10" AttackSpeed="6" />
+    <data DataName="SwordAttack" AttackRange="2.5" AttackSpeed="5" />
+    <data DataName="SpearAttack" AttackRange="2.8" AttackSpeed="5" />
+    <data DataName="ShurikenAttack" AttackRange="8" AttackSpeed="6" />
+    <data DataName="DaggerAttack" AttackRange="2" AttackSpeed="3" />
+    <data DataName="BowAttack" AttackRange="10" AttackSpeed="6" />
   </dataCategory>
 </MonsterAttack>

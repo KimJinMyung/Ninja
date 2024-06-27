@@ -16,10 +16,18 @@ public class Monster_data
     public List<string> AttackMethodName { get; set; }
 }
 
+public enum WeaponsType
+{
+    SwordAttack,
+    SpearAttack,
+    ShurikenAttack,
+    DaggerAttack,
+    BowAttack
+}
+
 public class Monster_Attack
 {
     public string DataName { get; set; }
-    public string AttackScriptName { get; set; }
 
     public float AttackSpeed { get; set; }
     public float AttackRange { get; set; }
