@@ -327,9 +327,10 @@ public class Player : MonoBehaviour
         player_info.HP -= damage;
 
         UnityEngine.Debug.Log(player_info.HP);
-        if(player_info.HP > 0f)
+        AttackDir(attacker.transform.position);
+
+        if (player_info.HP > 0f)
         {
-            ApplyKnockBack(attacker.transform.position);
             _viewModel.RequestStateChanged(player_id, State.Hurt);
             return;
         }
@@ -340,7 +341,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void ApplyKnockBack(Vector3 attakerPosition)
+    private void AttackDir(Vector3 attakerPosition)
     {
         Vector3 knockbackDir = transform.position - attakerPosition;
         knockbackDir.y = 0;
@@ -348,6 +349,5 @@ public class Player : MonoBehaviour
 
         animator.SetFloat(hashHurtDir_z, knockbackDir.z);
         animator.SetFloat(hashHurtDir_x, knockbackDir.x);
-        animator.SetTrigger(hashHurt);
     }
 }

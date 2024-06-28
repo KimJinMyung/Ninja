@@ -172,6 +172,7 @@ public class HurtState : PlayerState
     public override void Enter()
     {
         base.Enter();
+        owner.Animator.SetTrigger(hashHurt);
         owner.Animator.SetBool(hashAttackAble, false);
     }
 
