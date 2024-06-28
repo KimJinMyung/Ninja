@@ -128,7 +128,7 @@ public class Monster : MonoBehaviour
 
     private void OnDisable()
     {
-        if(_monsterState != null)
+        if (_monsterState != null)
         {
             _monsterState.RegisterTraceTargetChanged(monsterId, false);
             _monsterState.RegisterAttackMethodChanged(monsterId, false);
@@ -151,13 +151,14 @@ public class Monster : MonoBehaviour
         _monsterState.RequestMonsterInfoChanged(monsterId, monster_Info);
 
         ChangedCharacterMesh(type);
-        GetAttackMethod_Data(monster);
+        UpdateAttackMethod_Data(monster);
     }
 
     private void ChangedCharacterMesh(monsterType type)
     {
         monsterMesh[type].mesh.SetActive(true);
         animator.runtimeAnimatorController = monsterMesh[type].animation_controller;
+        FindStateMachines();
     }
 
     private void Update()
@@ -191,7 +192,7 @@ public class Monster : MonoBehaviour
 
     //두개 이상의 공격 방식을 가지고 있다면
     //플레이어와의 거리가 가까우면 근접으로 멀면 원거리로 변경
-    private void GetAttackMethod_Data(Monster_data monster)
+    private void UpdateAttackMethod_Data(Monster_data monster)
     {
         if(monsterAttackMethodList.Count > 0) monsterAttackMethodList.Clear();
 
@@ -209,8 +210,10 @@ public class Monster : MonoBehaviour
         monsterAttackMethodList = monsterAttackMethodList.OrderByDescending(e => e.AttackRange).ThenBy(e => e.AttackSpeed).ToList();
         _monsterState.RequestAttackMethodChanged(monsterId, monsterAttackMethodList, this);
         ChangedWeaponsMesh();
+        ChangedAttackStateMachine(_monsterState.CurrentAttackMethod.DataName);
     }    
 
+    //사용하고 있는 무기
     private void ChangedWeaponsMesh()
     {
         foreach(var weapon in monsterWeapons)
@@ -314,5 +317,105 @@ public class Monster : MonoBehaviour
     {
         this.gameObject.SetActive(false);
         MonsterManager.instance.DieMonster(this);
+    }
+
+    private List<AnimatorStateMachine> monsterStateMachines = new List<AnimatorStateMachine>();
+    
+    private List<AnimatorStateMachine> _currentAttackStateMachine = new List<AnimatorStateMachine>();
+    public List<AnimatorStateMachine> CurrentAttackStateMachine { get { return _currentAttackStateMachine; } }
+
+    private void FindStateMachines()
+    {
+        if (animator == null) return;
+
+        var runtimeAnimatorController = animator.runtimeAnimatorController as AnimatorController;
+        if (runtimeAnimatorController == null) return ;
+
+        monsterStateMachines.Clear();
+
+        foreach (var layer in runtimeAnimatorController.layers)
+        {
+            foreach (var stateMachine in layer.stateMachine.stateMachines)
+            {
+                monsterStateMachines.Add(stateMachine.stateMachine);
+            }
+        }
+    }
+
+    private int FindSubStateMachineIndex(string subStateMachineName)
+    {
+        if (animator == null) return -1;
+
+        var runtimeAnimatorController = animator.runtimeAnimatorController as AnimatorController;
+        if (runtimeAnimatorController == null) return -1;
+
+        foreach (var layer in runtimeAnimatorController.layers)
+        {
+            for (int i = 0; i < layer.stateMachine.stateMachines.Length; i++)
+            {
+                if (layer.stateMachine.stateMachines[i].stateMachine.name == subStateMachineName)
+                {
+                    return i;
+                }
+            }
+        }
+
+        return -1; // Not found
+    }
+
+    private void ChangedAttackStateMachine(string attackMethodName)
+    {
+        int subStateMachineIndex = FindSubStateMachineIndex(attackMethodName);
+
+        if (subStateMachineIndex != -1)
+        {
+            _currentAttackStateMachine.Clear();
+
+            int comboIndex = UnityEngine.Random.Range(0, monsterStateMachines[subStateMachineIndex].states.Length);
+                        
+            foreach(var stateMachine in monsterStateMachines[subStateMachineIndex].stateMachines)
+            {
+                _currentAttackStateMachine.Add(stateMachine.stateMachine);
+            }
+
+            GetNodeCountInSubStateMachine(0);
+        }
+    }
+    public int GetNodeCountInSubStateMachine(int attackIndex)
+    {
+        if (attackIndex >= 0 && attackIndex < _currentAttackStateMachine.Count)
+        {
+            var stateMachine = _currentAttackStateMachine[attackIndex];
+            var nodeCount = stateMachine.states.Length;
+
+            foreach(var i in stateMachine.states)
+            {
+                Debug.Log(i.state.name);
+            }
+
+            Debug.Log(nodeCount);
+            return nodeCount;
+        }
+        else return 0;
+    }
+
+    public int GetNodeCountInSubStateMachine(string attackComboName)
+    {
+        foreach(var stateMachine in _currentAttackStateMachine)
+        {
+            if (stateMachine.name == attackComboName)
+            {
+                var NodeCount = stateMachine.states.Length;
+                
+                foreach(var state in stateMachine.states)
+                {
+                    Debug.Log(state.state.name);
+                }
+
+                Debug.Log(NodeCount);
+                return NodeCount;
+            }
+        }
+        return 0;
     }
 }

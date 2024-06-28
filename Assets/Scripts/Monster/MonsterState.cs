@@ -359,6 +359,8 @@ public class Monster_AttackState : MonsterState
     private float attackRange;
     private bool isAttackAble;
 
+    private int ComboCount;
+
     public override void Enter()
     {
         base.Enter();
@@ -385,6 +387,7 @@ public class Monster_AttackState : MonsterState
             if (!isAttackAble) return;
             isAttackAble = false;
 
+            //보스 몬스터를 위하여 몬스터 콤보 공격을 만들 준비는 해야할 듯
             owner.animator.SetTrigger("Attack");
             return;
         }        
