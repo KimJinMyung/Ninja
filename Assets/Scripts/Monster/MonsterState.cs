@@ -24,6 +24,8 @@ public class MonsterState : ActorState
     {
         base.Update();
         owner.animator.SetBool("ComBatMode", owner.MonsterViewModel.TraceTarget != null);
+
+        owner.animator.SetFloat("MoveSpeed", owner.Agent.velocity != Vector3.zero? 1:0);
     }
 }
 
@@ -146,6 +148,11 @@ public class Monster_AlertState : MonsterState
                 owner.MonsterViewModel.RequestStateChanged(monsterId, State.Run);
                 return;
             }
+            else
+            {
+                owner.MonsterViewModel.RequestStateChanged(monsterId, State.Battle);
+                return;
+            }
         }
         else
         {
@@ -153,6 +160,7 @@ public class Monster_AlertState : MonsterState
             if (_time >= AlertStateEndTime)
             {
                 owner.MonsterViewModel.RequestStateChanged(monsterId, State.Idle);
+                return;
             }
         }
     }
@@ -190,7 +198,6 @@ public class Monster_BattleState : MonsterState
         _circleDelay = Random.Range(2f, 5f);
         owner.Agent.speed = 0;
         owner.Agent.stoppingDistance = owner.MonsterViewModel.CurrentAttackMethod.AttackRange;
-        owner.animator.SetBool("Circling", false);
     }
 
     public override void Update()
@@ -315,6 +322,8 @@ public class Monster_CirclingState : MonsterState
             owner.MonsterViewModel.RequestStateChanged(monsterId, State.Battle);
             return;
         }
+
+        owner.animator.SetFloat("CirclingDir", _circlingDir);
     }
 
     public override void FixedUpdate()
@@ -327,6 +336,12 @@ public class Monster_CirclingState : MonsterState
         owner.Agent.Move(rotatedPos - VecToTarget);
         owner.transform.rotation = Quaternion.LookRotation(-rotatedPos);
     }
+
+    public override void Exit()
+    {
+        base.Exit();
+        owner.animator.SetBool("Circling", false);
+    }
 }
 
 //공격
@@ -334,13 +349,73 @@ public class Monster_AttackState : MonsterState
 {
     public Monster_AttackState(Monster owner) : base(owner) { }
 
+    private float attackRange;
+    private bool isAttackAble;
+
     public override void Enter()
     {
         base.Enter();
-        //임시
-        //공격 사거리를 받아와야한다.
-        owner.Agent.stoppingDistance = owner.MonsterViewModel.CurrentAttackMethod.AttackRange;
-        owner.animator.SetTrigger("Attack");
+        isAttackAble = true;
+        attackRange = owner.MonsterViewModel.CurrentAttackMethod.AttackRange;
+        owner.CombatMovementTimer = 0;
+        owner.Agent.stoppingDistance = attackRange - 0.3f;
+        owner.Agent.speed = owner.MonsterViewModel.MonsterInfo.RunSpeed;
+        owner.attackBox.gameObject.SetActive(true);
+    }
+
+    public override void Update()
+    {
+        base.Update();
+
+        owner.Agent.SetDestination(owner.MonsterViewModel.TraceTarget.position);
+
+        float distance = Vector3.Distance(owner.transform.position, owner.MonsterViewModel.TraceTarget.position);
+
+        if (distance <= attackRange)
+        {
+            if (!isAttackAble) return;
+            isAttackAble = false;
+
+            owner.animator.SetTrigger("Attack");
+            return;
+        }        
+    }
+
+    public override void Exit()
+    {
+        base.Exit();
+        owner.attackBox.gameObject.SetActive(false);
+    }
+}
+
+public class Monster_RetreatAfterAttackState : MonsterState
+{
+    public Monster_RetreatAfterAttackState(Monster owner) : base(owner) { }
+
+    private float attackRange;
+    public override void Enter()
+    {
+        base.Enter();
+        owner.Agent.speed = owner.MonsterViewModel.MonsterInfo.WalkSpeed;
+        attackRange = owner.MonsterViewModel.CurrentAttackMethod.AttackRange;
+    }
+
+    public override void Update()
+    {
+        base.Update();
+        float distance = Vector3.Distance(owner.transform.position, owner.MonsterViewModel.TraceTarget.position);
+
+        if (distance >= attackRange)
+        {
+            owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.Battle);
+            return;
+        }
+
+        Vector3 targetDir = owner.MonsterViewModel.TraceTarget.position - owner.transform.position;
+        owner.Agent.Move(-targetDir.normalized * attackRange * Time.deltaTime);
+        
+        targetDir.y = 0;
+        owner.transform.rotation = Quaternion.RotateTowards(owner.transform.rotation, Quaternion.LookRotation(targetDir), 500 * Time.deltaTime);
     }
 }
 

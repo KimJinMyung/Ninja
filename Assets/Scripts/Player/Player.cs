@@ -59,8 +59,12 @@ public class Player : MonoBehaviour
     #endregion
     private StateMachine _stateMachine;
 
+
     protected readonly int hashLockOn = Animator.StringToHash("LockOn");
     protected readonly int hashIsMoveAble = Animator.StringToHash("IsMoveAble");
+    protected readonly int hashHurtDir_z = Animator.StringToHash("HurtDir_z");
+    protected readonly int hashHurtDir_x = Animator.StringToHash("HurtDir_x");
+    protected readonly int hashHurt = Animator.StringToHash("Hurt");
 
     private void Awake()
     {
@@ -70,8 +74,6 @@ public class Player : MonoBehaviour
         _stateMachine = gameObject.AddComponent<StateMachine>();
 
         _stateMachine.AddState(State.Idle, new Player_IdleState(this));
-        _stateMachine.AddState(State.Walk, new WalkState(this));
-        _stateMachine.AddState(State.Run, new RunState(this));
         _stateMachine.AddState(State.Crounch, new CrouchState(this));
         _stateMachine.AddState(State.Jump, new JumpState(this));
         _stateMachine.AddState(State.Falling, new FallingState(this));
@@ -315,7 +317,37 @@ public class Player : MonoBehaviour
                 if (ViewModel.LockOnTarget != null) animator.SetBool(hashLockOn, true);
                 else animator.SetBool(hashLockOn, false);
                 break;
-
         }
+    }
+
+    public void Hurt(Transform attacker, float damage)
+    {
+        if (_viewModel.playerState == State.Die) return;
+
+        player_info.HP -= damage;
+
+        UnityEngine.Debug.Log(player_info.HP);
+        if(player_info.HP > 0f)
+        {
+            ApplyKnockBack(attacker.transform.position);
+            _viewModel.RequestStateChanged(player_id, State.Hurt);
+            return;
+        }
+        else
+        {
+            _viewModel.RequestStateChanged(player_id, State.Die);
+            return;
+        }
+    }
+
+    private void ApplyKnockBack(Vector3 attakerPosition)
+    {
+        Vector3 knockbackDir = transform.position - attakerPosition;
+        knockbackDir.y = 0;
+        knockbackDir.Normalize();
+
+        animator.SetFloat(hashHurtDir_z, knockbackDir.z);
+        animator.SetFloat(hashHurtDir_x, knockbackDir.x);
+        animator.SetTrigger(hashHurt);
     }
 }

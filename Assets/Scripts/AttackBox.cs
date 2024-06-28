@@ -14,20 +14,27 @@ public class AttackBox : MonoBehaviour
     public List<Transform> AttackedMonster {  get { return _attackedMonster; } }
 
     private Player owner_player;
+    private Monster owner_monster;
 
     private void Awake()
     {
-        owner_player = transform.root.GetComponentInChildren<Player>();
+        owner_player = transform.root.GetComponentInParent<Player>();
+        owner_monster = transform.root.GetComponentInParent<Monster>();
 
-        if(owner_player != null)
+        if (owner_player != null)
         {
             _attackLayer = LayerMask.GetMask("Monster", "LockOnAble", "LockOnTarget");
+        }
+        else if(owner_monster != null)
+        {
+            _attackLayer = LayerMask.GetMask("Player");
         }
     }
 
     private void OnEnable()
     {
         hitCollider = new List<Transform>();
+
         if(owner_player != null)
         {
             owner_player.Animator.SetBool("IsAttackAble", true);
@@ -58,25 +65,24 @@ public class AttackBox : MonoBehaviour
 
     private void Update()
     {
-        if (owner_player.ViewModel.playerState != State.Attack) return;
+        if(owner_player != null)
+        {
+            if (owner_player.ViewModel.playerState != State.Attack) return;
+        }else if(owner_monster != null)
+        {
+            if(owner_monster.MonsterViewModel.MonsterState != State.Attack) return;            
+        }
 
         Attacking();
     }
 
     public void Attacking()
     {
-        if(owner_player != null)
-        {
-            if (owner_player.ViewModel == null) return;
-        }
-
         foreach (var collider in hitCollider)
         {
             if (collider.transform == this.transform) continue;
             if (!_attackedMonster.Contains(collider))
             {
-                //데미지 부여 로직 추가
-                Debug.Log($"{collider.name} 데미지 부여");
                 if(owner_player != null)
                 {
                     Monster target = collider.GetComponent<Monster>();
@@ -84,6 +90,13 @@ public class AttackBox : MonoBehaviour
                     {
                         target.Hurt(owner_player.Player_Info.ATK, owner_player);
                     }                    
+                }else if(owner_monster != null)
+                {
+                    Player target = collider.GetComponent<Player>();
+                    if(target != null)
+                    {
+                        target.Hurt(owner_monster.transform, owner_monster.MonsterViewModel.MonsterInfo.ATK);
+                    }
                 }
 
                 //데미지 부여한 몬스터 목록 추가

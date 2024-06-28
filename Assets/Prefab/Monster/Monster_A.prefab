@@ -2431,9 +2431,9 @@ Rigidbody:
   m_Drag: 0
   m_AngularDrag: 0.05
   m_UseGravity: 1
-  m_IsKinematic: 1
+  m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 80
+  m_Constraints: 112
   m_CollisionDetection: 0
 --- !u!136 &9199670548363021254
 CapsuleCollider:
@@ -3941,7 +3941,8 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 9019265469006431574, guid: fdf3b3e8bc7e1b844bd0e50f2c45becb, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: fdf3b3e8bc7e1b844bd0e50f2c45becb, type: 3}
 --- !u!4 &9199670549125011272 stripped
 Transform:

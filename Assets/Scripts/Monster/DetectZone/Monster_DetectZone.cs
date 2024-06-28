@@ -86,13 +86,5 @@ public class Monster_DetectZone : MonoBehaviour
                 owner.MonsterViewModel.RequestTraceTargetChanged(owner.monsterId, player);
             }
         }
-        //else
-        //{
-        //    viewAngle += 20f;
-        //    if (angleMonAndPlayer < viewAngle / 2f)
-        //    {
-        //        owner.MonsterViewModel.RequestTraceTargetChanged(owner.monsterId, player);
-        //    }
-        //}
     }
 }

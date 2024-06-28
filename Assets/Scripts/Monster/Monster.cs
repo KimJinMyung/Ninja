@@ -66,6 +66,8 @@ public class Monster : MonoBehaviour
     public NavMeshAgent Agent { get; private set; }
     public Animator animator { get; private set; }
 
+    public AttackBox attackBox {  get; private set; }
+
     private float KnockBackDuration = 0.2f;
 
     private void Awake()
@@ -73,6 +75,7 @@ public class Monster : MonoBehaviour
         Agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
+        attackBox = GetComponentInChildren<AttackBox>();
 
         monsterMesh = new Dictionary<monsterType, MonsterMesh>();
 
@@ -91,6 +94,7 @@ public class Monster : MonoBehaviour
         _monsterStateMachine.AddState(State.Alert, new Monster_AlertState(this));
         _monsterStateMachine.AddState(State.Circling, new Monster_CirclingState(this));
         _monsterStateMachine.AddState(State.Attack, new Monster_AttackState(this));
+        _monsterStateMachine.AddState(State.RetreatAfterAttack, new Monster_RetreatAfterAttackState(this));
         _monsterStateMachine.AddState(State.Hurt, new Monster_HurtState(this));
         _monsterStateMachine.AddState(State.Incapacitated, new Monster_SubduedState(this));
         _monsterStateMachine.AddState(State.Die, new Monster_DeadState(this));
@@ -117,6 +121,7 @@ public class Monster : MonoBehaviour
         _monsterState.RequestStateChanged(monsterId, State.Idle);
         
         ReadData_MonsterInfo(type);
+        attackBox.gameObject.SetActive(false);
 
         MonsterManager.instance.SpawnMonster(this);
     }
@@ -135,7 +140,7 @@ public class Monster : MonoBehaviour
         }        
     }
 
-    public float CombatMovementTimer {  get; private set; }
+    public float CombatMovementTimer {  get; set; }
 
     private void ReadData_MonsterInfo(monsterType type)
     {
@@ -170,8 +175,14 @@ public class Monster : MonoBehaviour
         _monsterStateMachine.OnUpdate();
         KnockBackEnd();
 
-        Debug.Log(_monsterState.MonsterState);
+        if(_monsterState.TraceTarget != null)
+        {
+            CombatMovementTimer += Time.deltaTime;
+        }
+
     }
+
+    
 
     private void FixedUpdate()
     {
@@ -247,7 +258,6 @@ public class Monster : MonoBehaviour
 
         monster_Info.HP -= damage;
 
-        //юс╫ц
         if(monster_Info.HP > 0)
         {
             _monsterState.RequestStateChanged(monsterId, State.Hurt);
@@ -277,8 +287,6 @@ public class Monster : MonoBehaviour
 
         float knockbackForce = 10f;
         rb.AddForce(knockbackForce * knockbackDir, ForceMode.Impulse);
-
-        //float angle = Vector3.SignedAngle(knockbackDir, transform.forward, Vector3.up);
 
         animator.SetFloat("HurtDir_z", knockbackDir.z);
         animator.SetFloat("HurtDir_x", knockbackDir.x);

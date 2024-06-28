@@ -16,6 +16,7 @@ public class PlayerState : ActorState
 
     protected readonly int hashLockOn = Animator.StringToHash("LockOn");
     protected readonly int hashAttack = Animator.StringToHash("Attack");
+    protected readonly int hashAttackAble = Animator.StringToHash("IsAttackAble");
     protected readonly int hashIsMoveAble = Animator.StringToHash("IsMoveAble");
 
     protected readonly int hashDefence = Animator.StringToHash("Defence");
@@ -61,31 +62,7 @@ public class Player_IdleState : PlayerState
     public override void Update()
     {
         base.Update();
-
-        if (owner.ViewModel.Move.magnitude > 0.1f)
-        {
-            owner.ViewModel.RequestStateChanged(owner.player_id, State.Walk);
-        }
     }
-}
-
-public class WalkState : PlayerState
-{
-    public WalkState(Player owner) : base(owner) { }
-    public override void Enter()
-    {
-        base.Enter();
-    }
-
-    public override void Update()
-    {
-        base.Update();
-    }
-}
-public class RunState : PlayerState
-{
-    public RunState(Player owner) : base(owner) { }
-
 }
 
 public class CrouchState : PlayerState
@@ -195,7 +172,13 @@ public class HurtState : PlayerState
     public override void Enter()
     {
         base.Enter();
-        owner.Animator.SetTrigger(hashHurt);
+        owner.Animator.SetBool(hashAttackAble, false);
+    }
+
+    public override void Exit()
+    {
+        base.Exit();
+        owner.Animator.SetBool(hashAttackAble, true);
     }
 }
 public class DieState : PlayerState

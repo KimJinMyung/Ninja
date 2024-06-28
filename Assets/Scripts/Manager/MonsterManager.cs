@@ -52,10 +52,10 @@ public class MonsterManager : MonoBehaviour
         }
     }
 
-    //private void OnEnable()
-    //{
-    //    AttackEnd();
-    //}
+    private void OnEnable()
+    {
+        _attackingTimer = Random.Range(2f, 4f);
+    }
 
     private void Update()
     {
@@ -72,27 +72,10 @@ public class MonsterManager : MonoBehaviour
                 if (attackMonster == null) return;
                 if (attackMonster.MonsterViewModel.MonsterState != State.Battle && attackMonster.MonsterViewModel.MonsterState != State.Circling) return;
 
-                //var AttackRange = attackMonster.GetComponentsInChildren<IArk>();
-
-                float range = attackMonster.MonsterViewModel.CurrentAttackMethod.AttackRange;    //공격 사거리
-
-                attackMonster.Agent.destination = attackMonster.MonsterViewModel.TraceTarget.position;
-                attackMonster.Agent.stoppingDistance = range;
-
-                if (attackMonster.Agent.remainingDistance <= range + 0.03f)
-                {
-                    attackMonster.Agent.speed = 0f;
-
-                    //_attackingTimer = Random.Range(attackMonster.AttackDelay - 1.5f, attackMonster.AttackDelay + 1.5f);
-                    attackMonster.MonsterViewModel.RequestStateChanged(attackMonster.monsterId, State.Attack);
-                }
+                _attackingTimer = Random.Range(2f, 4f);
+                attackMonster.MonsterViewModel.RequestStateChanged(attackMonster.monsterId, State.Attack);                          
             }
         }
-    }
-
-    public void AttackEnd()
-    {
-        _attackingTimer = Random.Range(1.5f, 3f);
     }
 
     private bool IsAttackAble()
@@ -116,6 +99,7 @@ public class MonsterManager : MonoBehaviour
 
         return true;
     }
+
     Monster SelectMonsterForAttack()
     {
         List<Monster> monsterList = new List<Monster>();
@@ -123,12 +107,15 @@ public class MonsterManager : MonoBehaviour
         foreach (var monster in _monsterLists.Values)
         {
             Monster newMonster = monster.GetComponent<Monster>();
+            
+            if (newMonster.MonsterViewModel.MonsterState != State.Battle) continue;
+
             Transform target = newMonster.MonsterViewModel.TraceTarget;
             if (target != null)
             {
                 Vector3 targetDir = (target.position - newMonster.transform.position).normalized;
                 float Angle = Vector3.Angle(newMonster.transform.forward, targetDir);
-                if(Angle < 2f) monsterList.Add(newMonster);
+                if(Angle < 10f) monsterList.Add(newMonster);
             }
         }
 

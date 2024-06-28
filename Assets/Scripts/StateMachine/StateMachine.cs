@@ -25,7 +25,8 @@ public enum State
     Die,
     //몬스터 전용
     Alert,
-    Circling
+    Circling,
+    RetreatAfterAttack
 }
 
 namespace ActorStateMachine
