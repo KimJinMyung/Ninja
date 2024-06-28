@@ -4,6 +4,11 @@ using UnityEngine;
 
 public static class LockOnModel_Extension
 {
+    private static int MonsterLayer = LayerMask.NameToLayer("Monster");
+    private static int LockOnTargetLayer = LayerMask.NameToLayer("LockOnTarget");
+    private static int LockOnAbleLayer = LayerMask.NameToLayer("LockOnAble");
+    private static int DeadLayer = LayerMask.NameToLayer("Dead");
+
     #region LockOnTargetList
     public static void RegisterLockOnTargetListChanged(this LockOnViewModel model, bool isRegister)
     {
@@ -39,7 +44,7 @@ public static class LockOnModel_Extension
         {
             if (!newColliders.Contains(c))
             {
-                c.gameObject.layer = LayerMask.NameToLayer("Monster");
+                c.gameObject.layer = MonsterLayer;
             }
         }
 
@@ -69,25 +74,26 @@ public static class LockOnModel_Extension
         //기존의 타겟은 Monster로 변경
         if(target != null)
         {
-            if (target.gameObject.layer != LayerMask.NameToLayer("LockOnTarget"))
+            if (target.gameObject.layer != LockOnTargetLayer)
             {
-                target.gameObject.layer = LayerMask.NameToLayer("LockOnAble");
+                target.gameObject.layer = LockOnAbleLayer;
+
                 if (model.LockOnAbleTarget != null)
                 {
-                    if (model.LockOnAbleTarget.gameObject.layer != LayerMask.NameToLayer("LockOnTarget"))
+                    if (model.LockOnAbleTarget.gameObject.layer != LockOnTargetLayer)
                     {
-                        model.LockOnAbleTarget.gameObject.layer = LayerMask.NameToLayer("Monster");
+                        model.LockOnAbleTarget.gameObject.layer = MonsterLayer;
                     }                    
                 }
             }
-            else model.LockOnAbleTarget.gameObject.layer = LayerMask.NameToLayer("Monster");
+            else model.LockOnAbleTarget.gameObject.layer = MonsterLayer;
         }
         else
         {
             if (model.LockOnAbleTarget != null)
             {
-                if(model.LockOnAbleTarget.gameObject.layer == LayerMask.NameToLayer("LockOnTarget")) return;
-                model.LockOnAbleTarget.gameObject.layer = LayerMask.NameToLayer("Monster");
+                if(model.LockOnAbleTarget.gameObject.layer == LockOnTargetLayer) return;
+                model.LockOnAbleTarget.gameObject.layer = MonsterLayer;
             }                
         }        
         
@@ -112,12 +118,12 @@ public static class LockOnModel_Extension
 
         if(model.LockOnTarget != null) 
         {
-            if (model.LockOnTarget == model.LockOnAbleTarget) model.LockOnTarget.gameObject.layer = LayerMask.NameToLayer("LockOnAble");
-            else model.LockOnTarget.gameObject.layer = LayerMask.NameToLayer("Monster");            
+            if (model.LockOnTarget == model.LockOnAbleTarget) model.LockOnTarget.gameObject.layer = LockOnAbleLayer;
+            else model.LockOnTarget.gameObject.layer = MonsterLayer;            
         }
 
         if (target != null)
-            target.gameObject.layer = LayerMask.NameToLayer("LockOnTarget");
+            target.gameObject.layer = LockOnTargetLayer;
 
         player.ViewModel.RequestLockOnTarget(target);
 

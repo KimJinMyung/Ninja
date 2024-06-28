@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class Monster_DetectZone : MonoBehaviour
@@ -39,8 +40,11 @@ public class Monster_DetectZone : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            player = null;
-            owner.MonsterViewModel.RequestTraceTargetChanged(owner.monsterId, player);
+            if(Vector3.Distance(other.transform.position, transform.position) > collider.radius)
+            {
+                player = null;
+                owner.MonsterViewModel.RequestTraceTargetChanged(owner.monsterId, player);
+            }
         }
     }
 
@@ -55,7 +59,7 @@ public class Monster_DetectZone : MonoBehaviour
 
     private void FixedUpdate()
     {
-        Detecting();
+         Detecting();
     }
 
     [SerializeField] private GameObject aa;
@@ -82,13 +86,13 @@ public class Monster_DetectZone : MonoBehaviour
                 owner.MonsterViewModel.RequestTraceTargetChanged(owner.monsterId, player);
             }
         }
-        else
-        {
-            viewAngle += 20f;
-            if (angleMonAndPlayer < viewAngle / 2f)
-            {
-                owner.MonsterViewModel.RequestTraceTargetChanged(owner.monsterId, player);
-            }
-        }
+        //else
+        //{
+        //    viewAngle += 20f;
+        //    if (angleMonAndPlayer < viewAngle / 2f)
+        //    {
+        //        owner.MonsterViewModel.RequestTraceTargetChanged(owner.monsterId, player);
+        //    }
+        //}
     }
 }

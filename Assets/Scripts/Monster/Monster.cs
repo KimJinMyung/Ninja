@@ -7,6 +7,7 @@ using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.AI;
 using static Monster;
+using static UnityEngine.UI.GridLayoutGroup;
 public enum monsterType
 {
     monster_A,
@@ -59,11 +60,11 @@ public class Monster : MonoBehaviour
     private StateMachine _monsterStateMachine;
     public StateMachine MonsterStateMachine {  get { return _monsterStateMachine; } }
 
-    public int monsterId { get; protected set; }
+    public int monsterId { get; private set; }
 
-    private Rigidbody rb;
-    public NavMeshAgent Agent { get; protected set; }
-    public Animator animator { get; protected set; }
+    public Rigidbody rb {  get; private set; }
+    public NavMeshAgent Agent { get; private set; }
+    public Animator animator { get; private set; }
 
     private float KnockBackDuration = 0.2f;
 
@@ -168,9 +169,8 @@ public class Monster : MonoBehaviour
         UpdateAttackMethod();
         _monsterStateMachine.OnUpdate();
         KnockBackEnd();
-        Debug.Log(MonsterViewModel.MonsterState);
-        //임시
-        Debug.Log($"공격 사거리 : {_monsterState.CurrentAttackMethod.AttackRange}");
+
+        Debug.Log(_monsterState.MonsterState);
     }
 
     private void FixedUpdate()
@@ -243,24 +243,26 @@ public class Monster : MonoBehaviour
 
     public void Hurt(float damage, Player attacker)  
     {
+        if (_monsterState.MonsterState == State.Die) return;
+
         monster_Info.HP -= damage;
 
         //임시
-        if(true/*monster_Info.HP > 0*/)
+        if(monster_Info.HP > 0)
         {
-            _monsterState.RequestTraceTargetChanged(monsterId, attacker.transform);
             _monsterState.RequestStateChanged(monsterId, State.Hurt);
             ApplyKnockBack(attacker.transform.position);
+            _monsterState.RequestTraceTargetChanged(monsterId, attacker.transform);
         }
-        //else
-        //{
-        //    _monsterState.RequestStateChanged(monsterId, State.Die);
-        //    if (attacker.ViewModel.LockOnTarget == transform)
-        //    {
-        //        attacker.ViewModel.RequestLockOnTarget(null);
-        //    }
-        //}
-        
+        else
+        {
+            _monsterState.RequestStateChanged(monsterId, State.Die);
+
+            if (attacker.ViewModel.LockOnTarget == transform)
+            {
+                attacker.ViewModel.RequestLockOnTarget(null);
+            }
+        }
     }
 
     private void ApplyKnockBack(Vector3 attakerPosition)
@@ -269,18 +271,28 @@ public class Monster : MonoBehaviour
         animator.SetBool("IsKinematic", false);
         KnockBackDuration = 0.2f;
 
-        Vector3 knockbackDir = (transform.position - attakerPosition).normalized;
+        Vector3 knockbackDir = transform.position - attakerPosition;
         knockbackDir.y = 0;
+        knockbackDir.Normalize();
 
-        float knockbackForce = 50f;
+        float knockbackForce = 10f;
         rb.AddForce(knockbackForce * knockbackDir, ForceMode.Impulse);
+
+        //float angle = Vector3.SignedAngle(knockbackDir, transform.forward, Vector3.up);
+
+        animator.SetFloat("HurtDir_z", knockbackDir.z);
+        animator.SetFloat("HurtDir_x", knockbackDir.x);
+        animator.SetTrigger("Hurt");
     }
 
     private void KnockBackEnd()
     {
+        if (_monsterState.MonsterState == State.Die) return;
+
         if (!rb.isKinematic)
         {
             KnockBackDuration -= Time.deltaTime;
+
             if(KnockBackDuration <= 0)
             {
                 rb.isKinematic = true;
@@ -288,5 +300,11 @@ public class Monster : MonoBehaviour
                 animator.SetBool("IsKinematic", true);
             }
         }
+    }
+
+    public void Dead()
+    {
+        this.gameObject.SetActive(false);
+        MonsterManager.instance.DieMonster(this);
     }
 }

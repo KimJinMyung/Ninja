@@ -865,7 +865,7 @@ GameObject:
   - component: {fileID: 1750781451}
   - component: {fileID: 1750781450}
   m_Layer: 7
-  m_Name: Monster
+  m_Name: Monster_ASD
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1112,6 +1112,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 9173638187715015059, guid: 3f89fe1ac60cb0c4f97a11f1be2239c6, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 9199670548106475112, guid: 3f89fe1ac60cb0c4f97a11f1be2239c6, type: 3}
       propertyPath: m_RootOrder
       value: 12
@@ -1160,9 +1164,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: Monster
       objectReference: {fileID: 0}
+    - target: {fileID: 9199670548363021253, guid: 3f89fe1ac60cb0c4f97a11f1be2239c6, type: 3}
+      propertyPath: m_Constraints
+      value: 112
+      objectReference: {fileID: 0}
+    - target: {fileID: 9199670548363021253, guid: 3f89fe1ac60cb0c4f97a11f1be2239c6, type: 3}
+      propertyPath: m_IsKinematic
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 9199670549289361725, guid: 3f89fe1ac60cb0c4f97a11f1be2239c6, type: 3}
       propertyPath: aa
       value: 
       objectReference: {fileID: 303397420}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 9173638187715015059, guid: 3f89fe1ac60cb0c4f97a11f1be2239c6, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 3f89fe1ac60cb0c4f97a11f1be2239c6, type: 3}

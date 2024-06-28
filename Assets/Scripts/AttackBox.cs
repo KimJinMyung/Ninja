@@ -61,7 +61,6 @@ public class AttackBox : MonoBehaviour
         if (owner_player.ViewModel.playerState != State.Attack) return;
 
         Attacking();
-        Debug.Log(owner_player.ViewModel.playerState);
     }
 
     public void Attacking()

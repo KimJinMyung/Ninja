@@ -124,7 +124,7 @@ public class Player_LockOn : MonoBehaviour
                 if (Physics.Raycast(Camera.main.transform.position, dirTarget, out RaycastHit hit, _viewRange + cameraDis, _lockOnAbleMask))
                 {
                     if (hit.collider == collider)
-                    {
+                    {                       
                         tempLockOnAbleList.Add(collider.transform);
 
                         if (angleToTarget < closestAngle)

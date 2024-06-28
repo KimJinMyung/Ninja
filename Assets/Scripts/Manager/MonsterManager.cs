@@ -69,6 +69,7 @@ public class MonsterManager : MonoBehaviour
                 //한마리만 Attack
                 var attackMonster = SelectMonsterForAttack();
 
+                if (attackMonster == null) return;
                 if (attackMonster.MonsterViewModel.MonsterState != State.Battle && attackMonster.MonsterViewModel.MonsterState != State.Circling) return;
 
                 //var AttackRange = attackMonster.GetComponentsInChildren<IArk>();
@@ -122,9 +123,12 @@ public class MonsterManager : MonoBehaviour
         foreach (var monster in _monsterLists.Values)
         {
             Monster newMonster = monster.GetComponent<Monster>();
-            if (newMonster.MonsterViewModel.TraceTarget != null)
+            Transform target = newMonster.MonsterViewModel.TraceTarget;
+            if (target != null)
             {
-                monsterList.Add(newMonster);
+                Vector3 targetDir = (target.position - newMonster.transform.position).normalized;
+                float Angle = Vector3.Angle(newMonster.transform.forward, targetDir);
+                if(Angle < 2f) monsterList.Add(newMonster);
             }
         }
 

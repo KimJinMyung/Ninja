@@ -58,7 +58,7 @@ public class Monster_IdleState : MonsterState
             _timer = Mathf.Clamp(_timer + Time.deltaTime, 0f, _patrolDelay);
             if(_timer >= _patrolDelay)
             {
-                owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.Walk);
+                //owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.Walk);
                 return;
             }
         }
@@ -190,7 +190,7 @@ public class Monster_BattleState : MonsterState
         _circleDelay = Random.Range(2f, 5f);
         owner.Agent.speed = 0;
         owner.Agent.stoppingDistance = owner.MonsterViewModel.CurrentAttackMethod.AttackRange;
-        //owner.animator.SetBool("Circling", false);
+        owner.animator.SetBool("Circling", false);
     }
 
     public override void Update()
@@ -226,7 +226,11 @@ public class Monster_BattleState : MonsterState
             }
         }
 
-        owner.transform.LookAt(owner.MonsterViewModel.TraceTarget);
+        Vector3 direction = owner.MonsterViewModel.TraceTarget.position - owner.transform.position;
+        Quaternion targetRotation = Quaternion.LookRotation(direction);
+        owner.transform.rotation = Quaternion.Slerp(owner.transform.rotation, targetRotation, 3f * Time.deltaTime);
+
+        //owner.transform.LookAt(owner.MonsterViewModel.TraceTarget);
     }
 }
 
@@ -283,7 +287,7 @@ public class Monster_CirclingState : MonsterState
         owner.Agent.speed = owner.MonsterViewModel.MonsterInfo.WalkSpeed;
         _circleTimeRange = Random.Range(3f, 6f);
         _circlingDir = Random.Range(0, 2) == 0 ? 1 : -1;
-        //owner.animator.SetBool("Circling", true);
+        owner.animator.SetBool("Circling", true);
     }
 
     public override void Update()
@@ -348,7 +352,6 @@ public class Monster_HurtState : MonsterState
     public override void Enter()
     {
         base.Enter();
-        owner.animator.SetTrigger("Hurt");
     }
 }
 
@@ -358,13 +361,35 @@ public class Monster_DeadState : MonsterState
     public Monster_DeadState(Monster owner) : base(owner) { }
 
     private int _DeadMonsterLayer = LayerMask.NameToLayer("Dead");
+    private int _RespawnMonsterLayer = LayerMask.NameToLayer("Monster");
 
     public override void Enter()
     {
         base.Enter();
-        owner.gameObject.layer = _DeadMonsterLayer;
-        owner.gameObject.SetActive(false);      
+        owner.animator.SetBool("Dead", true);
+        owner.animator.SetTrigger("Die");
+        owner.Agent.speed = 0f;
+        owner.Agent.destination = default;
+        owner.rb.isKinematic = false;
+    }
 
-        MonsterManager.instance.DieMonster(owner);
+    public override void Update()
+    {
+        base.Update();
+
+        if (owner.gameObject.layer != _DeadMonsterLayer)
+        {
+            owner.gameObject.layer = _DeadMonsterLayer;
+        }
+    }
+
+    public override void Exit()
+    {
+        base.Exit();
+
+        Debug.Log(owner.MonsterViewModel.MonsterState);
+
+        owner.gameObject.layer = _RespawnMonsterLayer;
+        owner.animator.SetBool("Dead", false);
     }
 }
