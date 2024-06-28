@@ -8,6 +8,7 @@ public class MonsterState : ActorState
     protected Monster owner;
 
     protected int monsterId;
+    protected float MovementValue;
 
     public MonsterState(Monster owner)
     {
@@ -22,10 +23,11 @@ public class MonsterState : ActorState
 
     public override void Update()
     {
-        base.Update();
+        base.Update();        
+
         owner.animator.SetBool("ComBatMode", owner.MonsterViewModel.TraceTarget != null);
 
-        owner.animator.SetFloat("MoveSpeed", owner.Agent.velocity != Vector3.zero? 1:0);
+        owner.animator.SetFloat("MoveSpeed", MovementValue);
     }
 }
 
@@ -81,6 +83,7 @@ public class Monster_PatrolState : MonsterState
     public override void Enter()
     {
         base.Enter();
+        MovementValue = 1f;
         _distance = owner.MonsterViewModel.MonsterInfo.ViewRange;
         owner.Agent.speed = owner.MonsterViewModel.MonsterInfo.WalkSpeed;
         owner.Agent.stoppingDistance = 0f;
@@ -133,6 +136,7 @@ public class Monster_AlertState : MonsterState
     public override void Enter()
     {
         base.Enter();
+        MovementValue = 0;
         _time = 0.0f;
         owner.Agent.speed = 0f;
         AlertStateEndTime = Random.Range(2f, 3f);
@@ -194,15 +198,17 @@ public class Monster_BattleState : MonsterState
     public override void Enter()
     {
         base.Enter();
+        MovementValue = 0f;
         _time = 0;
         _circleDelay = Random.Range(2f, 5f);
         owner.Agent.speed = 0;
-        owner.Agent.stoppingDistance = owner.MonsterViewModel.CurrentAttackMethod.AttackRange;
+        owner.Agent.stoppingDistance = owner.MonsterViewModel.CurrentAttackMethod.AttackRange + 1f;
     }
 
     public override void Update()
     {
         base.Update();
+
         if (owner.MonsterViewModel.TraceTarget == null)
         {
             owner.MonsterViewModel.RequestStateChanged(monsterId, State.Alert);
@@ -249,6 +255,7 @@ public class Monster_TraceState : MonsterState
     public override void Enter()
     {
         base.Enter();
+        MovementValue = 1f;
         owner.Agent.speed = owner.MonsterViewModel.MonsterInfo.RunSpeed;
         owner.Agent.angularSpeed = 3000f;
         owner.Agent.stoppingDistance = owner.MonsterViewModel.CurrentAttackMethod.AttackRange;
@@ -288,10 +295,10 @@ public class Monster_CirclingState : MonsterState
     public override void Enter()
     {
         base.Enter();
-
         _time = 0f;
         _circlingSpeed = 20f;
         owner.Agent.speed = owner.MonsterViewModel.MonsterInfo.WalkSpeed;
+        owner.Agent.stoppingDistance = owner.MonsterViewModel.CurrentAttackMethod.AttackRange + 1f;
         _circleTimeRange = Random.Range(3f, 6f);
         _circlingDir = Random.Range(0, 2) == 0 ? 1 : -1;
         owner.animator.SetBool("Circling", true);
@@ -309,7 +316,7 @@ public class Monster_CirclingState : MonsterState
 
         owner.Agent.destination = owner.MonsterViewModel.TraceTarget.position;
 
-        if (owner.Agent.remainingDistance > owner.Agent.stoppingDistance + 1.5f)
+        if (owner.Agent.remainingDistance > owner.Agent.stoppingDistance + 2f)
         {
             owner.MonsterViewModel.RequestStateChanged(monsterId, State.Run);
             return;
@@ -367,6 +374,8 @@ public class Monster_AttackState : MonsterState
     {
         base.Update();
 
+        MovementValue = owner.Agent.velocity != Vector3.zero ? 1 : 0;
+
         owner.Agent.SetDestination(owner.MonsterViewModel.TraceTarget.position);
 
         float distance = Vector3.Distance(owner.transform.position, owner.MonsterViewModel.TraceTarget.position);
@@ -388,6 +397,7 @@ public class Monster_AttackState : MonsterState
     }
 }
 
+//공격 후 거리 벌리기
 public class Monster_RetreatAfterAttackState : MonsterState
 {
     public Monster_RetreatAfterAttackState(Monster owner) : base(owner) { }
@@ -396,8 +406,9 @@ public class Monster_RetreatAfterAttackState : MonsterState
     public override void Enter()
     {
         base.Enter();
+        MovementValue = -1;
         owner.Agent.speed = owner.MonsterViewModel.MonsterInfo.WalkSpeed;
-        attackRange = owner.MonsterViewModel.CurrentAttackMethod.AttackRange;
+        attackRange = owner.MonsterViewModel.CurrentAttackMethod.AttackRange + 1f;
     }
 
     public override void Update()

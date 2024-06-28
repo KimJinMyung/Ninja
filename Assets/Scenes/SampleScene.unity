@@ -243,6 +243,17 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 372432206759774204, guid: 9a77fa629deedb04ea2cd2370a260676, type: 3}
   m_PrefabInstance: {fileID: 6374590315240288086}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &303397421 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 303397428, guid: 9a77fa629deedb04ea2cd2370a260676, type: 3}
+  m_PrefabInstance: {fileID: 6374590315240288086}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 303397420}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0fe7b8ff4f6211248b0f08847080935a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &341015928
 GameObject:
   m_ObjectHideFlags: 0
@@ -869,6 +880,11 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &1472982257 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 9199670548106545376, guid: 3f89fe1ac60cb0c4f97a11f1be2239c6, type: 3}
+  m_PrefabInstance: {fileID: 9199670549387554436}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1563113212
 GameObject:
   m_ObjectHideFlags: 0
@@ -1218,6 +1234,46 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player_Character
       objectReference: {fileID: 0}
+    - target: {fileID: 6370631659372928071, guid: 9a77fa629deedb04ea2cd2370a260676, type: 3}
+      propertyPath: m_ActionEvents.Array.size
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 6370631659372928071, guid: 9a77fa629deedb04ea2cd2370a260676, type: 3}
+      propertyPath: m_ActionEvents.Array.data[5].m_ActionId
+      value: 26ef3789-9430-48a4-8c30-d79115777eab
+      objectReference: {fileID: 0}
+    - target: {fileID: 6370631659372928071, guid: 9a77fa629deedb04ea2cd2370a260676, type: 3}
+      propertyPath: m_ActionEvents.Array.data[5].m_ActionName
+      value: Player/Defence[/Mouse/rightButton]
+      objectReference: {fileID: 0}
+    - target: {fileID: 6370631659372928071, guid: 9a77fa629deedb04ea2cd2370a260676, type: 3}
+      propertyPath: m_ActionEvents.Array.data[5].m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6370631659372928071, guid: 9a77fa629deedb04ea2cd2370a260676, type: 3}
+      propertyPath: m_ActionEvents.Array.data[5].m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6370631659372928071, guid: 9a77fa629deedb04ea2cd2370a260676, type: 3}
+      propertyPath: m_ActionEvents.Array.data[5].m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 303397421}
+    - target: {fileID: 6370631659372928071, guid: 9a77fa629deedb04ea2cd2370a260676, type: 3}
+      propertyPath: m_ActionEvents.Array.data[5].m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6370631659372928071, guid: 9a77fa629deedb04ea2cd2370a260676, type: 3}
+      propertyPath: m_ActionEvents.Array.data[5].m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: OnDefence
+      objectReference: {fileID: 0}
+    - target: {fileID: 6370631659372928071, guid: 9a77fa629deedb04ea2cd2370a260676, type: 3}
+      propertyPath: m_ActionEvents.Array.data[5].m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: Player_Battle, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 6370631659372928071, guid: 9a77fa629deedb04ea2cd2370a260676, type: 3}
+      propertyPath: m_ActionEvents.Array.data[5].m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9a77fa629deedb04ea2cd2370a260676, type: 3}
 --- !u!1001 &9199670549387554436
@@ -1279,6 +1335,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Monster
       objectReference: {fileID: 0}
+    - target: {fileID: 9199670548363021252, guid: 3f89fe1ac60cb0c4f97a11f1be2239c6, type: 3}
+      propertyPath: _eyes
+      value: 
+      objectReference: {fileID: 1472982257}
     - target: {fileID: 9199670548970872705, guid: 3f89fe1ac60cb0c4f97a11f1be2239c6, type: 3}
       propertyPath: m_Layer
       value: 12
