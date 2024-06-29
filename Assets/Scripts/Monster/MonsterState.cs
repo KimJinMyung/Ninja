@@ -407,8 +407,7 @@ public class Monster_AttackState : MonsterState
         {
             int ComboStateMachineLayerIndex = owner.animator.GetLayerIndex(owner.CurrentAttackStateMachine[ComboIndex].name);
             AnimatorStateInfo stateInfo = owner.animator.GetCurrentAnimatorStateInfo(ComboStateMachineLayerIndex);
-            Debug.Log(stateInfo);
-            Debug.Log(stateInfo.normalizedTime);
+
             if (stateInfo.normalizedTime >= 1.0f && currentComboStep < ComboCount) 
             {
                 currentComboStep++;

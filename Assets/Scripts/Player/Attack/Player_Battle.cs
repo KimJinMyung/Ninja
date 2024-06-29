@@ -36,6 +36,8 @@ public class Player_Battle : MonoBehaviour
 
     public void OnDefence(InputAction.CallbackContext context)
     {
+        if (owner.Player_Info.Stamina < 10) return;
+
         bool isDefence = context.ReadValue<float>() > 0.5f;
 
         if (isDefence)

@@ -62,6 +62,7 @@ public class Player : MonoBehaviour
 
     protected readonly int hashLockOn = Animator.StringToHash("LockOn");
     protected readonly int hashIsMoveAble = Animator.StringToHash("IsMoveAble");
+    protected readonly int hashDefence = Animator.StringToHash("Defence");
     protected readonly int hashHurtDir_z = Animator.StringToHash("HurtDir_z");
     protected readonly int hashHurtDir_x = Animator.StringToHash("HurtDir_x");
     protected readonly int hashHurt = Animator.StringToHash("Hurt");
@@ -106,6 +107,7 @@ public class Player : MonoBehaviour
 
         _viewModel.PropertyChanged += OnPropertyChanged;
         _viewModel.RegisterStateChanged(player_id, true);
+        _viewModel.RegisterPlayerDataChanged(player_id, true);
         _viewModel.RegisterMoveVelocity(true);
         _viewModel.ReigsterLockOnTargetChanged(true);
 
@@ -119,6 +121,7 @@ public class Player : MonoBehaviour
         {
             _viewModel.ReigsterLockOnTargetChanged(false);
             _viewModel.RegisterMoveVelocity(false);
+            _viewModel.RegisterPlayerDataChanged(player_id, false);
             _viewModel.RegisterStateChanged(player_id, false);
             _viewModel.PropertyChanged -= OnPropertyChanged;
             _viewModel = null;
@@ -130,6 +133,7 @@ public class Player : MonoBehaviour
         if (player == null) return;
 
         player_info = player;
+        _viewModel.RequestPlayerDataChanged(player_id, player);
     }
 
     public void OnMovement(InputAction.CallbackContext context)
@@ -179,11 +183,6 @@ public class Player : MonoBehaviour
     private void FixedUpdate()
     {
         _stateMachine.OnFixedUpdate();
-
-        //if (animator.GetBool(hashLockOn))
-        //{
-        //    CamearaRotation_Target(_viewModel.LockOnTarget);
-        //}
 
         Rotation();
     }       
@@ -320,9 +319,29 @@ public class Player : MonoBehaviour
         }
     }
 
-    public void Hurt(Transform attacker, float damage)
+    public void Hurt(Monster attacker, float damage)
     {
         if (_viewModel.playerState == State.Die) return;
+
+        if (animator.GetBool(hashDefence))
+        {
+            if (IsDefenceSuccess(attacker.transform.position))
+            {
+                //방어 성공
+                player_info.Stamina -= attacker.MonsterViewModel.MonsterInfo.Strength;
+                UnityEngine.Debug.Log(player_info.Stamina);
+                if(player_info.Stamina > 0f)
+                {
+                    _viewModel.RequestStateChanged(player_id, State.Defence);
+                    return;
+                }
+                else
+                {
+                    _viewModel.RequestStateChanged(player_id, State.Incapacitated);
+                    return;
+                }
+            }
+        }
 
         player_info.HP -= damage;
 
@@ -349,5 +368,18 @@ public class Player : MonoBehaviour
 
         animator.SetFloat(hashHurtDir_z, knockbackDir.z);
         animator.SetFloat(hashHurtDir_x, knockbackDir.x);
+    }
+
+    private bool IsDefenceSuccess(Vector3 attackerPosition)
+    {
+        Vector3 attackDir = attackerPosition - transform.position;
+        attackDir.y = 0;
+
+        Vector3 playerForward = transform.forward;
+        playerForward.y = 0;
+
+        float angle = Vector3.Angle(playerForward, attackDir);
+        if(angle <= 45f) return true;
+        else return false;
     }
 }

@@ -18,7 +18,20 @@ public static class Player_ViewModel_Extension
         input.playerState = state;
     }
     #endregion
-
+    #region PlayerInfo
+    public static void RegisterPlayerDataChanged(this Player_ViewModel input, int ActirId, bool isRegister)
+    {
+        ActorLogicManager._instance.RegisterPlayerDataChangedCallback(ActirId, input.OnResponsePlayerDataChangedEvent, isRegister);
+    }
+    public static void RequestPlayerDataChanged(this Player_ViewModel input, int ActirId, Player_data data)
+    {
+        ActorLogicManager._instance.OnChangedPlayerData(ActirId, data);
+    }
+    public static void OnResponsePlayerDataChangedEvent(this Player_ViewModel input, Player_data data)
+    {
+        input.playerInfo = data;
+    }
+    #endregion
     #region Move
     public static void RegisterMoveVelocity(this Player_ViewModel input, bool isRegister)
     {

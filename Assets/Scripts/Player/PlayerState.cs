@@ -20,10 +20,12 @@ public class PlayerState : ActorState
     protected readonly int hashIsMoveAble = Animator.StringToHash("IsMoveAble");
 
     protected readonly int hashDefence = Animator.StringToHash("Defence");
+    protected readonly int hashDefenceHit = Animator.StringToHash("DefenceHit");
     protected readonly int hashParry = Animator.StringToHash("Parry");
 
     protected readonly int hashHurt = Animator.StringToHash("Hurt");
     protected readonly int hashDie = Animator.StringToHash("Die");
+
     public override void Update()
     {
         base.Update();
@@ -108,7 +110,7 @@ public class BattleState : PlayerState
 
         _timer = 0;
 
-        owner.Animator.SetBool(hashDefence, false);
+        //owner.Animator.SetBool(hashDefence, false);
     }
 
     public override void Update()
@@ -137,17 +139,21 @@ public class AttackState : PlayerState
 public class DefenceState : PlayerState
 {
     public DefenceState(Player owner) : base(owner) { }
+
+    private int DefenceLayerIndex;
     public override void Enter()
     {
         base.Enter();
-        owner.Animator.SetBool(hashDefence, true);
+        owner.Animator.SetBool(hashIsMoveAble, false);
+        DefenceLayerIndex = owner.Animator.GetLayerIndex("Defence");
+        owner.Animator.SetLayerWeight(DefenceLayerIndex, 1);
+        owner.Animator.SetTrigger(hashHurt);
     }
 
     public override void Exit()
     {
-        if (owner.ViewModel.playerState == State.Parry) return;
-
-        owner.Animator.SetBool(hashDefence, false);
+        base.Exit();
+        owner.Animator.SetBool(hashIsMoveAble, true);
     }
 }
 public class ParryState : PlayerState
@@ -188,6 +194,12 @@ public class DieState : PlayerState
     public override void Enter()
     {
         base.Enter();
-        owner.Animator.SetTrigger(hashDie);
+        owner.Animator.SetBool(hashDie, true);
+    }
+
+    public override void Exit()
+    {
+        base.Exit();
+        owner.Animator.SetBool(hashDie, false);
     }
 }

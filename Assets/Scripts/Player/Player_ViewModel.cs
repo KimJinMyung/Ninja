@@ -18,6 +18,18 @@ public class Player_ViewModel
         }
     }
 
+    private Player_data _playerInfo;
+    public Player_data playerInfo
+    {
+        get { return _playerInfo; }
+        set
+        {
+            if (_playerInfo == value) return;
+            _playerInfo = value;
+            OnPropertyChanged(nameof(playerInfo));
+        }
+    }
+
     private Vector2 _move;
     public Vector2 Move
     {

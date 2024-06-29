@@ -5,9 +5,9 @@ using UnityEngine;
 public class ActorLogicManager : MonoBehaviour
 {
     public static ActorLogicManager _instance = null;
-
     private Dictionary<int, Action<monsterType>> _monsterTypeChangedCallback = new Dictionary<int, Action<monsterType>>();
     private Dictionary<int, Action<State>> _stateChangedCallback = new Dictionary<int, Action<State>>();
+    private Dictionary<int, Action<Player_data>> _playerDataChangedCallback = new Dictionary<int, Action<Player_data>>();
     private Dictionary<int, Action<Monster_data>> _InfoChangedCallback = new Dictionary<int, Action<Monster_data>>();
     private Action<float, float> _moveVelocityChangedCallback;
     private Action<float, float, float> _targetAngleChangedCallback;
@@ -71,6 +71,29 @@ public class ActorLogicManager : MonoBehaviour
             {
                 _stateChangedCallback[actorId] -= stateChangedCallback;
                 if (_stateChangedCallback[actorId] == null) _stateChangedCallback.Remove(actorId);
+            }
+        }
+    }
+
+    public void RegisterPlayerDataChangedCallback(int actorId, Action<Player_data> playerDataChangedCallback, bool isRegister)
+    {
+        if (isRegister)
+        {
+            if (!_playerDataChangedCallback.ContainsKey(actorId))
+            {
+                _playerDataChangedCallback[actorId] = playerDataChangedCallback;
+            }
+            else
+            {
+                _playerDataChangedCallback.Add(actorId, playerDataChangedCallback);
+            }
+        }
+        else
+        {
+            if (_playerDataChangedCallback.ContainsKey(actorId))
+            {
+                _playerDataChangedCallback[actorId] -= playerDataChangedCallback;
+                if (_playerDataChangedCallback[actorId] == null) _playerDataChangedCallback.Remove(actorId);
             }
         }
     }
@@ -252,6 +275,10 @@ public class ActorLogicManager : MonoBehaviour
     public void OnChangedState(int actorId,State state)
     {
         if (_stateChangedCallback.ContainsKey(actorId)) _stateChangedCallback[actorId]?.Invoke(state);
+    }
+    public void OnChangedPlayerData(int actorId, Player_data state)
+    {
+        if (_playerDataChangedCallback.ContainsKey(actorId)) _playerDataChangedCallback[actorId]?.Invoke(state);
     }
     public void OnMoveInput(float x, float y)
     {

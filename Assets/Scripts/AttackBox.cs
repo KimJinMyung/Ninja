@@ -55,14 +55,6 @@ public class AttackBox : MonoBehaviour
         }
     }
 
-    //private void OnTriggerExit(Collider other)
-    //{
-    //    if (hitCollider.Contains(other.transform))
-    //    {
-    //        hitCollider.Remove(other.transform);
-    //    }
-    //}
-
     private void Update()
     {
         if(owner_player != null)
@@ -95,7 +87,7 @@ public class AttackBox : MonoBehaviour
                     Player target = collider.GetComponent<Player>();
                     if(target != null)
                     {
-                        target.Hurt(owner_monster.transform, owner_monster.MonsterViewModel.MonsterInfo.ATK);
+                        target.Hurt(owner_monster, owner_monster.MonsterViewModel.MonsterInfo.ATK);
                     }
                 }
 
