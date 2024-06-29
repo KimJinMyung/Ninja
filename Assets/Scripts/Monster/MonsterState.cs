@@ -405,13 +405,16 @@ public class Monster_AttackState : MonsterState
 
         if(isComboInProgress)
         {
-            AnimatorStateInfo stateInfo = owner.animator.GetCurrentAnimatorStateInfo(0);
-
-            if(stateInfo.normalizedTime >= 1.0f && currentComboStep < ComboCount) 
+            int ComboStateMachineLayerIndex = owner.animator.GetLayerIndex(owner.CurrentAttackStateMachine[ComboIndex].name);
+            AnimatorStateInfo stateInfo = owner.animator.GetCurrentAnimatorStateInfo(ComboStateMachineLayerIndex);
+            Debug.Log(stateInfo);
+            Debug.Log(stateInfo.normalizedTime);
+            if (stateInfo.normalizedTime >= 1.0f && currentComboStep < ComboCount) 
             {
                 currentComboStep++;
                 if(currentComboStep < ComboCount)
                 {
+                    owner.animator.SetFloat("AttackCount", currentComboStep);
                     owner.animator.SetTrigger(hashAttack);
                 }
                 else
