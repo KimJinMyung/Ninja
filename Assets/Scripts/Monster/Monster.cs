@@ -371,16 +371,20 @@ public class Monster : MonoBehaviour
         {
             _currentAttackStateMachine.Clear();
 
-            int comboIndex = UnityEngine.Random.Range(0, monsterStateMachines[subStateMachineIndex].states.Length);
-                        
             foreach(var stateMachine in monsterStateMachines[subStateMachineIndex].stateMachines)
             {
                 _currentAttackStateMachine.Add(stateMachine.stateMachine);
-            }
-
-            GetNodeCountInSubStateMachine(0);
+            }            
         }
     }
+
+    public int AttackComboIndex_Random()
+    {
+        int comboIndex = UnityEngine.Random.Range(0, _currentAttackStateMachine.Count);
+
+        return comboIndex;
+    }
+
     public int GetNodeCountInSubStateMachine(int attackIndex)
     {
         if (attackIndex >= 0 && attackIndex < _currentAttackStateMachine.Count)
@@ -388,12 +392,6 @@ public class Monster : MonoBehaviour
             var stateMachine = _currentAttackStateMachine[attackIndex];
             var nodeCount = stateMachine.states.Length;
 
-            foreach(var i in stateMachine.states)
-            {
-                Debug.Log(i.state.name);
-            }
-
-            Debug.Log(nodeCount);
             return nodeCount;
         }
         else return 0;

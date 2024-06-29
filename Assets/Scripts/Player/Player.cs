@@ -326,7 +326,7 @@ public class Player : MonoBehaviour
 
         player_info.HP -= damage;
 
-        UnityEngine.Debug.Log(player_info.HP);
+        //UnityEngine.Debug.Log(player_info.HP);
         AttackDir(attacker.transform.position);
 
         if (player_info.HP > 0f)

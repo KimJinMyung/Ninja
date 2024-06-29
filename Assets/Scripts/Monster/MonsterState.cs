@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.AI;
 using ActorStateMachine;
-using System.Drawing;
 
 public class MonsterState : ActorState
 { 
@@ -9,6 +8,8 @@ public class MonsterState : ActorState
 
     protected int monsterId;
     protected float MovementValue;
+
+    protected readonly int hashAttack = Animator.StringToHash("Attack");
 
     public MonsterState(Monster owner)
     {
@@ -23,7 +24,9 @@ public class MonsterState : ActorState
 
     public override void Update()
     {
-        base.Update();        
+        base.Update();
+
+        //Debug.Log(owner.MonsterViewModel.MonsterState);
 
         owner.animator.SetBool("ComBatMode", owner.MonsterViewModel.TraceTarget != null);
 
@@ -359,17 +362,24 @@ public class Monster_AttackState : MonsterState
     private float attackRange;
     private bool isAttackAble;
 
+    private int ComboIndex;
     private int ComboCount;
+    private int currentComboStep;
+    private bool isComboInProgress;
 
     public override void Enter()
     {
         base.Enter();
         isAttackAble = true;
+        isComboInProgress = false;
         attackRange = owner.MonsterViewModel.CurrentAttackMethod.AttackRange;
         owner.CombatMovementTimer = 0;
         owner.Agent.stoppingDistance = attackRange - 0.3f;
         owner.Agent.speed = owner.MonsterViewModel.MonsterInfo.RunSpeed;
         owner.attackBox.gameObject.SetActive(true);
+        ComboIndex = owner.AttackComboIndex_Random();
+        ComboCount = owner.GetNodeCountInSubStateMachine(ComboIndex);
+        currentComboStep = 0;
     }
 
     public override void Update()
@@ -382,21 +392,61 @@ public class Monster_AttackState : MonsterState
 
         float distance = Vector3.Distance(owner.transform.position, owner.MonsterViewModel.TraceTarget.position);
 
-        if (distance <= attackRange)
-        {
-            if (!isAttackAble) return;
+        if (distance <= attackRange && isAttackAble && !isComboInProgress)
+        {            
             isAttackAble = false;
-
-            //보스 몬스터를 위하여 몬스터 콤보 공격을 만들 준비는 해야할 듯
-            owner.animator.SetTrigger("Attack");
-            return;
+            isComboInProgress = true;
+            if (!StartComboAttack())
+            {
+                EndComboAttack();
+                return;
+            }
         }        
+
+        if(isComboInProgress)
+        {
+            AnimatorStateInfo stateInfo = owner.animator.GetCurrentAnimatorStateInfo(0);
+
+            if(stateInfo.normalizedTime >= 1.0f && currentComboStep < ComboCount) 
+            {
+                currentComboStep++;
+                if(currentComboStep < ComboCount)
+                {
+                    owner.animator.SetTrigger(hashAttack);
+                }
+                else
+                {
+                    EndComboAttack();
+                    return;
+                }
+            }
+        }
+    }
+
+    private bool StartComboAttack()
+    {
+        if(ComboCount > 0)
+        {
+            owner.animator.SetTrigger(hashAttack);
+            return true;
+        }
+       return false;
+    }
+
+    private void EndComboAttack()
+    {
+        isComboInProgress = false;
+        isAttackAble = true;
+        currentComboStep = 0;
+        owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.Battle);
     }
 
     public override void Exit()
     {
         base.Exit();
         owner.attackBox.gameObject.SetActive(false);
+        isComboInProgress = false;
+        currentComboStep = 0;
     }
 }
 
