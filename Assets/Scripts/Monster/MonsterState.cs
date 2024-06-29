@@ -362,29 +362,25 @@ public class Monster_AttackState : MonsterState
     private float attackRange;
     private bool isAttackAble;
 
-    private int ComboIndex;
-    private int ComboCount;
-    private int currentComboStep;
-    private bool isComboInProgress;
+    private int AttackIndex;
 
     public override void Enter()
     {
         base.Enter();
         isAttackAble = true;
-        isComboInProgress = false;
         attackRange = owner.MonsterViewModel.CurrentAttackMethod.AttackRange;
         owner.CombatMovementTimer = 0;
         owner.Agent.stoppingDistance = attackRange - 0.3f;
         owner.Agent.speed = owner.MonsterViewModel.MonsterInfo.RunSpeed;
         owner.attackBox.gameObject.SetActive(true);
-        ComboIndex = owner.AttackComboIndex_Random();
-        ComboCount = owner.GetNodeCountInSubStateMachine(ComboIndex);
-        currentComboStep = 0;
+        AttackIndex = owner.AttackComboIndex_Random();
     }
 
     public override void Update()
     {
         base.Update();
+
+        Debug.Log("공격 스테이트");
 
         MovementValue = owner.Agent.velocity != Vector3.zero ? 1 : 0;
 
@@ -392,63 +388,18 @@ public class Monster_AttackState : MonsterState
 
         float distance = Vector3.Distance(owner.transform.position, owner.MonsterViewModel.TraceTarget.position);
 
-        if (distance <= attackRange && isAttackAble && !isComboInProgress)
-        {            
+        if (distance <= attackRange && isAttackAble)
+        {
             isAttackAble = false;
-            isComboInProgress = true;
-            if (!StartComboAttack())
-            {
-                EndComboAttack();
-                return;
-            }
-        }        
-
-        if(isComboInProgress)
-        {
-            int ComboStateMachineLayerIndex = owner.animator.GetLayerIndex(owner.CurrentAttackStateMachine[ComboIndex].name);
-            AnimatorStateInfo stateInfo = owner.animator.GetCurrentAnimatorStateInfo(ComboStateMachineLayerIndex);
-
-            if (stateInfo.normalizedTime >= 1.0f && currentComboStep < ComboCount) 
-            {
-                currentComboStep++;
-                if(currentComboStep < ComboCount)
-                {
-                    owner.animator.SetFloat("AttackCount", currentComboStep);
-                    owner.animator.SetTrigger(hashAttack);
-                }
-                else
-                {
-                    EndComboAttack();
-                    return;
-                }
-            }
-        }
-    }
-
-    private bool StartComboAttack()
-    {
-        if(ComboCount > 0)
-        {
             owner.animator.SetTrigger(hashAttack);
-            return true;
+            owner.animator.SetInteger("AttackIndex", AttackIndex);
         }
-       return false;
-    }
-
-    private void EndComboAttack()
-    {
-        isComboInProgress = false;
-        isAttackAble = true;
-        currentComboStep = 0;
-        owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.Battle);
     }
 
     public override void Exit()
     {
         base.Exit();
         owner.attackBox.gameObject.SetActive(false);
-        isComboInProgress = false;
-        currentComboStep = 0;
     }
 }
 
