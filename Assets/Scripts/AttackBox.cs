@@ -23,7 +23,7 @@ public class AttackBox : MonoBehaviour
 
         if (owner_player != null)
         {
-            _attackLayer = LayerMask.GetMask("Monster", "LockOnAble", "LockOnTarget");
+            _attackLayer = LayerMask.GetMask("Monster", "LockOnAble", "LockOnTarget", "Incapacitated");
         }
         else if(owner_monster != null)
         {
@@ -39,10 +39,7 @@ public class AttackBox : MonoBehaviour
         {
             owner_player.Animator.SetBool("IsAttackAble", true);
         }
-    }
 
-    private void OnDisable()
-    {
         hitCollider.Clear();
         _attackedMonster.Clear();
     }
@@ -57,12 +54,13 @@ public class AttackBox : MonoBehaviour
 
     private void Update()
     {
-        if(owner_player != null)
+        if (owner_player != null)
         {
             if (owner_player.ViewModel.playerState != State.Attack) return;
-        }else if(owner_monster != null)
+        }
+        else if (owner_monster != null)
         {
-            if(owner_monster.MonsterViewModel.MonsterState != State.Attack) return;            
+            if (owner_monster.MonsterViewModel.MonsterState != State.Attack) return;
         }
 
         Attacking();
@@ -72,6 +70,8 @@ public class AttackBox : MonoBehaviour
     {
         foreach (var collider in hitCollider)
         {
+            if (!this.gameObject.activeSelf) return;
+
             if (collider.transform == this.transform) continue;
             if (!_attackedMonster.Contains(collider))
             {

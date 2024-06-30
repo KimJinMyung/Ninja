@@ -53,8 +53,6 @@ public class Monster : MonoBehaviour
     private Monster_Status_ViewModel _monsterState;
     public Monster_Status_ViewModel MonsterViewModel { get { return _monsterState; } }
 
-    private Monster_data monster_Info;
-
     private List<Monster_Attack> monsterAttackMethodList = new List<Monster_Attack>();
 
     private StateMachine _monsterStateMachine;
@@ -97,6 +95,7 @@ public class Monster : MonoBehaviour
         _monsterStateMachine.AddState(State.RetreatAfterAttack, new Monster_RetreatAfterAttackState(this));
         _monsterStateMachine.AddState(State.Hurt, new Monster_HurtState(this));
         _monsterStateMachine.AddState(State.Incapacitated, new Monster_SubduedState(this));
+        _monsterStateMachine.AddState(State.Parried, new Monster_ParryiedState(this));
         _monsterStateMachine.AddState(State.Die, new Monster_DeadState(this));
 
         _monsterStateMachine.InitState(State.Idle);
@@ -147,8 +146,7 @@ public class Monster : MonoBehaviour
         var monster = DataManager.Instance.GetMonsterData((int)type);
         if (monster == null) return;
 
-        monster_Info = monster;
-        _monsterState.RequestMonsterInfoChanged(monsterId, monster_Info);
+        _monsterState.RequestMonsterInfoChanged(monsterId, monster);
 
         ChangedCharacterMesh(type);
         UpdateAttackMethod_Data(monster);
@@ -259,9 +257,9 @@ public class Monster : MonoBehaviour
     {
         if (_monsterState.MonsterState == State.Die) return;
 
-        monster_Info.HP -= damage;
+        _monsterState.MonsterInfo.HP -= damage;
 
-        if(monster_Info.HP > 0)
+        if(_monsterState.MonsterInfo.HP > 0)
         {
             _monsterState.RequestStateChanged(monsterId, State.Hurt);
             ApplyKnockBack(attacker.transform.position);
@@ -384,36 +382,15 @@ public class Monster : MonoBehaviour
 
         return comboIndex;
     }
-
-    public int GetNodeCountInSubStateMachine(int attackIndex)
+    
+    public void Parried(Player attacker)
     {
-        if (attackIndex >= 0 && attackIndex < _currentAttackStateMachine.Count)
-        {
-            var stateMachine = _currentAttackStateMachine[attackIndex];
-            var nodeCount = stateMachine.states.Length;
+        float addParriedPower;
+        if (this.type != monsterType.Boss) addParriedPower = 50f;
+        else addParriedPower = 1f;
 
-            return nodeCount;
-        }
-        else return 0;
-    }
+        _monsterState.MonsterInfo.Stamina -= attacker.Player_Info.Strength * addParriedPower;
 
-    public int GetNodeCountInSubStateMachine(string attackComboName)
-    {
-        foreach(var stateMachine in _currentAttackStateMachine)
-        {
-            if (stateMachine.name == attackComboName)
-            {
-                var NodeCount = stateMachine.states.Length;
-                
-                foreach(var state in stateMachine.states)
-                {
-                    Debug.Log(state.state.name);
-                }
-
-                Debug.Log(NodeCount);
-                return NodeCount;
-            }
-        }
-        return 0;
+        _monsterState.RequestStateChanged(monsterId, State.Parried);
     }
 }

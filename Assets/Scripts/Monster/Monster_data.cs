@@ -28,7 +28,7 @@ public enum WeaponsType
 public class Monster_Attack
 {
     public string DataName { get; set; }
-
+    public string AttackType {  get; set; }
     public float AttackSpeed { get; set; }
     public float AttackRange { get; set; }
 }

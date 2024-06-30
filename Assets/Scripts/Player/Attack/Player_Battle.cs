@@ -8,6 +8,11 @@ public class Player_Battle : MonoBehaviour
 
     private GameObject AttackCollider;
 
+    protected readonly int hashDefence = Animator.StringToHash("Defence");
+    protected readonly int hashParry = Animator.StringToHash("Parry");
+    protected readonly int hashAttack = Animator.StringToHash("Attack");
+    protected readonly int hashAttackAble = Animator.StringToHash("IsAttackAble");
+
     private void Awake()
     {
         owner = GetComponent<Player>();
@@ -21,15 +26,15 @@ public class Player_Battle : MonoBehaviour
 
         if (context.started)
         {
-            if(!owner.Animator.GetBool("IsAttackAble")) return;
+            if(!owner.Animator.GetBool(hashAttackAble)) return;
             //if (owner.ViewModel.playerState == State.Attack) return;
 
-            if (owner.ViewModel.playerState == State.Defence) owner.ViewModel.RequestStateChanged(owner.player_id, State.Parry);
+            if (owner.Animator.GetBool(hashDefence)) owner.Animator.SetTrigger(hashParry);/*owner.ViewModel.RequestStateChanged(owner.player_id, State.Parry);*/
             else
             {
                 if (owner.ViewModel.playerState == State.Parry) return;
-                owner.Animator.SetBool("IsAttackAble", false);
-                owner.Animator.SetTrigger("Attack");
+                owner.Animator.SetBool(hashAttackAble, false);
+                owner.Animator.SetTrigger(hashAttack);
             }
         }
     }
@@ -38,15 +43,15 @@ public class Player_Battle : MonoBehaviour
     {
         if (owner.Player_Info.Stamina < 10) return;
 
-        bool isDefence = context.ReadValue<float>() > 0.5f;
+        owner.isDefence = context.ReadValue<float>() > 0.5f;
 
-        if (isDefence)
+        if (owner.isDefence)
         {
-            owner.Animator.SetBool("Defence", true);
+            owner.Animator.SetBool(hashDefence, true);
         }
         else
         {
-            owner.Animator.SetBool("Defence", false);
+            owner.Animator.SetBool(hashDefence, false);
         }
     }
 
@@ -59,7 +64,7 @@ public class Player_Battle : MonoBehaviour
     public void AttackEnd()
     {
         AttackCollider.SetActive(false);
-        owner.Animator.SetBool("IsAttackAble", true);
+        owner.Animator.SetBool(hashAttackAble, true);
         owner.ViewModel.RequestStateChanged(owner.player_id, State.Battle);
     }
 }

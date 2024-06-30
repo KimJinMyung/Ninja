@@ -10,6 +10,11 @@ public class MonsterState : ActorState
     protected float MovementValue;
 
     protected readonly int hashAttack = Animator.StringToHash("Attack");
+    protected readonly int hashParried = Animator.StringToHash("Parried");
+    protected readonly int hashIncapacitated = Animator.StringToHash("Incapacitated");
+
+    protected static int IncapacitatedLayer = LayerMask.NameToLayer("Incapacitated");
+    protected static int monsterLayer = LayerMask.NameToLayer("Monster");
 
     public MonsterState(Monster owner)
     {
@@ -174,19 +179,56 @@ public class Monster_AlertState : MonsterState
 
 }
 
+public class Monster_ParryiedState : MonsterState
+{
+    public Monster_ParryiedState(Monster owner) : base(owner) { }
+
+    public override void Enter()
+    {
+        base.Enter();
+        owner.animator.SetTrigger(hashParried);
+    }
+}
+
 //무력화 상태
 public class Monster_SubduedState : MonsterState
 {
     public Monster_SubduedState(Monster owner) : base(owner) { }
 
+    private float _timer;
+    private float IncapacitatedRangeTime = 5f;
+
     public override void Enter()
     {
         base.Enter();
+        owner.gameObject.layer = IncapacitatedLayer;
+        owner.animator.SetBool(hashIncapacitated, true);
+        _timer = 0;
+    }
+
+    public override void Update()
+    {
+        base.Update();
+
+        if (owner.MonsterViewModel.MonsterInfo.HP <= 0)
+        {
+            owner.MonsterViewModel.RequestStateChanged(monsterId, State.Die);
+            return;
+        }
+
+        if (_timer < IncapacitatedRangeTime) _timer = Mathf.Clamp(_timer + Time.deltaTime, 0f, IncapacitatedRangeTime);
+        else
+        {
+            owner.MonsterViewModel.RequestStateChanged(monsterId, State.Battle);
+            return;
+        }
     }
 
     public override void Exit()
     {
         base.Exit();
+        owner.gameObject.layer = monsterLayer;
+        owner.animator.SetBool(hashIncapacitated, false);
     }
 }
 

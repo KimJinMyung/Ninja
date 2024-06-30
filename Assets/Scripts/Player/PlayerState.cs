@@ -159,6 +159,13 @@ public class DefenceState : PlayerState
 public class ParryState : PlayerState
 {
     public ParryState(Player owner) : base(owner) { }
+
+    public override void Update()
+    {
+        base.Update();
+
+        Debug.Log("ÆÐ¸µÁß");
+    }
 }
 public class IncapacitatedState : PlayerState
 {

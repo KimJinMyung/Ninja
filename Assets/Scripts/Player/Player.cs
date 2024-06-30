@@ -1,11 +1,7 @@
 using ActorStateMachine;
-using Cinemachine;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.Security.Cryptography;
-using System.Threading;
 using UnityEngine;
-
+using System;
 using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour
@@ -59,6 +55,7 @@ public class Player : MonoBehaviour
     #endregion
     private StateMachine _stateMachine;
 
+    public bool isDefence;
 
     protected readonly int hashLockOn = Animator.StringToHash("LockOn");
     protected readonly int hashIsMoveAble = Animator.StringToHash("IsMoveAble");
@@ -163,6 +160,8 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
+        Debug.Log(isDefence);
+
         Gravity();
         MoveSpeed();
 
@@ -322,6 +321,17 @@ public class Player : MonoBehaviour
     public void Hurt(Monster attacker, float damage)
     {
         if (_viewModel.playerState == State.Die) return;
+
+        if (_viewModel.playerState == State.Parry)
+        {
+            if (attacker.MonsterViewModel.CurrentAttackMethod.AttackType != "Long")
+            {
+                attacker.Parried(this);
+                return;
+            }
+            //원거리 공격은 아무런 효과가 없음으로 처리
+            return;
+        }
 
         if (animator.GetBool(hashDefence))
         {

@@ -4,10 +4,7 @@ using UnityEngine;
 
 public enum State
 {
-
-    Idle,
-    Walk,
-    Run,
+    //플레이어 전용
     Crounch,
     Jump,
     Falling,
@@ -17,6 +14,7 @@ public enum State
     Parry,
     UsingItem,
     //공용
+    Idle,
     Incapacitated,  //제압 당함(기절, 체간 파괴)
     Battle,
     Attack,
@@ -24,8 +22,11 @@ public enum State
     Hurt,
     Die,
     //몬스터 전용
+    Walk,
+    Run,
     Alert,
     Circling,
+    Parried,
     RetreatAfterAttack
 }
 
