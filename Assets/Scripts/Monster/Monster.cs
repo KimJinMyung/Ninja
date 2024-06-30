@@ -51,6 +51,9 @@ public class Monster : MonoBehaviour
 
     private Dictionary<monsterType, MonsterMesh> monsterMesh;
 
+    private Monster_data _initMonsterData;
+    public Monster_data InitMonsterData { get { return _initMonsterData; } }
+
     private Monster_Status_ViewModel _monsterState;
     public Monster_Status_ViewModel MonsterViewModel { get { return _monsterState; } }
 
@@ -147,7 +150,9 @@ public class Monster : MonoBehaviour
         var monster = DataManager.Instance.GetMonsterData((int)type);
         if (monster == null) return;
 
-        _monsterState.RequestMonsterInfoChanged(monsterId, monster);
+        _initMonsterData = monster.MonsterDataClone();
+
+        _monsterState.RequestMonsterInfoChanged(monsterId, monster.MonsterDataClone());
 
         ChangedCharacterMesh(type);
         UpdateAttackMethod_Data(monster);
@@ -201,7 +206,7 @@ public class Monster : MonoBehaviour
             foreach (string attackName in attakList)
             {
                 var attack = DataManager.Instance.GetAttackMethodName(attackName);
-                monsterAttackMethodList.Add(attack);                
+                monsterAttackMethodList.Add(attack.Clone());                
             }
         }
 
@@ -391,6 +396,9 @@ public class Monster : MonoBehaviour
         else addParriedPower = 1f;
 
         _monsterState.MonsterInfo.Stamina -= attacker.Player_Info.Strength * addParriedPower;
+
+        Debug.Log($"1 : {_monsterState.MonsterInfo.Stamina}");
+        Debug.Log($"2 : {_initMonsterData.Stamina}");
 
         _monsterState.RequestStateChanged(monsterId, State.Parried);
     }

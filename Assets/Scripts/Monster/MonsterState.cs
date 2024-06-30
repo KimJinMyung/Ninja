@@ -32,8 +32,7 @@ public class MonsterState : ActorState
     public override void Update()
     {
         base.Update();
-
-        Debug.Log(owner.MonsterViewModel.MonsterState);
+        Debug.Log($"{owner.name} Stamina : {owner.MonsterViewModel.MonsterInfo.Stamina}");
 
         owner.animator.SetBool("ComBatMode", owner.MonsterViewModel.TraceTarget != null);
 
@@ -231,11 +230,7 @@ public class Monster_SubduedState : MonsterState
         base.Exit();        
         owner.animator.SetBool(hashIncapacitated, false);
 
-        var monster = DataManager.Instance.GetMonsterData((int)owner.Type);
-        if (monster != null)
-        {
-            owner.MonsterViewModel.MonsterInfo.Stamina = monster.Stamina;
-        }
+        owner.MonsterViewModel.MonsterInfo.Stamina = owner.InitMonsterData.Stamina;
 
         if (owner.MonsterViewModel.TraceTarget == null)
         {
@@ -445,8 +440,6 @@ public class Monster_AttackState : MonsterState
     public override void Update()
     {
         base.Update();
-
-        Debug.Log("공격 스테이트");
 
         MovementValue = owner.Agent.velocity != Vector3.zero ? 1 : 0;
 

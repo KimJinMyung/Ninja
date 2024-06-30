@@ -129,8 +129,8 @@ public class Player : MonoBehaviour
         var player = DataManager.Instance.GetPlayerData(0);
         if (player == null) return;
 
-        player_info = player;
-        _viewModel.RequestPlayerDataChanged(player_id, player);
+        player_info = player.Clone();
+        _viewModel.RequestPlayerDataChanged(player_id, player.Clone());
     }
 
     public void OnMovement(InputAction.CallbackContext context)
@@ -160,8 +160,6 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
-        Debug.Log(isDefence);
-
         Gravity();
         MoveSpeed();
 
@@ -339,7 +337,6 @@ public class Player : MonoBehaviour
             {
                 //방어 성공
                 player_info.Stamina -= attacker.MonsterViewModel.MonsterInfo.Strength;
-                UnityEngine.Debug.Log(player_info.Stamina);
                 if(player_info.Stamina > 0f)
                 {
                     _viewModel.RequestStateChanged(player_id, State.Defence);

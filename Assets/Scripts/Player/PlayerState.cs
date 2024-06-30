@@ -163,8 +163,6 @@ public class ParryState : PlayerState
     public override void Update()
     {
         base.Update();
-
-        Debug.Log("ÆÐ¸µÁß");
     }
 }
 public class IncapacitatedState : PlayerState
