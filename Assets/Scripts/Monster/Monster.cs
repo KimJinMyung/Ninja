@@ -26,6 +26,7 @@ public class Monster : MonoBehaviour
 {
     [Header("Monster Type")]
     [SerializeField] private monsterType type;
+    public monsterType Type { get { return type; } }
 
     [Serializable]
     public class MonsterMesh

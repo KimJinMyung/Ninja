@@ -15,6 +15,8 @@ public class MonsterState : ActorState
 
     protected static int IncapacitatedLayer = LayerMask.NameToLayer("Incapacitated");
     protected static int monsterLayer = LayerMask.NameToLayer("Monster");
+    protected static int LockOnTargetLayer = LayerMask.NameToLayer("LockOnTarget");
+    protected static int LockOnAbleLayer = LayerMask.NameToLayer("LockOnAble");
 
     public MonsterState(Monster owner)
     {
@@ -31,7 +33,7 @@ public class MonsterState : ActorState
     {
         base.Update();
 
-        //Debug.Log(owner.MonsterViewModel.MonsterState);
+        Debug.Log(owner.MonsterViewModel.MonsterState);
 
         owner.animator.SetBool("ComBatMode", owner.MonsterViewModel.TraceTarget != null);
 
@@ -226,9 +228,31 @@ public class Monster_SubduedState : MonsterState
 
     public override void Exit()
     {
-        base.Exit();
-        owner.gameObject.layer = monsterLayer;
+        base.Exit();        
         owner.animator.SetBool(hashIncapacitated, false);
+
+        var monster = DataManager.Instance.GetMonsterData((int)owner.Type);
+        if (monster != null)
+        {
+            owner.MonsterViewModel.MonsterInfo.Stamina = monster.Stamina;
+        }
+
+        if (owner.MonsterViewModel.TraceTarget == null)
+        {
+            owner.gameObject.layer = monsterLayer;
+            return;
+        }
+
+        Player_LockOn player = owner.MonsterViewModel.TraceTarget.GetComponent<Player_LockOn>();
+        if (player.ViewModel.LockOnTarget == owner.transform)
+        {
+            owner.gameObject.layer = LockOnTargetLayer;
+        }
+        else if (player.ViewModel.LockOnAbleTarget)
+        {
+            owner.gameObject.layer = LockOnAbleLayer;
+        }
+        else owner.gameObject.layer = monsterLayer;
     }
 }
 

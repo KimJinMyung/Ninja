@@ -10,11 +10,11 @@ public class Monster_ParriedEnd : StateMachineBehaviour
     {
         owner = animator.transform.GetComponent<Monster>();
         monsterId = owner.monsterId;
+        if (owner.MonsterViewModel.MonsterInfo.Stamina <= 0) owner.MonsterViewModel.RequestStateChanged(monsterId, State.Incapacitated);
     }
 
     public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        if (owner.MonsterViewModel.MonsterInfo.Stamina <= 0) owner.MonsterViewModel.RequestStateChanged(monsterId, State.Incapacitated);
-        else owner.MonsterViewModel.RequestStateChanged(monsterId, State.Battle);
+        if (owner.MonsterViewModel.MonsterInfo.Stamina > 0) owner.MonsterViewModel.RequestStateChanged(monsterId, State.Battle);
     }
 }

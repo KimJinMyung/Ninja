@@ -15,7 +15,7 @@ public class MonsterAttackEnd : StateMachineBehaviour
     public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         animator.SetLayerWeight(1, 1);
-        if(owner.MonsterViewModel.MonsterState != State.Parried)
+        if(owner.MonsterViewModel.MonsterInfo.Stamina > 0)
              owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.RetreatAfterAttack);
     }
 }
