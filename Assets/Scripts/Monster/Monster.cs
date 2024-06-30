@@ -397,9 +397,6 @@ public class Monster : MonoBehaviour
 
         _monsterState.MonsterInfo.Stamina -= attacker.Player_Info.Strength * addParriedPower;
 
-        Debug.Log($"1 : {_monsterState.MonsterInfo.Stamina}");
-        Debug.Log($"2 : {_initMonsterData.Stamina}");
-
         _monsterState.RequestStateChanged(monsterId, State.Parried);
     }
 }

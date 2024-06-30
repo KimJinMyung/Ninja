@@ -9,6 +9,7 @@ public enum State
     Jump,
     Falling,
     Climbing,
+    Assasinate,
     Hide,
     Detection,  //발각되다.
     Parry,

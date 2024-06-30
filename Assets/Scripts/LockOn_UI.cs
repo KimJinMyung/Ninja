@@ -101,7 +101,7 @@ public class LockOn_UI : MonoBehaviour
     {
         if (target.layer == LayerMask.NameToLayer("LockOnTarget"))
         {
-            _lockOnIcon.color = Color.gray;
+            _lockOnIcon.color = Color.blue;
         }
         else if (target.layer == LayerMask.NameToLayer("LockOnAble"))
         {

@@ -8,9 +8,13 @@ public class Player_Battle : MonoBehaviour
 
     private GameObject AttackCollider;
 
+    private LayerMask AssassinatedLayer;
+
     protected readonly int hashDefence = Animator.StringToHash("Defence");
     protected readonly int hashParry = Animator.StringToHash("Parry");
     protected readonly int hashAttack = Animator.StringToHash("Attack");
+    protected readonly int hashAssasinated = Animator.StringToHash("Assasinated");
+    protected readonly int hashForward = Animator.StringToHash("Forward");
     protected readonly int hashAttackAble = Animator.StringToHash("IsAttackAble");
 
     private void Awake()
@@ -18,24 +22,67 @@ public class Player_Battle : MonoBehaviour
         owner = GetComponent<Player>();
         AttackBox attackBox = GetComponentInChildren<AttackBox>();
         AttackCollider = attackBox.GetComponent<Collider>().gameObject;
-    }
 
+        AssassinatedLayer = LayerMask.GetMask("Monster", "LockOnAble", "LockOnTarget", "Incapacitated");
+    }
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawRay(transform.position, transform.forward * 1.5f);
+    }
     public void OnAttack(InputAction.CallbackContext context)
     {
         if (owner.ViewModel == null) return;
+        if (owner.ViewModel.playerState == State.Parry) return;
 
         if (context.started)
         {
             if(!owner.Animator.GetBool(hashAttackAble)) return;
-            //if (owner.ViewModel.playerState == State.Attack) return;
-
-            if (owner.Animator.GetBool(hashDefence)) owner.Animator.SetTrigger(hashParry);/*owner.ViewModel.RequestStateChanged(owner.player_id, State.Parry);*/
-            else
+                
+            if (owner.Animator.GetBool(hashDefence))
             {
-                if (owner.ViewModel.playerState == State.Parry) return;
-                owner.Animator.SetBool(hashAttackAble, false);
-                owner.Animator.SetTrigger(hashAttack);
+                owner.Animator.SetTrigger(hashParry);
+                return;
             }
+
+
+            if (Physics.Raycast(owner.transform.position + Vector3.up, owner.transform.forward, out RaycastHit hit, 2f))
+            {
+                Debug.Log(hit.transform.name);
+
+                Monster monster = hit.transform.GetComponent<Monster>();
+
+                float dotProductWithPlayer = Vector3.Dot(monster.transform.forward, owner.transform.forward);
+                //플레이어가 몬스터와 마주보고 있다.
+                if(dotProductWithPlayer < 0.5f)
+                {                    
+                    if (monster != null && monster.MonsterViewModel.MonsterState == State.Incapacitated)
+                    {
+                        //전방에서 몬스터를 즉사시키는 모션 실행
+                        owner.Animator.SetBool(hashForward, true);
+                        monster.animator.SetBool(hashForward, true);
+                        owner.Animator.SetTrigger(hashAssasinated);
+                        owner.ViewModel.RequestStateChanged(owner.player_id, State.Assasinate);
+                        return;
+                    }
+                }
+                //플레이어가 몬스터의 등을 바라보고 있다.
+                else if(dotProductWithPlayer > 0.3f)
+                {
+                    if(monster.MonsterViewModel.TraceTarget != null || monster.MonsterViewModel.MonsterState == State.Incapacitated)
+                    {
+                        //등 뒤에서 몬스터를 즉사시키는 모션 실행
+                        owner.Animator.SetBool(hashForward, false);
+                        monster.animator.SetBool(hashForward, false);
+                        owner.Animator.SetTrigger(hashAssasinated);
+                        owner.ViewModel.RequestStateChanged(owner.player_id, State.Assasinate);
+                        return;
+                    }
+                }
+            }
+
+            owner.Animator.SetBool(hashAttackAble, false);
+            owner.Animator.SetTrigger(hashAttack);
         }
     }
 

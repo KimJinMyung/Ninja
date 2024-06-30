@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour
 {
-    CharacterController playerController;    
+    public CharacterController playerController {  get; private set; }
 
     Vector3 moveDir;
 
@@ -71,21 +71,7 @@ public class Player : MonoBehaviour
 
         _stateMachine = gameObject.AddComponent<StateMachine>();
 
-        _stateMachine.AddState(State.Idle, new Player_IdleState(this));
-        _stateMachine.AddState(State.Crounch, new CrouchState(this));
-        _stateMachine.AddState(State.Jump, new JumpState(this));
-        _stateMachine.AddState(State.Falling, new FallingState(this));
-        _stateMachine.AddState(State.Climbing, new ClimbingState(this));
-        _stateMachine.AddState(State.Hide, new HideState(this));
-        _stateMachine.AddState(State.Detection, new DetectionState(this));
-        _stateMachine.AddState(State.Battle, new BattleState(this));
-        _stateMachine.AddState(State.Attack, new AttackState(this));
-        _stateMachine.AddState(State.Defence, new DefenceState(this));
-        _stateMachine.AddState(State.Parry, new ParryState(this));
-        _stateMachine.AddState(State.Incapacitated, new IncapacitatedState(this));
-        _stateMachine.AddState(State.UsingItem, new UsingItemState(this));
-        _stateMachine.AddState(State.Hurt, new HurtState(this));
-        _stateMachine.AddState(State.Die, new DieState(this));
+        AddState();
 
         _stateMachine.InitState(State.Idle);
 
@@ -96,6 +82,26 @@ public class Player : MonoBehaviour
         {
             _viewModel = new Player_ViewModel();
         }
+    }
+
+    private void AddState()
+    {
+        _stateMachine.AddState(State.Idle, new Player_IdleState(this));
+        _stateMachine.AddState(State.Crounch, new CrouchState(this));
+        _stateMachine.AddState(State.Jump, new JumpState(this));
+        _stateMachine.AddState(State.Falling, new FallingState(this));
+        _stateMachine.AddState(State.Climbing, new ClimbingState(this));
+        _stateMachine.AddState(State.Hide, new HideState(this));
+        _stateMachine.AddState(State.Detection, new DetectionState(this));
+        _stateMachine.AddState(State.Battle, new BattleState(this));
+        _stateMachine.AddState(State.Attack, new AttackState(this));
+        _stateMachine.AddState(State.Assasinate, new AssassinatedState(this));
+        _stateMachine.AddState(State.Defence, new DefenceState(this));
+        _stateMachine.AddState(State.Parry, new ParryState(this));
+        _stateMachine.AddState(State.Incapacitated, new IncapacitatedState(this));
+        _stateMachine.AddState(State.UsingItem, new UsingItemState(this));
+        _stateMachine.AddState(State.Hurt, new HurtState(this));
+        _stateMachine.AddState(State.Die, new DieState(this));
     }
 
     private void OnEnable()
@@ -319,6 +325,7 @@ public class Player : MonoBehaviour
     public void Hurt(Monster attacker, float damage)
     {
         if (_viewModel.playerState == State.Die) return;
+        if (_viewModel.playerState == State.Assasinate) return;
 
         if (_viewModel.playerState == State.Parry)
         {

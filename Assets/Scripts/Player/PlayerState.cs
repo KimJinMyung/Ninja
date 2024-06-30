@@ -136,6 +136,22 @@ public class AttackState : PlayerState
         owner.Animator.SetBool(hashIsMoveAble, false);
     }
 }
+public class AssassinatedState : PlayerState
+{
+    public AssassinatedState(Player owner) : base(owner) { }
+
+    public override void Enter()
+    {
+        base.Enter();
+        owner.playerController.enabled = false;
+    }
+
+    public override void Exit()
+    {
+        base.Exit();
+        owner.playerController.enabled = true;
+    }
+}
 public class DefenceState : PlayerState
 {
     public DefenceState(Player owner) : base(owner) { }

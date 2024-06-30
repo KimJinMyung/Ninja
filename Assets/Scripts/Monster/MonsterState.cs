@@ -32,7 +32,6 @@ public class MonsterState : ActorState
     public override void Update()
     {
         base.Update();
-        Debug.Log($"{owner.name} Stamina : {owner.MonsterViewModel.MonsterInfo.Stamina}");
 
         owner.animator.SetBool("ComBatMode", owner.MonsterViewModel.TraceTarget != null);
 
