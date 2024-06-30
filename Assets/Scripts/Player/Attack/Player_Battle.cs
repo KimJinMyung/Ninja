@@ -61,9 +61,11 @@ public class Player_Battle : MonoBehaviour
                         //전방에서 몬스터를 즉사시키는 모션 실행
                         owner.Animator.SetBool(hashForward, true);
                         monster.animator.SetBool(hashForward, true);
+
                         owner.Animator.SetTrigger(hashAssasinated);
+                        monster.animator.SetTrigger(hashAssasinated);
                         owner.ViewModel.RequestStateChanged(owner.player_id, State.Assasinate);
-                        return;
+                         return;
                     }
                 }
                 //플레이어가 몬스터의 등을 바라보고 있다.
@@ -74,7 +76,9 @@ public class Player_Battle : MonoBehaviour
                         //등 뒤에서 몬스터를 즉사시키는 모션 실행
                         owner.Animator.SetBool(hashForward, false);
                         monster.animator.SetBool(hashForward, false);
+
                         owner.Animator.SetTrigger(hashAssasinated);
+                        monster.animator.SetTrigger(hashAssasinated);
                         owner.ViewModel.RequestStateChanged(owner.player_id, State.Assasinate);
                         return;
                     }
