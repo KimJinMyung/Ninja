@@ -11,6 +11,7 @@ public class MonsterState : ActorState
 
     protected readonly int hashAttack = Animator.StringToHash("Attack");
     protected readonly int hashParried = Animator.StringToHash("Parried");
+    protected readonly int hashDead = Animator.StringToHash("Dead");
     protected readonly int hashIncapacitated = Animator.StringToHash("Incapacitated");
 
     protected static int IncapacitatedLayer = LayerMask.NameToLayer("Incapacitated");
@@ -32,6 +33,8 @@ public class MonsterState : ActorState
     public override void Update()
     {
         base.Update();
+
+        Debug.Log(owner.MonsterViewModel.MonsterState);
 
         owner.animator.SetBool("ComBatMode", owner.MonsterViewModel.TraceTarget != null);
 
@@ -70,7 +73,7 @@ public class Monster_IdleState : MonsterState
             _timer = Mathf.Clamp(_timer + Time.deltaTime, 0f, _patrolDelay);
             if(_timer >= _patrolDelay)
             {
-                //owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.Walk);
+                owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.Walk);
                 return;
             }
         }
@@ -209,12 +212,6 @@ public class Monster_SubduedState : MonsterState
     public override void Update()
     {
         base.Update();
-
-        if (owner.MonsterViewModel.MonsterInfo.HP <= 0)
-        {
-            owner.MonsterViewModel.RequestStateChanged(monsterId, State.Die);
-            return;
-        }
 
         if (_timer < IncapacitatedRangeTime) _timer = Mathf.Clamp(_timer + Time.deltaTime, 0f, IncapacitatedRangeTime);
         else
@@ -516,11 +513,10 @@ public class Monster_DeadState : MonsterState
     public override void Enter()
     {
         base.Enter();
-        owner.animator.SetBool("Dead", true);
-        owner.animator.SetTrigger("Die");
         owner.Agent.speed = 0f;
         owner.Agent.destination = default;
         owner.rb.isKinematic = false;
+        owner.animator.SetLayerWeight(1, 0);
     }
 
     public override void Update()
@@ -538,7 +534,7 @@ public class Monster_DeadState : MonsterState
         base.Exit();
 
         Debug.Log(owner.MonsterViewModel.MonsterState);
-
+        owner.animator.SetLayerWeight(1, 1);
         owner.gameObject.layer = _RespawnMonsterLayer;
         owner.animator.SetBool("Dead", false);
     }

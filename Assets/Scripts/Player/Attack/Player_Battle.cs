@@ -58,6 +58,7 @@ public class Player_Battle : MonoBehaviour
                 {                    
                     if (monster != null && monster.MonsterViewModel.MonsterState == State.Incapacitated)
                     {
+                        owner.transform.position = monster.transform.position + monster.transform.forward * 3f;
                         //전방에서 몬스터를 즉사시키는 모션 실행
                         owner.Animator.SetBool(hashForward, true);
                         monster.animator.SetBool(hashForward, true);
@@ -65,14 +66,15 @@ public class Player_Battle : MonoBehaviour
                         owner.Animator.SetTrigger(hashAssasinated);
                         monster.animator.SetTrigger(hashAssasinated);
                         owner.ViewModel.RequestStateChanged(owner.player_id, State.Assasinate);
-                         return;
+                        return;
                     }
                 }
                 //플레이어가 몬스터의 등을 바라보고 있다.
                 else if(dotProductWithPlayer > 0.3f)
                 {
-                    if(monster.MonsterViewModel.TraceTarget != null || monster.MonsterViewModel.MonsterState == State.Incapacitated)
+                    if(monster.MonsterViewModel.TraceTarget == null || monster.MonsterViewModel.MonsterState == State.Incapacitated)
                     {
+                        owner.transform.position = monster.transform.position - monster.transform.forward * 0.8f;
                         //등 뒤에서 몬스터를 즉사시키는 모션 실행
                         owner.Animator.SetBool(hashForward, false);
                         monster.animator.SetBool(hashForward, false);

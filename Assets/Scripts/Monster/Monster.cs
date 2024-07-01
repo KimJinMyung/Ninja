@@ -72,6 +72,9 @@ public class Monster : MonoBehaviour
 
     private float KnockBackDuration = 0.2f;
 
+    protected readonly int hashDead = Animator.StringToHash("Dead");
+    protected readonly int hashDie = Animator.StringToHash("Die");
+
     private void Awake()
     {
         Agent = GetComponent<NavMeshAgent>();
@@ -267,14 +270,15 @@ public class Monster : MonoBehaviour
 
         if(_monsterState.MonsterInfo.HP > 0)
         {
-            _monsterState.RequestStateChanged(monsterId, State.Hurt);
             ApplyKnockBack(attacker.transform.position);
             _monsterState.RequestTraceTargetChanged(monsterId, attacker.transform);
+            _monsterState.RequestStateChanged(monsterId, State.Hurt);
         }
         else
         {
+            animator.SetBool(hashDead, true);
+            animator.SetTrigger(hashDie);
             _monsterState.RequestStateChanged(monsterId, State.Die);
-
             if (attacker.ViewModel.LockOnTarget == transform)
             {
                 attacker.ViewModel.RequestLockOnTarget(null);
