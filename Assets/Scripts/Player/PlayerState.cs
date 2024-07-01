@@ -1,6 +1,8 @@
 using UnityEngine;
 using ActorStateMachine;
 using System.Runtime.CompilerServices;
+using UnityEditor.SceneTemplate;
+using static UnityEditor.Profiling.HierarchyFrameDataView;
 
 //Player의 동작 제어
 public class PlayerState : ActorState
@@ -24,6 +26,8 @@ public class PlayerState : ActorState
     protected readonly int hashParry = Animator.StringToHash("Parry");
     protected readonly int hashBattleMode = Animator.StringToHash("BattleMode");
     protected readonly int hashBattleModeChanged = Animator.StringToHash("BattleModeChanged");
+
+    protected readonly int hashClimbing = Animator.StringToHash("Climbing");
 
     protected readonly int hashHurt = Animator.StringToHash("Hurt");
     protected readonly int hashDie = Animator.StringToHash("Die");    
@@ -92,6 +96,17 @@ public class FallingState : PlayerState
 public class ClimbingState : PlayerState
 {
     public ClimbingState(Player owner) : base(owner) { }
+    public override void Enter()
+    {
+        base.Enter();
+        owner.Animator.SetBool(hashClimbing, true);
+    }
+
+    public override void Exit()
+    {
+        base.Exit();
+        owner.Animator.SetBool(hashClimbing, false);
+    }
 }
 public class HideState : PlayerState
 {

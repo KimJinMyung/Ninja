@@ -1,7 +1,7 @@
 using ActorStateMachine;
 using System.ComponentModel;
 using UnityEngine;
-using System;
+using System.Collections;
 using UnityEngine.InputSystem;
 using System.Buffers;
 
@@ -157,9 +157,12 @@ public class Player : MonoBehaviour
         _viewModel.RequestMoveOnInput(context.ReadValue<Vector2>().x, context.ReadValue<Vector2>().y);
     }
 
+    public Vector3 ClimbingPos { get; private set; }
+
     public void OnJump(InputAction.CallbackContext context)
     {
         if (_viewModel == null) return;
+        if(!(_viewModel.playerState == State.Idle || _viewModel.playerState == State.Battle)) return;
 
         if (context.performed)
         {
@@ -168,8 +171,9 @@ public class Player : MonoBehaviour
                 var hitData = _environmentScanner.ObstacleCheck();
                 if (hitData.forwardHitFound)
                 {
+                    ClimbingPos = hitData.heightHit.point;
+                    animator.SetBool("Climbing", true);
                     animator.SetTrigger("Climb");
-                    Debug.Log("Obstacle Found" + hitData.forwardHit.transform.name);
                 }
                 else
                 {
@@ -178,7 +182,7 @@ public class Player : MonoBehaviour
                 }
             }
         }        
-    }
+    }    
 
     public void OnSprint(InputAction.CallbackContext context)
     {
@@ -242,6 +246,12 @@ public class Player : MonoBehaviour
     }
     private void Gravity()
     {
+        if (_viewModel.playerState == State.Climbing)
+        {
+            Debug.Log("클라이밍 중...");
+            return;
+        }
+
         if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 1f, gravityLayermask) && _velocity <= 0.1f)
         {
             _velocity = 0f;
