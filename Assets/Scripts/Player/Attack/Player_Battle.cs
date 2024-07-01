@@ -29,11 +29,7 @@ public class Player_Battle : MonoBehaviour
 
         owner.Katana.SetActive(false);
     }
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.red;
-        Gizmos.DrawRay(transform.position, transform.forward * 1.5f);
-    }
+
     public void OnAttack(InputAction.CallbackContext context)
     {
         if (owner.ViewModel == null) return;

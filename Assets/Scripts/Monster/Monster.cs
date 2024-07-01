@@ -267,7 +267,7 @@ public class Monster : MonoBehaviour
 
     public void Hurt(float damage, Player attacker)  
     {
-        if (_monsterState.MonsterState == State.Die) return;
+       if (_monsterState.MonsterState == State.Die) return;
 
         _monsterState.MonsterInfo.HP -= damage;
 
