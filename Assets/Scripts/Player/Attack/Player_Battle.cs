@@ -26,6 +26,8 @@ public class Player_Battle : MonoBehaviour
         AttackCollider = attackBox.GetComponent<Collider>().gameObject;
 
         AssassinatedLayer = LayerMask.GetMask("Monster", "LockOnAble", "LockOnTarget", "Incapacitated");
+
+        owner.Katana.SetActive(false);
     }
     private void OnDrawGizmos()
     {

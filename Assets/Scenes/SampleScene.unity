@@ -387,7 +387,7 @@ GameObject:
   - component: {fileID: 621068546}
   - component: {fileID: 621068545}
   m_Layer: 5
-  m_Name: Canvas
+  m_Name: LockOn_UI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1316,7 +1316,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3060943745531849218, guid: 9a77fa629deedb04ea2cd2370a260676, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6727319014848963203, guid: 9a77fa629deedb04ea2cd2370a260676, type: 3}
       propertyPath: EquipedKatana

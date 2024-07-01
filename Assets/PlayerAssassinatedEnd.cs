@@ -8,10 +8,12 @@ public class PlayerAssassinatedEnd : StateMachineBehaviour
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         owner = animator.transform.GetComponent<Player>();
+        animator.SetBool("IsMoveAble", false);
     }
 
     public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         owner.ViewModel.RequestStateChanged(owner.player_id, State.Battle);
+        animator.SetBool("IsMoveAble", true);
     }
 }

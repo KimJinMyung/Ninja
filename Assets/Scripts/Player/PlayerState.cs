@@ -22,9 +22,10 @@ public class PlayerState : ActorState
     protected readonly int hashDefence = Animator.StringToHash("Defence");
     protected readonly int hashDefenceHit = Animator.StringToHash("DefenceHit");
     protected readonly int hashParry = Animator.StringToHash("Parry");
+    protected readonly int hashBattleModeChanged = Animator.StringToHash("BattleModeChanged");
 
     protected readonly int hashHurt = Animator.StringToHash("Hurt");
-    protected readonly int hashDie = Animator.StringToHash("Die");
+    protected readonly int hashDie = Animator.StringToHash("Die");    
 
     public override void Update()
     {
@@ -121,6 +122,7 @@ public class BattleState : PlayerState
 
         if (_timer > 10f)
         {
+            owner.Animator.SetTrigger(hashBattleModeChanged);
             owner.ViewModel.RequestStateChanged(owner.player_id, State.Idle);
         }
     }

@@ -282,6 +282,7 @@ public class Monster : MonoBehaviour
             animator.SetBool(hashDead, true);
             animator.SetTrigger(hashDie);
             _monsterState.RequestStateChanged(monsterId, State.Die);
+
             if (attacker.ViewModel.LockOnTarget == transform)
             {
                 attacker.ViewModel.RequestLockOnTarget(null);
@@ -322,12 +323,6 @@ public class Monster : MonoBehaviour
                 animator.SetBool("IsKinematic", true);
             }
         }
-    }
-
-    public void Dead()
-    {
-        this.gameObject.SetActive(false);
-        MonsterManager.instance.DieMonster(this);
     }
 
     private List<AnimatorStateMachine> monsterStateMachines = new List<AnimatorStateMachine>();

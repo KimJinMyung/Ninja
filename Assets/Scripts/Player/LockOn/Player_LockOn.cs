@@ -72,6 +72,11 @@ public class Player_LockOn : MonoBehaviour
 
     private void Update()
     {
+        if (owner.ViewModel.LockOnTarget == null || owner.ViewModel.LockOnTarget.gameObject.layer == LayerMask.NameToLayer("Dead"))
+        {
+            owner.ViewModel.RequestLockOnTarget(null);
+        }
+
         _lockOnAbleObject = DetectingTarget();
         _viewModel.RequestLockOnAbleTarget(_lockOnAbleObject);        
     }
@@ -139,7 +144,8 @@ public class Player_LockOn : MonoBehaviour
         }
 
         Transform _lockOnTarget = owner.ViewModel.LockOnTarget;
-        if (_lockOnTarget != null && !tempLockOnAbleList.Contains(_lockOnTarget)) tempLockOnAbleList.Add(_lockOnTarget);
+
+        if (_lockOnTarget != null && !tempLockOnAbleList.Contains(_lockOnTarget) && _lockOnTarget.gameObject.layer != LayerMask.NameToLayer("Dead")) tempLockOnAbleList.Add(_lockOnTarget);
 
         _viewModel.RequestLockOnTargetList(tempLockOnAbleList);
 

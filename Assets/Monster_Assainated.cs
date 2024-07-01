@@ -22,7 +22,7 @@ public class Monster_Assainated : StateMachineBehaviour
     {
         if(stateInfo.normalizedTime >= 1f)
         {
-            owner.Dead();
+            owner.gameObject.SetActive(false);
         }
     }
 

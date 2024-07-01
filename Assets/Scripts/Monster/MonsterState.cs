@@ -182,6 +182,7 @@ public class Monster_AlertState : MonsterState
 
 }
 
+//패링 당함
 public class Monster_ParryiedState : MonsterState
 {
     public Monster_ParryiedState(Monster owner) : base(owner) { }
@@ -213,6 +214,12 @@ public class Monster_SubduedState : MonsterState
     {
         base.Update();
 
+        if(owner.MonsterViewModel.MonsterInfo.HP <= 0)
+        {
+            owner.MonsterViewModel.RequestStateChanged(monsterId, State.Die);
+            return;
+        }
+
         if (_timer < IncapacitatedRangeTime) _timer = Mathf.Clamp(_timer + Time.deltaTime, 0f, IncapacitatedRangeTime);
         else
         {
@@ -223,7 +230,9 @@ public class Monster_SubduedState : MonsterState
 
     public override void Exit()
     {
-        base.Exit();        
+        base.Exit();
+        if (owner.MonsterViewModel.MonsterState == State.Die) return;
+
         owner.animator.SetBool(hashIncapacitated, false);
 
         owner.MonsterViewModel.MonsterInfo.Stamina = owner.InitMonsterData.Stamina;
@@ -235,6 +244,7 @@ public class Monster_SubduedState : MonsterState
         }
 
         Player_LockOn player = owner.MonsterViewModel.TraceTarget.GetComponent<Player_LockOn>();
+
         if (player.ViewModel.LockOnTarget == owner.transform)
         {
             owner.gameObject.layer = LockOnTargetLayer;
@@ -517,6 +527,7 @@ public class Monster_DeadState : MonsterState
         owner.Agent.destination = default;
         owner.rb.isKinematic = false;
         owner.animator.SetLayerWeight(1, 0);
+        MonsterManager.instance.DieMonster(owner);
     }
 
     public override void Update()
