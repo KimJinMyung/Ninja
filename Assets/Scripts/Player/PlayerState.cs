@@ -22,6 +22,7 @@ public class PlayerState : ActorState
     protected readonly int hashDefence = Animator.StringToHash("Defence");
     protected readonly int hashDefenceHit = Animator.StringToHash("DefenceHit");
     protected readonly int hashParry = Animator.StringToHash("Parry");
+    protected readonly int hashBattleMode = Animator.StringToHash("BattleMode");
     protected readonly int hashBattleModeChanged = Animator.StringToHash("BattleModeChanged");
 
     protected readonly int hashHurt = Animator.StringToHash("Hurt");
@@ -30,6 +31,9 @@ public class PlayerState : ActorState
     public override void Update()
     {
         base.Update();
+
+        Debug.Log(owner.ViewModel.playerState);
+
         PlayerMeshAnimation();
     }
 
@@ -118,14 +122,15 @@ public class BattleState : PlayerState
     {
         base.Update();
 
-        _timer = Mathf.Clamp(_timer + Time.deltaTime, 0f, 3f);
+        _timer = Mathf.Clamp(_timer + Time.deltaTime, 0f, 5f);
 
-        if (_timer > 10f)
+        if (_timer >= 5f)
         {
             owner.Animator.SetTrigger(hashBattleModeChanged);
             owner.ViewModel.RequestStateChanged(owner.player_id, State.Idle);
+            return;
         }
-    }
+    }    
 }
 public class AttackState : PlayerState
 {

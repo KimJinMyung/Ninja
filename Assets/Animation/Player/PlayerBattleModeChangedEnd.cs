@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class PlayerBattleModeChangedEnd : StateMachineBehaviour
 {
+    [SerializeField] private float ObjectActiveTime;
+    [SerializeField] private float WeightTime;
+
     private Player owner;
     private bool IsBattleMode;
     protected readonly int hashBattleMode = Animator.StringToHash("BattleMode");
@@ -19,13 +22,13 @@ public class PlayerBattleModeChangedEnd : StateMachineBehaviour
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        if(stateInfo.normalizedTime > 0.1f)
+        if(stateInfo.normalizedTime > ObjectActiveTime)
         {
             owner.Katana.SetActive(IsBattleMode);
             owner.KatanaCover.SetActive(!IsBattleMode);
         }
 
-        if(stateInfo.normalizedTime > 0.4f)
+        if(stateInfo.normalizedTime > WeightTime)
         {
             animator.SetLayerWeight(layerIndex, 1 - stateInfo.normalizedTime % 1);
         }

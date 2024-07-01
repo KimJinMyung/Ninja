@@ -34,8 +34,6 @@ public class MonsterState : ActorState
     {
         base.Update();
 
-        Debug.Log(owner.MonsterViewModel.MonsterState);
-
         owner.animator.SetBool("ComBatMode", owner.MonsterViewModel.TraceTarget != null);
 
         owner.animator.SetFloat("MoveSpeed", MovementValue);

@@ -48,6 +48,7 @@ public class Player_Battle : MonoBehaviour
             if(!owner.Animator.GetBool(hashBattleMode))
             {
                 owner.Animator.SetTrigger(hashBattleModeChanged);
+                owner.ViewModel.RequestStateChanged(owner.player_id, State.Battle);
                 return;
             }
 
@@ -97,6 +98,7 @@ public class Player_Battle : MonoBehaviour
 
             owner.Animator.SetBool(hashAttackAble, false);
             owner.Animator.SetTrigger(hashAttack);
+            //owner.ViewModel.RequestStateChanged(owner.player_id, State.Battle);
         }
     }
 

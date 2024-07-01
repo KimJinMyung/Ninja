@@ -60,6 +60,7 @@ public class Player : MonoBehaviour
     public Player_ViewModel ViewModel { get { return _viewModel; } }
     #endregion
     private StateMachine _stateMachine;
+    private EnvironmentScanner _environmentScanner;
 
     public bool isDefence;
 
@@ -74,6 +75,7 @@ public class Player : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         playerController = GetComponent<CharacterController>();
+        _environmentScanner = GetComponent<EnvironmentScanner>();
 
         _stateMachine = gameObject.AddComponent<StateMachine>();
 
@@ -121,7 +123,9 @@ public class Player : MonoBehaviour
         _viewModel.ReigsterLockOnTargetChanged(true);
 
         SetPlayerInfo();
-        InitRotation();        
+        InitRotation();
+
+        _viewModel.RequestStateChanged(player_id, State.Idle);
     }
 
     private void OnDisable()
@@ -158,8 +162,15 @@ public class Player : MonoBehaviour
 
         if (isGround)
         {
-            _velocity = Mathf.Sqrt(JumpForce * -1f * gravity);
-            UnityEngine.Debug.Log("점프");
+            var hitData = _environmentScanner.ObstacleCheck();
+            if (hitData.forwardHitFound)
+            {
+                Debug.Log("Obstacle Found" + hitData.forwardHit.transform.name);
+            }else
+            {
+                _velocity = Mathf.Sqrt(JumpForce * -1f * gravity);
+                Debug.Log("점프");
+            }
         }
     }
 
