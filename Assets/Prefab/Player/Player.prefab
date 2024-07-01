@@ -1703,6 +1703,7 @@ GameObject:
   - component: {fileID: 6727319014848963206}
   - component: {fileID: 303397421}
   - component: {fileID: 303397428}
+  - component: {fileID: 8621038341519744155}
   m_Layer: 13
   m_Name: Player
   m_TagString: Player
@@ -1895,11 +1896,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 18f061fdadd0de34cb29420f7b37c492, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  EquipedKatana: {fileID: 3060943745531849218}
+  UnEquipedKatana: {fileID: 372432206759942884}
   overlapPos: {fileID: 622240946928187369}
   gravityLayermask:
     serializedVersion: 2
     m_Bits: 65
-  JumpForce: 8
+  JumpForce: 2
   x_Axis:
     Value: 0
     m_SpeedMode: 0
@@ -1986,6 +1989,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0fe7b8ff4f6211248b0f08847080935a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &8621038341519744155
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 372432206759774204}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c2973c179bc83e4f9905033b357c5e1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  forwardRayoffset: {x: 0, y: 0.25, z: 0}
+  forwardRayLength: 1
+  heightRayLength: 5
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 32768
 --- !u!1 &372432206759774432
 GameObject:
   m_ObjectHideFlags: 0
@@ -4248,7 +4269,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 59205a2f08a3c534eadc62c31cf48828, type: 3}
       propertyPath: m_Name
-      value: Sword 1
+      value: KatanaCover
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 59205a2f08a3c534eadc62c31cf48828, type: 3}
       propertyPath: m_IsActive
@@ -4318,6 +4339,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4f651c69b5ffc1647ad104bce66d2530, type: 3}
+--- !u!1 &3060943745531849218 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 133274252400060462, guid: 4f651c69b5ffc1647ad104bce66d2530, type: 3}
+  m_PrefabInstance: {fileID: 3144590231184065068}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &3060943745532147756 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 133274252400294400, guid: 4f651c69b5ffc1647ad104bce66d2530, type: 3}

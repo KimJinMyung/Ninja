@@ -3,6 +3,7 @@ using System.ComponentModel;
 using UnityEngine;
 using System;
 using UnityEngine.InputSystem;
+using System.Buffers;
 
 public class Player : MonoBehaviour
 {
@@ -160,18 +161,23 @@ public class Player : MonoBehaviour
     {
         if (_viewModel == null) return;
 
-        if (isGround)
+        if (context.performed)
         {
-            var hitData = _environmentScanner.ObstacleCheck();
-            if (hitData.forwardHitFound)
+            if (isGround && _viewModel.playerState != State.Climbing)
             {
-                Debug.Log("Obstacle Found" + hitData.forwardHit.transform.name);
-            }else
-            {
-                _velocity = Mathf.Sqrt(JumpForce * -1f * gravity);
-                Debug.Log("점프");
+                var hitData = _environmentScanner.ObstacleCheck();
+                if (hitData.forwardHitFound)
+                {
+                    animator.SetTrigger("Climb");
+                    Debug.Log("Obstacle Found" + hitData.forwardHit.transform.name);
+                }
+                else
+                {
+                    _velocity = Mathf.Sqrt(JumpForce * -1f * gravity);
+                    Debug.Log("점프");
+                }
             }
-        }
+        }        
     }
 
     public void OnSprint(InputAction.CallbackContext context)

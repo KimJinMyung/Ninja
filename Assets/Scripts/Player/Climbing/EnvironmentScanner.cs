@@ -29,15 +29,6 @@ public class EnvironmentScanner : MonoBehaviour
 
         return hitData;
     }
-
-    private void Update()
-    {
-        var hitData = ObstacleCheck();
-        if (hitData.forwardHitFound)
-        {
-            Debug.Log("Obstacle Found" +  hitData.forwardHit.transform.name);
-        }
-    }
 }
 
 public struct obstacleHitData
