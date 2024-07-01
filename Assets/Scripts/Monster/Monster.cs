@@ -225,12 +225,15 @@ public class Monster : MonoBehaviour
     {
         foreach(var weapon in monsterWeapons)
         {
-            if(_monsterState.CurrentAttackMethod.DataName == Enum.GetName(typeof(WeaponsType), weapon.WeaponsType))
+            string AttackMethodName = _monsterState.CurrentAttackMethod.DataName.Replace("\"","");
+            string CurrentWeaponsType = Enum.GetName(typeof(WeaponsType), weapon.WeaponsType);
+
+            if (AttackMethodName == CurrentWeaponsType)
             {
-                weapon.weaponMesh.SetActive(true);
+                weapon.weaponMesh.SetActive(false);
                 continue;
             }
-            weapon.weaponMesh.SetActive(false);
+            weapon.weaponMesh.SetActive(true);
         }
     }
 

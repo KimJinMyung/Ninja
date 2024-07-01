@@ -6,6 +6,12 @@ using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour
 {
+    [Header("Katana Mesh")]
+    [SerializeField] private GameObject EquipedKatana;
+    public GameObject Katana { get {  return EquipedKatana; } }
+    [SerializeField] private GameObject UnEquipedKatana;
+    public GameObject KatanaCover { get { return UnEquipedKatana; } }
+
     public CharacterController playerController {  get; private set; }
 
     Vector3 moveDir;

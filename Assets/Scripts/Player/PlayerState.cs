@@ -29,7 +29,6 @@ public class PlayerState : ActorState
     public override void Update()
     {
         base.Update();
-
         PlayerMeshAnimation();
     }
 
@@ -109,7 +108,8 @@ public class BattleState : PlayerState
         base.Enter();
 
         _timer = 0;
-
+        owner.Animator.SetBool(hashAttackAble, true);
+        owner.Animator.SetBool(hashIsMoveAble, true);
         //owner.Animator.SetBool(hashDefence, false);
     }
 
