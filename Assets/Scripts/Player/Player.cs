@@ -178,26 +178,32 @@ public class Player : MonoBehaviour
                 {
                     ClimbingPos = hitData.heightHit.point;
 
-                    foreach(var action in parkourActions)
+                    foreach (var action in parkourActions)
                     {
-                        if(action.CheckIfPossible(hitData, this.transform))
+                        if (action.CheckIfPossible(hitData, this.transform))
                         {
-                            currentAction = action;
-
-                            animator.SetInteger("Climb_Value", (int)action.Climb_Value);
-                            animator.SetBool("Climbing", true);
-                            animator.SetTrigger("Climb");
+                            ClimbAnimationStart(action);
                             return;
                         }
                     }
-                   
+
                 }
 
                 _velocity = Mathf.Sqrt(JumpForce * -1f * gravity);
                 Debug.Log("มกวม");
-            }
+
+            }            
         }        
     }    
+
+    private void ClimbAnimationStart(ParkourAction action)
+    {
+        currentAction = action;
+
+        animator.SetInteger("Climb_Value", (int)action.Climb_Value);
+        animator.SetBool("Climbing", true);
+        animator.SetTrigger("Climb");
+    }
 
     public void OnSprint(InputAction.CallbackContext context)
     {

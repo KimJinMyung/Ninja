@@ -20,3 +20,5 @@ MonoBehaviour:
   matchBodyPart: 3
   matchStartTime: 0
   matchTargetTime: 0.35
+  rotateToObstacle: 0
+  isHangUp: 0

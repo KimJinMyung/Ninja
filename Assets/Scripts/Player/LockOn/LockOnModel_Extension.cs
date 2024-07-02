@@ -4,6 +4,7 @@ using UnityEngine;
 
 public static class LockOnModel_Extension
 {
+    private static int RopePointLayer = LayerMask.NameToLayer("RopePoint");
     private static int MonsterLayer = LayerMask.NameToLayer("Monster");
     private static int LockOnTargetLayer = LayerMask.NameToLayer("LockOnTarget");
     private static int LockOnAbleLayer = LayerMask.NameToLayer("LockOnAble");
@@ -42,6 +43,7 @@ public static class LockOnModel_Extension
 
         foreach (var c in model.HitColliders)
         {
+            if (c.CompareTag("RopePoint")) continue;
             if (!newColliders.Contains(c))
             {
                 c.gameObject.layer = MonsterLayer;
@@ -82,7 +84,10 @@ public static class LockOnModel_Extension
                 {
                     if (model.LockOnAbleTarget.gameObject.layer != LockOnTargetLayer)
                     {
-                        model.LockOnAbleTarget.gameObject.layer = MonsterLayer;
+                        if (model.LockOnAbleTarget.CompareTag("RopePoint"))
+                            model.LockOnAbleTarget.gameObject.layer = RopePointLayer;
+                        else
+                            model.LockOnAbleTarget.gameObject.layer = MonsterLayer;
                     }                    
                 }
             }
@@ -93,7 +98,10 @@ public static class LockOnModel_Extension
             if (model.LockOnAbleTarget != null)
             {
                 if(model.LockOnAbleTarget.gameObject.layer == LockOnTargetLayer) return;
-                model.LockOnAbleTarget.gameObject.layer = MonsterLayer;
+                if(model.LockOnAbleTarget.CompareTag("RopePoint"))
+                    model.LockOnAbleTarget.gameObject.layer = RopePointLayer;
+                else
+                    model.LockOnAbleTarget.gameObject.layer = MonsterLayer;
             }                
         }        
         
@@ -119,7 +127,8 @@ public static class LockOnModel_Extension
         if(model.LockOnTarget != null) 
         {
             if (model.LockOnTarget == model.LockOnAbleTarget) model.LockOnTarget.gameObject.layer = LockOnAbleLayer;
-            else model.LockOnTarget.gameObject.layer = MonsterLayer;            
+            else if (model.LockOnTarget.CompareTag("RopePoint")) model.LockOnTarget.gameObject.layer = RopePointLayer;
+            else model.LockOnTarget.gameObject.layer = MonsterLayer;
         }
 
         if (target != null)

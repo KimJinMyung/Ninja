@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -15,6 +16,9 @@ public class Player_LockOn : MonoBehaviour
 
     [Header("감지 길이")]
     [SerializeField] private float _viewRange;
+
+    [Header("몬스터 감지 길이")]
+    [SerializeField] private float _viewRangeToMonster;
 
     [Header("시야 각도")]
     [SerializeField] private float _viewAngle;
@@ -87,6 +91,7 @@ public class Player_LockOn : MonoBehaviour
 
         if (context.performed)
         {
+            if (_lockOnAbleObject.CompareTag("RopePoint")) return;
             if (isLockOnMode && _lockOnAbleObject == _viewModel.LockOnTarget)
             {                
                 _viewModel.RequestLockOnViewModel_Target(null, owner);
@@ -126,10 +131,22 @@ public class Player_LockOn : MonoBehaviour
             if (angleToTarget < _viewAngle)
             {
                 float cameraDis = Vector3.Distance(new Vector3(Camera.main.transform.position.x, 0, Camera.main.transform.position.z), new Vector3(transform.position.x, 0, transform.position.z));
-                if (Physics.Raycast(Camera.main.transform.position, dirTarget, out RaycastHit hit, _viewRange + cameraDis, _lockOnAbleMask))
+
+                float viewRange = 0f;
+
+                if (!collider.CompareTag("RopePoint"))
+                {
+                    viewRange = _viewRangeToMonster;
+                }
+                else
+                {
+                    viewRange = _viewRange;
+                }
+
+                if (Physics.Raycast(Camera.main.transform.position, dirTarget, out RaycastHit hit, viewRange + cameraDis, _lockOnAbleMask))
                 {
                     if (hit.collider == collider)
-                    {                       
+                    {
                         tempLockOnAbleList.Add(collider.transform);
 
                         if (angleToTarget < closestAngle)

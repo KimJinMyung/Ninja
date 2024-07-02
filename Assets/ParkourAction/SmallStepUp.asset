@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: SmallStepUp
   m_EditorClassIdentifier: 
   animName: SmallStepUp
-  minHeight: 0.25
-  maxHeight: 0.4
+  minHeight: 0.26
+  maxHeight: 0.5
   climb_Value: 0
   enableTargetMatching: 1
   matchBodyPart: 2

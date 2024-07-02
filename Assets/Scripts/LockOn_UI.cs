@@ -72,9 +72,12 @@ public class LockOn_UI : MonoBehaviour
         return false;
     }
 
-    private void MonsterLockOnUIPrint(Transform _monster, Image icon)
+    private void MonsterLockOnUIPrint(Transform _target, Image icon)
     {
-        Vector3 ScreenPosition = Camera.main.WorldToScreenPoint(_monster.position + Vector3.up);
+        Vector3 ScreenPosition;
+
+        if(_target.CompareTag("RopePoint")) ScreenPosition = Camera.main.WorldToScreenPoint(_target.position);
+        else ScreenPosition = Camera.main.WorldToScreenPoint(_target.position + Vector3.up);
 
         if (ScreenPosition.z > 0)
         {
@@ -89,7 +92,7 @@ public class LockOn_UI : MonoBehaviour
             icon.rectTransform.anchoredPosition = canvasPosition;
             icon.enabled = true;
 
-            IconColorChanged(_monster.gameObject, icon);
+            IconColorChanged(_target.gameObject, icon);
         }
         else
         {
@@ -110,9 +113,10 @@ public class LockOn_UI : MonoBehaviour
         {
             _lockOnIcon.color = Color.red;
         }
-        else
+        else if(target.layer == LayerMask.NameToLayer("RopePoint"))
         {
-            _lockOnIcon.color = Color.white;
+            _lockOnIcon.color = Color.yellow;
         }
+        else _lockOnIcon.color = Color.white;
     }
 }

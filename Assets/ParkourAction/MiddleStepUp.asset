@@ -13,10 +13,12 @@ MonoBehaviour:
   m_Name: MiddleStepUp
   m_EditorClassIdentifier: 
   animName: MiddleStepUp
-  minHeight: 0.51
+  minHeight: 0.5
   maxHeight: 1
   climb_Value: 1
   enableTargetMatching: 1
   matchBodyPart: 1
   matchStartTime: 0.15
   matchTargetTime: 0.24
+  rotateToObstacle: 0
+  isHangUp: 0
