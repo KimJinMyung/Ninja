@@ -36,8 +36,6 @@ public class PlayerState : ActorState
     {
         base.Update();
 
-        Debug.Log(owner.ViewModel.playerState);
-
         PlayerMeshAnimation();
     }
 

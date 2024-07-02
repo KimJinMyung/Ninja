@@ -1,8 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-using static UnityEditor.Profiling.HierarchyFrameDataView;
 
 public class Player_Climbing : StateMachineBehaviour
 {
@@ -19,26 +15,43 @@ public class Player_Climbing : StateMachineBehaviour
 
         startPosition = owner.transform.position;
         targetPosition = owner.ClimbingPos;
+        animator.SetBool("IsMoveAble", false);
+        owner.playerController.enabled = false;
     }
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        if(stateInfo.normalizedTime >= 0.9f)
+        if(stateInfo.normalizedTime >= 0.95f)
         {
+            owner.playerController.enabled = true;
+
             owner.ViewModel.RequestStateChanged(owner.player_id, currentPlayerState);
             animator.SetBool("Climbing", false);
             return;
         }
 
-        float climbProcess = stateInfo.normalizedTime;
-        Vector3 newPos = Vector3.Lerp(startPosition, targetPosition, climbProcess);
-        owner.playerController.Move(newPos - owner.transform.position);        
+        if (owner.currentAction.EnableTargetMatching)
+        {
+            MatchTarget(owner.currentAction);
+        }
+
+        //float climbProcess = stateInfo.normalizedTime;
+        //Vector3 newPos = Vector3.Lerp(startPosition, targetPosition, climbProcess);
+        //owner.playerController.Move(newPos - owner.transform.position);
     }
 
     public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        owner.playerController.enabled = false;
-        owner.transform.position = targetPosition;
-        owner.playerController.enabled = true;
+
+        animator.SetBool("IsMoveAble", true);
+    }
+
+    void MatchTarget(ParkourAction action)
+    {
+        if (owner.Animator.isMatchingTarget) return;
+
+        owner.Animator.MatchTarget(action.MatchPos, owner.transform.rotation, 
+            action.MatchBodyPart, 
+            new MatchTargetWeightMask(new Vector3(0,1,0), 0), action.MatchStartTime, action.MatchTargetTime);
     }
 }

@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9b942e4be6972043bfc93f99b1d5956, type: 3}
+  m_Name: BigStepUp
+  m_EditorClassIdentifier: 
+  animName: BigStepUp
+  minHeight: 0.4
+  maxHeight: 1
+  climb_Value: 1
+  enableTargetMatching: 1
+  matchBodyPart: 1
+  matchStartTime: 0.15
+  matchTargetTime: 0.24

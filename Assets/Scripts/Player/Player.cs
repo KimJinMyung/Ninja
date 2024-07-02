@@ -4,6 +4,7 @@ using UnityEngine;
 using System.Collections;
 using UnityEngine.InputSystem;
 using System.Buffers;
+using System.Collections.Generic;
 
 public class Player : MonoBehaviour
 {
@@ -35,6 +36,9 @@ public class Player : MonoBehaviour
 
     [Header("Jump")]
     [SerializeField] private float JumpForce;
+
+    [Header("Climb")]
+    [SerializeField] List<ParkourAction> parkourActions;
 
     private Player_data player_info;
     public Player_data Player_Info { get { return player_info; } }
@@ -158,6 +162,7 @@ public class Player : MonoBehaviour
     }
 
     public Vector3 ClimbingPos { get; private set; }
+    public ParkourAction currentAction { get; private set; }
 
     public void OnJump(InputAction.CallbackContext context)
     {
@@ -172,8 +177,19 @@ public class Player : MonoBehaviour
                 if (hitData.forwardHitFound)
                 {
                     ClimbingPos = hitData.heightHit.point;
-                    animator.SetBool("Climbing", true);
-                    animator.SetTrigger("Climb");
+
+                    foreach(var action in parkourActions)
+                    {
+                        if(action.CheckIfPossible(hitData, this.transform))
+                        {
+                            currentAction = action;
+
+                            animator.SetFloat("Climb_Value", action.Climb_Value);
+                            animator.SetBool("Climbing", true);
+                            animator.SetTrigger("Climb");
+                        }
+                    }
+
                 }
                 else
                 {
