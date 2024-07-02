@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9b942e4be6972043bfc93f99b1d5956, type: 3}
   m_Name: JumpUp
   m_EditorClassIdentifier: 
-  animName: JumpUp
-  minHeight: 1
-  maxHeight: 1.5
-  climb_Value: 2
+  animName: 
+  minHeight: 0
+  maxHeight: 0
+  climb_Value: 0
   enableTargetMatching: 1
-  matchBodyPart: 3
+  matchBodyPart: 0
   matchStartTime: 0
-  matchTargetTime: 0.35
+  matchTargetTime: 0

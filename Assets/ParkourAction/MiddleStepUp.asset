@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d9b942e4be6972043bfc93f99b1d5956, type: 3}
-  m_Name: BigStepUp
+  m_Name: MiddleStepUp
   m_EditorClassIdentifier: 
-  animName: BigStepUp
-  minHeight: 1
-  maxHeight: 1.5
-  climb_Value: 2
+  animName: MiddleStepUp
+  minHeight: 0.51
+  maxHeight: 1
+  climb_Value: 1
   enableTargetMatching: 1
-  matchBodyPart: 3
-  matchStartTime: 0
-  matchTargetTime: 0.35
+  matchBodyPart: 1
+  matchStartTime: 0.15
+  matchTargetTime: 0.24

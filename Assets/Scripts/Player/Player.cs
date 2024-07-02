@@ -184,18 +184,17 @@ public class Player : MonoBehaviour
                         {
                             currentAction = action;
 
-                            animator.SetFloat("Climb_Value", action.Climb_Value);
+                            animator.SetInteger("Climb_Value", (int)action.Climb_Value);
                             animator.SetBool("Climbing", true);
                             animator.SetTrigger("Climb");
+                            return;
                         }
                     }
+                   
+                }
 
-                }
-                else
-                {
-                    _velocity = Mathf.Sqrt(JumpForce * -1f * gravity);
-                    Debug.Log("점프");
-                }
+                _velocity = Mathf.Sqrt(JumpForce * -1f * gravity);
+                Debug.Log("점프");
             }
         }        
     }    
