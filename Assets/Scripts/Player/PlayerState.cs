@@ -157,8 +157,7 @@ public class AttackState : PlayerState
     }
 }
 public class AssassinatedState : PlayerState
-{
-    public AssassinatedState(Player owner) : base(owner) { }
+{    public AssassinatedState(Player owner) : base(owner) { }
 
     public override void Enter()
     {
@@ -209,6 +208,12 @@ public class IncapacitatedState : PlayerState
 public class UsingItemState : PlayerState
 {
     public UsingItemState(Player owner) : base(owner) { }
+
+}
+
+public class GrapplingState : PlayerState
+{
+    public GrapplingState(Player owner) : base(owner) { }
 
 }
 

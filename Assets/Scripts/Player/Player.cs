@@ -23,6 +23,7 @@ public class Player : MonoBehaviour
     #region gravity
     //중력 값
     private float gravity = -20;
+    public float GravityValue { get { return gravity; } }
     //현재 중력 가속도
     private float _velocity;
 
@@ -113,6 +114,7 @@ public class Player : MonoBehaviour
         _stateMachine.AddState(State.Parry, new ParryState(this));
         _stateMachine.AddState(State.Incapacitated, new IncapacitatedState(this));
         _stateMachine.AddState(State.UsingItem, new UsingItemState(this));
+        _stateMachine.AddState(State.Grappling , new GrapplingState(this));
         _stateMachine.AddState(State.Hurt, new HurtState(this));
         _stateMachine.AddState(State.Die, new DieState(this));
     }
@@ -267,11 +269,7 @@ public class Player : MonoBehaviour
     }
     private void Gravity()
     {
-        if (_viewModel.playerState == State.Climbing)
-        {
-            Debug.Log("클라이밍 중...");
-            return;
-        }
+        if (_viewModel.playerState == State.Climbing || _viewModel.playerState == State.Grappling) return;
 
         if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 1f, gravityLayermask) && _velocity <= 0.1f)
         {

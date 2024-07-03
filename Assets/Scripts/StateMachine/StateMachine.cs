@@ -14,6 +14,7 @@ public enum State
     Detection,  //발각되다.
     Parry,
     UsingItem,
+    Grappling,
     //공용
     Idle,
     Incapacitated,  //제압 당함(기절, 체간 파괴)
