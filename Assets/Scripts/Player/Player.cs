@@ -25,7 +25,9 @@ public class Player : MonoBehaviour
     private float gravity = -20;
     public float GravityValue { get { return gravity; } }
     //현재 중력 가속도
-    public float _velocity { get; private set; }
+    private float _velocity;
+
+    public bool isGravityAble { get; set; } = true;
 
     [Header("그라운드 확인 overlap")]
     [SerializeField]
@@ -242,7 +244,7 @@ public class Player : MonoBehaviour
 
     private void MoveSpeed()
     {
-        if(player_info == null) return;
+        if (player_info == null) return;
 
         if (_isRun)
         {
@@ -257,19 +259,20 @@ public class Player : MonoBehaviour
     private void Movement()
     {
         if (!animator.GetBool(hashIsMoveAble)) return;
+
         moveDir = new Vector3(_viewModel.Move.x, 0, _viewModel.Move.y).normalized;
 
         if(moveDir.magnitude >= 0.1f)
         {
             MoveAngle = Mathf.Atan2(moveDir.x, moveDir.z) * Mathf.Rad2Deg + Camera.main.transform.eulerAngles.y;
-            Vector3 dir = Quaternion.Euler(0, MoveAngle, 0) * Vector3.forward;            
+            Vector3 dir = Quaternion.Euler(0, MoveAngle, 0) * Vector3.forward;
 
             playerController.Move(dir.normalized * movementSpeed * Time.deltaTime);
         }
     }
     private void Gravity()
     {
-        if (_viewModel.playerState == State.Climbing) return;
+        if (!isGravityAble) return;
 
         Debug.DrawRay(transform.position, Vector3.down * 0.01f, Color.red);
 

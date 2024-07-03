@@ -7,6 +7,7 @@ public class Player_Climbing : StateMachineBehaviour
 
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
+        animator.applyRootMotion = true;
         owner = animator.transform.GetComponent<Player>();
         currentPlayerState = owner.ViewModel.playerState;
         owner.ViewModel.RequestStateChanged(owner.player_id, State.Climbing);
@@ -38,7 +39,7 @@ public class Player_Climbing : StateMachineBehaviour
 
     public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-
+        animator.applyRootMotion = false;
         animator.SetBool("IsMoveAble", true);
     }
 

@@ -16,7 +16,7 @@ public class AttackReset : StateMachineBehaviour
     {
         _attackCount = animator.GetInteger(hashIsAttackCount);
         _attackCount = (_attackCount + 1) % 4;
-
+        animator.applyRootMotion = true;
         animator.SetInteger(hashIsAttackCount, _attackCount);
 
         animator.SetBool(hashIsMoveAble, true);
@@ -38,5 +38,6 @@ public class AttackReset : StateMachineBehaviour
     {
         animator.SetInteger(hashIsAttackCount, -1);
         animator.SetBool(hashIsMoveAble, true);
+        animator.applyRootMotion = false;
     }
 }

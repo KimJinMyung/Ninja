@@ -32,6 +32,9 @@ public class RopeAction : MonoBehaviour
     private State currentState;
 
     protected readonly int hashIsMoveAble = Animator.StringToHash("IsMoveAble");
+    protected readonly int hashIsGrappling = Animator.StringToHash("Grappling");
+    protected readonly int hashPullGrappling = Animator.StringToHash("Pull");
+
     public bool IsGrappling {  get; private set; }
 
     private void Awake()
@@ -52,7 +55,8 @@ public class RopeAction : MonoBehaviour
 
         if (IsGrappling)
         {
-            GrapplingMove();
+            if (owner.transform.position.y < GrapplingPoint.y - 3f) GrapplingMove();
+            else HandleHookShotMovement();
         }
     }
 
@@ -80,9 +84,18 @@ public class RopeAction : MonoBehaviour
         GrapplingPoint = GetRopePoint();
         if (GrapplingPoint != Vector3.zero)
         {
-            owner.Animator.SetBool(hashIsMoveAble, false);
             grappleStartTime = Time.time;
-            owner.Animator.applyRootMotion = false;
+
+            Vector3 directionToGrapplingPoint = GrapplingPoint - transform.position;
+            directionToGrapplingPoint.y = 0; 
+            Quaternion targetRotation = Quaternion.LookRotation(directionToGrapplingPoint);
+            owner.transform.rotation = targetRotation;
+
+            int layerIndex = owner.Animator.GetLayerIndex("Grappling");
+            owner.Animator.SetLayerWeight(layerIndex, 1);
+            owner.Animator.SetBool(hashIsGrappling, true);
+
+            owner.isGravityAble = false;
 
             Invoke(nameof(ExecuteGrapple), grappleDelayTime);
         }
@@ -122,6 +135,8 @@ public class RopeAction : MonoBehaviour
 
     void GrapplingMove()
     {
+        owner.isGravityAble = true;
+
         // 목표 지점과의 거리 체크
         float distanceToTarget = Vector3.Distance(owner.transform.position, GrapplingPoint);
 
@@ -140,25 +155,50 @@ public class RopeAction : MonoBehaviour
         // 도착 조건
         CheckIsClose(owner.transform.position, GrapplingPoint, _minDistance, _minHeight);
     }
+    private void HandleHookShotMovement()
+    {
+        owner.isGravityAble = false;
 
-    private void ExecuteGrapple()
+        Vector3 hookShotDir = (GrapplingPoint - owner.transform.position).normalized;
+
+        float hookshotSpeedMin = 10f;
+        float hookshotSpeedMax = 40f;
+        float hookshotDistance = Mathf.Clamp(Vector3.Distance(owner.transform.position, GrapplingPoint), hookshotSpeedMin, hookshotSpeedMax);
+
+        owner.playerController.Move(grappleSpeed * hookshotDistance * hookShotDir * Time.deltaTime);
+
+        if (Vector3.Distance(transform.position, GrapplingPoint) < _minDistance)
+        {
+            //owner.ViewModel.RequestStateChanged(owner.player_id, currentState);
+            StopGrapple();
+        }
+    }
+
+    public void ExecuteGrapple()
     {
         IsGrappling = true;
 
         currentState = owner.ViewModel.playerState;
         owner.ViewModel.RequestStateChanged(owner.player_id, State.Grappling);
 
+        owner.isGravityAble = true;
+
         lr.enabled = true;
         lr.SetPosition(1, GrapplingPoint);
 
-        
-        //애니메이션 실행
+        //그래플링 애니메이션
+
+        //플레이어가 매달리는 애니메이션
+        owner.Animator.SetTrigger(hashPullGrappling);
     }
 
-    private void StopGrapple()
+    public void StopGrapple()
     {
+        owner.Animator.SetBool(hashIsGrappling, false);
+
         owner.Animator.applyRootMotion = true;
         owner.Animator.SetBool(hashIsMoveAble, true);
+
         IsGrappling = false;
         grapplingCdTimer = grapplingCd;
         lr.enabled = false;

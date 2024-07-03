@@ -97,12 +97,14 @@ public class ClimbingState : PlayerState
     public override void Enter()
     {
         base.Enter();
+        owner.isGravityAble = false;
         owner.Animator.SetBool(hashClimbing, true);
     }
 
     public override void Exit()
     {
         base.Exit();
+        owner.isGravityAble = true;
         owner.Animator.SetBool(hashClimbing, false);
     }
 }
