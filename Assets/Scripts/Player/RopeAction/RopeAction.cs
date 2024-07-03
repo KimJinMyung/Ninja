@@ -14,6 +14,8 @@ public class RopeAction : MonoBehaviour
     [SerializeField] private float trajectoryHeight = 2f;
     [SerializeField] private float grappleSpeed = 5f;
 
+    [SerializeField] private float grapplingAbleAngle = 60f;
+
     [Header("Grappling StartPos")]
     [SerializeField] private Transform LeftHand;
 
@@ -29,7 +31,7 @@ public class RopeAction : MonoBehaviour
     private State currentState;
 
     protected readonly int hashIsMoveAble = Animator.StringToHash("IsMoveAble");
-    public bool grappling {  get; private set; }
+    public bool IsGrappling {  get; private set; }
 
     private void Awake()
     {
@@ -52,7 +54,7 @@ public class RopeAction : MonoBehaviour
 
         if(grapplingCdTimer > 0) grapplingCdTimer -= Time.deltaTime;
 
-        if (grappling)
+        if (IsGrappling)
         {
             GrapplingMove();
         }
@@ -61,7 +63,7 @@ public class RopeAction : MonoBehaviour
     private void LateUpdate()
     {
         Debug.Log(owner.ViewModel.playerState);
-        if (grappling) 
+        if (IsGrappling) 
         { 
             lr.SetPosition(0, LeftHand.position);
         }
@@ -69,26 +71,71 @@ public class RopeAction : MonoBehaviour
 
     private void StartGrapple()
     {
-        if (grapplingCdTimer > 0) return;       
+        if (grapplingCdTimer > 0) return;
 
         GrapplingPoint = GetRopePoint();
-        if(GrapplingPoint != Vector3.zero)
+        if (GrapplingPoint != Vector3.zero)
         {
-            grappling = true;
+            if (IsGrapplingAblePoint(GrapplingPoint, grapplingAbleAngle)) return;
+            //if (CheckIsUnderObject(owner.transform.position, GrapplingPoint))
+            //{
+            //    return;
+            //}
+
+            IsGrappling = true;
             owner.Animator.SetBool(hashIsMoveAble, false);
             grappleStartTime = Time.time;
-            jumpVelocity = CalculateJumpVelocity(owner.transform .position, GrapplingPoint, trajectoryHeight);
+            jumpVelocity = CalculateJumpVelocity(owner.transform.position, GrapplingPoint, trajectoryHeight);
 
             Invoke(nameof(ExecuteGrapple), grappleDelayTime);
         }
         else
         {
             Invoke(nameof(StopGrapple), grappleDelayTime);
-        }        
+        }
     }
+
+    private bool IsGrapplingAblePoint(Vector3 grapplingPoint, float checkAngle)
+    {
+        Vector3 direcion = grapplingPoint - owner.transform.position;
+
+        direcion.Normalize();
+
+        float dot = Vector3.Dot(direcion, Vector3.up);
+
+        float angleToGrapplingPoint = Mathf.Acos(dot) * Mathf.Rad2Deg;
+
+        if (angleToGrapplingPoint <= checkAngle) return true;
+        else return false;  
+    }
+
+    void CheckIsClose(Vector3 originPos, Vector3 targetPos, float minDis = 1.0f, float minHeight = 0.3f)
+    {
+        //bool isClose = false;
+
+        var vecOrigin = new Vector2(originPos.x, originPos.z);
+        var vecTarget = new Vector2(targetPos.x, targetPos.z);
+
+
+        float target = Vector2.Distance(vecOrigin, vecTarget);
+        Debug.Log($"거리 차이값 : {target}");
+
+        if (target < minDis)
+        {
+            float heightDis = (originPos.y - targetPos.y);
+            Debug.LogWarning($"높이 차이값 : {heightDis}");
+
+            if (heightDis > minHeight)
+            {
+                StopGrapple();
+            }
+        }
+    }
+
 
     void GrapplingMove()
     {
+
          // 목표 지점과의 거리 체크
         float distanceToTarget = Vector3.Distance(owner.transform.position, GrapplingPoint);
 
@@ -108,10 +155,7 @@ public class RopeAction : MonoBehaviour
         owner.playerController.Move(grappleSpeed * velocity * Time.deltaTime);
 
         // 도착 조건
-        if (distanceToTarget < arrivalDistance)
-        {
-            StopGrapple();
-        }
+        CheckIsClose(owner.transform.position, GrapplingPoint);
     }
 
     private void ExecuteGrapple()
@@ -127,7 +171,7 @@ public class RopeAction : MonoBehaviour
     private void StopGrapple()
     {
         owner.Animator.SetBool(hashIsMoveAble, true);
-        grappling = false;
+        IsGrappling = false;
         grapplingCdTimer = grapplingCd;
         lr.enabled = false;
         owner.ViewModel.RequestStateChanged(owner.player_id, currentState);
