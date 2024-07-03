@@ -25,7 +25,7 @@ public class Player : MonoBehaviour
     private float gravity = -20;
     public float GravityValue { get { return gravity; } }
     //현재 중력 가속도
-    private float _velocity;
+    public float _velocity { get; private set; }
 
     [Header("그라운드 확인 overlap")]
     [SerializeField]

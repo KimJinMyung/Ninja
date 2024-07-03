@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class RopeAction : MonoBehaviour
 {
@@ -47,16 +48,19 @@ public class RopeAction : MonoBehaviour
 
     private void Update()
     {
-        if(Input.GetKeyDown(KeyCode.V))
-        {
-            StartGrapple();
-        }
-
         if(grapplingCdTimer > 0) grapplingCdTimer -= Time.deltaTime;
 
         if (IsGrappling)
         {
             GrapplingMove();
+        }
+    }
+
+    public void OnRopeMoveAction(InputAction.CallbackContext context)
+    {
+        if (context.started)
+        {
+            StartGrapple();
         }
     }
 
@@ -78,8 +82,8 @@ public class RopeAction : MonoBehaviour
         {
             owner.Animator.SetBool(hashIsMoveAble, false);
             grappleStartTime = Time.time;
+            owner.Animator.applyRootMotion = false;
 
-            currentState = owner.ViewModel.playerState;
             Invoke(nameof(ExecuteGrapple), grappleDelayTime);
         }
         else
@@ -130,8 +134,6 @@ public class RopeAction : MonoBehaviour
             velocity *= Mathf.Max(0.1f, decelerationFactor);
         }
 
-        //velocity += new Vector3(0, owner.GravityValue, 0) * Time.deltaTime;
-
         // 플레이어 이동
         owner.playerController.Move(grappleSpeed * velocity * Time.deltaTime);
 
@@ -141,10 +143,10 @@ public class RopeAction : MonoBehaviour
 
     private void ExecuteGrapple()
     {
-        owner.Animator.applyRootMotion = false;
-        owner.ViewModel.RequestStateChanged(owner.player_id, State.Grappling);
-
         IsGrappling = true;
+
+        currentState = owner.ViewModel.playerState;
+        owner.ViewModel.RequestStateChanged(owner.player_id, State.Grappling);
 
         lr.enabled = true;
         lr.SetPosition(1, GrapplingPoint);
