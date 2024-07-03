@@ -57,7 +57,7 @@ public class Player : MonoBehaviour
     private Animator animator;
     public Animator Animator { get { return animator; } set { animator = value; } }
 
-    private bool isGround;
+    public bool isGround { get; private set; }
     public bool _isRun {  get; private set; }
     private float movementSpeed;
 
@@ -269,12 +269,19 @@ public class Player : MonoBehaviour
     }
     private void Gravity()
     {
-        if (_viewModel.playerState == State.Climbing || _viewModel.playerState == State.Grappling) return;
+        if (_viewModel.playerState == State.Climbing) return;
 
-        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 1f, gravityLayermask) && _velocity <= 0.1f)
+        Debug.DrawRay(transform.position, Vector3.down * 0.01f, Color.red);
+
+        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 0.01f, gravityLayermask) && _velocity <= 0.1f)
         {
             _velocity = 0f;
             isGround = true;
+        }
+        else if (_viewModel.playerState == State.Grappling)
+        {
+            _velocity += gravity * 0.75f * Time.deltaTime;
+            isGround = false;
         }
         else
         {

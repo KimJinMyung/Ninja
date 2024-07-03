@@ -447,9 +447,17 @@ public class Monster_AttackState : MonsterState
 
         MovementValue = owner.Agent.velocity != Vector3.zero ? 1 : 0;
 
-        owner.Agent.SetDestination(owner.MonsterViewModel.TraceTarget.position);
+        Transform target = owner.MonsterViewModel.TraceTarget;
 
-        float distance = Vector3.Distance(owner.transform.position, owner.MonsterViewModel.TraceTarget.position);
+        if(target == null)
+        {
+            owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.Alert);
+            return;
+        }
+
+        owner.Agent.SetDestination(target.position);
+
+        float distance = Vector3.Distance(owner.transform.position, target.position);
 
         if (distance <= attackRange && isAttackAble)
         {

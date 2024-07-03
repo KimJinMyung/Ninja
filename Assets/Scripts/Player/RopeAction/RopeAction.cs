@@ -9,12 +9,13 @@ public class RopeAction : MonoBehaviour
     private Player_LockOn ownerViewZone;
 
     [Header("Grappling")]
-    [SerializeField] private float maxGrappleDistance;
     [SerializeField] private float grappleDelayTime;
     [SerializeField] private float trajectoryHeight = 2f;
     [SerializeField] private float grappleSpeed = 5f;
 
-    [SerializeField] private float grapplingAbleAngle = 60f;
+    [Header("Grappling Stop Check")]
+    [SerializeField] private float _minDistance = 1f;
+    [SerializeField] private float _minHeight = 0.3f;
 
     [Header("Grappling StartPos")]
     [SerializeField] private Transform LeftHand;
@@ -27,7 +28,6 @@ public class RopeAction : MonoBehaviour
     private Vector3 GrapplingPoint;
     private float grappleStartTime;
 
-    private Vector3 jumpVelocity;
     private State currentState;
 
     protected readonly int hashIsMoveAble = Animator.StringToHash("IsMoveAble");
@@ -76,17 +76,10 @@ public class RopeAction : MonoBehaviour
         GrapplingPoint = GetRopePoint();
         if (GrapplingPoint != Vector3.zero)
         {
-            if (IsGrapplingAblePoint(GrapplingPoint, grapplingAbleAngle)) return;
-            //if (CheckIsUnderObject(owner.transform.position, GrapplingPoint))
-            //{
-            //    return;
-            //}
-
-            IsGrappling = true;
             owner.Animator.SetBool(hashIsMoveAble, false);
             grappleStartTime = Time.time;
-            jumpVelocity = CalculateJumpVelocity(owner.transform.position, GrapplingPoint, trajectoryHeight);
 
+            currentState = owner.ViewModel.playerState;
             Invoke(nameof(ExecuteGrapple), grappleDelayTime);
         }
         else
@@ -105,71 +98,64 @@ public class RopeAction : MonoBehaviour
 
         float angleToGrapplingPoint = Mathf.Acos(dot) * Mathf.Rad2Deg;
 
-        if (angleToGrapplingPoint <= checkAngle) return true;
-        else return false;  
+        if (angleToGrapplingPoint <= checkAngle) return false;
+        else return true;  
     }
 
-    void CheckIsClose(Vector3 originPos, Vector3 targetPos, float minDis = 1.0f, float minHeight = 0.3f)
+    void CheckIsClose(Vector3 originPos, Vector3 targetPos, float minDis, float minHeight)
     {
-        //bool isClose = false;
-
         var vecOrigin = new Vector2(originPos.x, originPos.z);
         var vecTarget = new Vector2(targetPos.x, targetPos.z);
 
-
         float target = Vector2.Distance(vecOrigin, vecTarget);
-        Debug.Log($"거리 차이값 : {target}");
 
         if (target < minDis)
         {
-            float heightDis = (originPos.y - targetPos.y);
-            Debug.LogWarning($"높이 차이값 : {heightDis}");
-
-            if (heightDis > minHeight)
-            {
-                StopGrapple();
-            }
+            StopGrapple();            
         }
     }
 
 
     void GrapplingMove()
     {
-
-         // 목표 지점과의 거리 체크
+        // 목표 지점과의 거리 체크
         float distanceToTarget = Vector3.Distance(owner.transform.position, GrapplingPoint);
-
-        // 도착 거리 설정 (예시로 0.5f로 설정)
-        float arrivalDistance = 0.5f;
 
         Vector3 velocity = CalculateJumpVelocity(transform.position, GrapplingPoint, trajectoryHeight);
 
-        if (distanceToTarget < arrivalDistance)
+        if (distanceToTarget < _minDistance)
         {
             // 목표 지점에 거의 도달한 경우 속도를 줄여 정확히 목표 지점에 위치하도록 보정
-            float decelerationFactor = distanceToTarget / arrivalDistance;
-            velocity *= Mathf.Max(0.1f, decelerationFactor);            
+            float decelerationFactor = distanceToTarget / _minDistance;
+            velocity *= Mathf.Max(0.1f, decelerationFactor);
         }
+
+        //velocity += new Vector3(0, owner.GravityValue, 0) * Time.deltaTime;
 
         // 플레이어 이동
         owner.playerController.Move(grappleSpeed * velocity * Time.deltaTime);
 
         // 도착 조건
-        CheckIsClose(owner.transform.position, GrapplingPoint);
+        CheckIsClose(owner.transform.position, GrapplingPoint, _minDistance, _minHeight);
     }
 
     private void ExecuteGrapple()
     {
-        currentState = owner.ViewModel.playerState;
+        owner.Animator.applyRootMotion = false;
         owner.ViewModel.RequestStateChanged(owner.player_id, State.Grappling);
 
-        //애니메이션 실행
+        IsGrappling = true;
+
         lr.enabled = true;
         lr.SetPosition(1, GrapplingPoint);
+
+        
+        //애니메이션 실행
     }
 
     private void StopGrapple()
     {
+        owner.Animator.applyRootMotion = true;
         owner.Animator.SetBool(hashIsMoveAble, true);
         IsGrappling = false;
         grapplingCdTimer = grapplingCd;

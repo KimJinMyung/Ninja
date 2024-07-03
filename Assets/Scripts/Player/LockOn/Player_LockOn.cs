@@ -147,6 +147,8 @@ public class Player_LockOn : MonoBehaviour
                 {
                     if (hit.collider == collider)
                     {
+                        if (hit.collider.CompareTag("RopePoint") && !IsGrapplingAblePoint(hit.point)) continue;
+
                         tempLockOnAbleList.Add(collider.transform);
 
                         if (angleToTarget < closestAngle)
@@ -167,5 +169,19 @@ public class Player_LockOn : MonoBehaviour
         _viewModel.RequestLockOnTargetList(tempLockOnAbleList);
 
         return closestTarget;
+    }
+
+    private bool IsGrapplingAblePoint(Vector3 grapplingPoint, float checkAngle = 45f)
+    {
+        Vector3 direcion = grapplingPoint - owner.transform.position;
+
+        direcion.Normalize();
+
+        float dot = Vector3.Dot(direcion, Vector3.up);
+
+        float angleToGrapplingPoint = Mathf.Acos(dot) * Mathf.Rad2Deg;
+
+        if (angleToGrapplingPoint <= checkAngle) return false;
+        else return true;
     }
 }
