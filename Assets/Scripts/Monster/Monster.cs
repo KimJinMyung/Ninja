@@ -337,8 +337,8 @@ public class Monster : MonoBehaviour
 
     private List<AnimatorStateMachine> monsterStateMachines = new List<AnimatorStateMachine>();
     
-    private List<AnimatorStateMachine> _currentAttackStateMachine = new List<AnimatorStateMachine>();
-    public List<AnimatorStateMachine> CurrentAttackStateMachine { get { return _currentAttackStateMachine; } }
+    private List<AnimatorState> _currentAttackStateMachine = new List<AnimatorState>();
+    public List<AnimatorState> CurrentAttackStateMachine { get { return _currentAttackStateMachine; } }
 
     private void FindStateMachines()
     {
@@ -389,12 +389,14 @@ public class Monster : MonoBehaviour
 
             //몬스터의 공격 패턴에 맞는 서브 스테이트 머신을 가져오지 않고 있다.
             //수정 필요
-            int Count = monsterStateMachines[stateMachineLayerIndex].stateMachines.Length;
+            int Count = monsterStateMachines.Count;
 
-            foreach (var stateMachine in monsterStateMachines[stateMachineLayerIndex].stateMachines)
+            var subStateMachine = monsterStateMachines.Find(sm => sm.name == attackMethodName);
+
+            foreach(var animatorState in subStateMachine.states)
             {
-                _currentAttackStateMachine.Add(stateMachine.stateMachine);
-            }            
+                _currentAttackStateMachine.Add(animatorState.state);
+            }
         }
     }
 
