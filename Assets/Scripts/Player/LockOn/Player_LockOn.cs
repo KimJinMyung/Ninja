@@ -105,7 +105,7 @@ public class Player_LockOn : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        Gizmos.color = Color.red;
+        Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(Eye.position, _viewRange);
     }
 

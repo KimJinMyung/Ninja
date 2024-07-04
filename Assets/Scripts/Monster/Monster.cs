@@ -194,6 +194,9 @@ public class Monster : MonoBehaviour
             CombatMovementTimer += Time.deltaTime;
         }
 
+
+        Debug.Log(_monsterState.MonsterState);
+        Debug.Log(_monsterState.CurrentAttackMethod.DataName);
     }
 
     
@@ -236,10 +239,10 @@ public class Monster : MonoBehaviour
 
             if (AttackMethodName == CurrentWeaponsType)
             {
-                weapon.weaponMesh.SetActive(false);
+                weapon.weaponMesh.SetActive(true);
                 continue;
             }
-            weapon.weaponMesh.SetActive(true);
+            weapon.weaponMesh.SetActive(false);
         }
     }
 
@@ -267,6 +270,7 @@ public class Monster : MonoBehaviour
                 break;
             case nameof(_monsterState.CurrentAttackMethod):
                 ChangedWeaponsMesh();
+                ChangedAttackStateMachine(_monsterState.CurrentAttackMethod.DataName);
                 break;
         }        
     }
@@ -377,13 +381,17 @@ public class Monster : MonoBehaviour
 
     private void ChangedAttackStateMachine(string attackMethodName)
     {
-        int subStateMachineIndex = FindSubStateMachineIndex(attackMethodName);
+        int stateMachineLayerIndex = FindSubStateMachineIndex(attackMethodName);
 
-        if (subStateMachineIndex != -1)
+        if (stateMachineLayerIndex != -1)
         {
             _currentAttackStateMachine.Clear();
 
-            foreach(var stateMachine in monsterStateMachines[subStateMachineIndex].stateMachines)
+            //몬스터의 공격 패턴에 맞는 서브 스테이트 머신을 가져오지 않고 있다.
+            //수정 필요
+            int Count = monsterStateMachines[stateMachineLayerIndex].stateMachines.Length;
+
+            foreach (var stateMachine in monsterStateMachines[stateMachineLayerIndex].stateMachines)
             {
                 _currentAttackStateMachine.Add(stateMachine.stateMachine);
             }            

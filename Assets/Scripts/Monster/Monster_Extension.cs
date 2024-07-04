@@ -85,24 +85,23 @@ public static class Monster_Extension
         {
             float distance = Vector3.Distance(monster_A.TraceTarget.position, owner.transform.position);
 
-            int index = attackList.IndexOf(monster_A.CurrentAttackMethod);
+            Monster_Attack currentAttackMethod = monster_A.CurrentAttackMethod ?? attackList.First();
 
-            while (true)
+            foreach (var attackMethod in attackList)
             {
-                if (index >= attackList.Count)
+                if (distance <= attackMethod.AttackRange)
                 {
-                    monster_A.CurrentAttackMethod = attackList.Last();
-                    return;
+                    // 현재 무기보다 더 짧은 사거리의 무기를 발견하거나,
+                    // 현재 무기의 사거리보다 먼 거리에 있는 타겟을 위해 더 긴 사거리 무기를 선택
+                    if (attackMethod.AttackRange < currentAttackMethod.AttackRange || distance > currentAttackMethod.AttackRange)
+                    {
+                        currentAttackMethod = attackMethod;
+                    }
                 }
-
-                if (attackList[index].AttackRange < distance - 1.5)
-                {
-                    monster_A.CurrentAttackMethod = attackList[index];
-                    return;
-                }
-
-                index++;
             }
+
+            // 최종 선택된 공격 방식을 몬스터에 할당
+            monster_A.CurrentAttackMethod = currentAttackMethod;
         }
     }
     #endregion

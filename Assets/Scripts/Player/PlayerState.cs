@@ -180,7 +180,7 @@ public class AssassinatedState : PlayerState
         switch (_data.Type)
         {
             case AssassinatedType.Forward:
-                owner.transform.position = _data.monster.transform.position + _data.monster.transform.forward * 3f;
+                owner.transform.position = _data.monster.transform.position + _data.monster.transform.forward * 1.5f;
                 //전방에서 몬스터를 즉사시키는 모션 실행
                 owner.Animator.SetBool(hashUpper, false);
                 owner.Animator.SetBool(hashForward, true);

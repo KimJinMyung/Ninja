@@ -491,6 +491,13 @@ public class Monster_RetreatAfterAttackState : MonsterState
     public override void Update()
     {
         base.Update();
+
+        if(owner.MonsterViewModel.TraceTarget == null)
+        {
+            owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.Alert);
+            return;
+        }
+
         float distance = Vector3.Distance(owner.transform.position, owner.MonsterViewModel.TraceTarget.position);
 
         if (distance >= attackRange)

@@ -48,12 +48,18 @@ public class Monster_DetectZone : MonoBehaviour
         }
     }
 
+    //private void OnDrawGizmos()
+    //{
+    //    Gizmos.color = Color.red;
+    //    Gizmos.DrawWireSphere(owner.transform.position, collider.radius);
+    //}
+
     private void Update()
     {
         if(collider.transform.position != Eyes.position)
             collider.transform.position = Eyes.position;
 
-        if (owner.MonsterViewModel.TraceTarget != null) collider.radius = owner.MonsterViewModel.MonsterInfo.ViewRange + 1f;
+        if (owner.MonsterViewModel.TraceTarget != null) collider.radius = owner.MonsterViewModel.MonsterInfo.ViewRange + 3f;
         else if (!collider.radius.Equals(owner.MonsterViewModel.MonsterInfo.ViewRange)) DefaultDetectRange();
     }
 
@@ -63,12 +69,6 @@ public class Monster_DetectZone : MonoBehaviour
     }
 
     [SerializeField] private GameObject aa;
-
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.red;
-        Gizmos.DrawRay(transform.position, (aa.transform.position - transform.position).normalized * 5f);
-    }
 
     private void Detecting()
     {
