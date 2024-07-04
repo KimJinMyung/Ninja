@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.18028331, g: 0.2257133, b: 0.3069217, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028352, g: 0.22571376, b: 0.30692244, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -350,14 +350,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a0999654043c1d740bb4c8e4eb20e015, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  owner: {fileID: 0}
-  ownerViewZone: {fileID: 0}
-  lr: {fileID: 0}
-  hookShotSpeed: 3
-  reachedHookShotPositionDistance: 1
-  currentState: 0
-  hookShotPosition: {x: 0, y: 0, z: 0}
-  isGrappling: 0
 --- !u!1 &341015928
 GameObject:
   m_ObjectHideFlags: 0
@@ -2145,6 +2137,10 @@ PrefabInstance:
     - target: {fileID: 303397429, guid: 9a77fa629deedb04ea2cd2370a260676, type: 3}
       propertyPath: grappleDelayTime
       value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1199172014, guid: 9a77fa629deedb04ea2cd2370a260676, type: 3}
+      propertyPath: m_Parameters.widthCurve.m_Curve.Array.data[0].value
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 372432206619691368, guid: 9a77fa629deedb04ea2cd2370a260676, type: 3}
       propertyPath: m_LocalPosition.x

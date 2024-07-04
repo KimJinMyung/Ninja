@@ -13,6 +13,8 @@ public class RopeAction : MonoBehaviour
     [SerializeField] private float grappleDelayTime;
     [SerializeField] private float trajectoryHeight = 2f;
     [SerializeField] private float grappleSpeed = 5f;
+    [SerializeField] private float waveFrequency = 2f; // 웨이브 빈도
+    [SerializeField] private float waveAmplitude = 0.5f; // 웨이브 진폭
 
     [Header("Grappling Stop Check")]
     [SerializeField] private float _minDistance = 1f;
@@ -96,8 +98,6 @@ public class RopeAction : MonoBehaviour
             owner.Animator.SetBool(hashIsGrappling, true);
 
             owner.isGravityAble = false;
-
-            Invoke(nameof(ExecuteGrapple), grappleDelayTime);
         }
         else
         {
@@ -176,20 +176,51 @@ public class RopeAction : MonoBehaviour
 
     public void ExecuteGrapple()
     {
-        IsGrappling = true;
-
         currentState = owner.ViewModel.playerState;
         owner.ViewModel.RequestStateChanged(owner.player_id, State.Grappling);
 
         owner.isGravityAble = true;
 
-        lr.enabled = true;
-        lr.SetPosition(1, GrapplingPoint);
-
         //그래플링 애니메이션
+        if(!isShootHook)
+            StartCoroutine(GrapplingHookAnimation());
+    }
+    private bool isShootHook;
+    IEnumerator GrapplingHookAnimation()
+    {
+        float distance = Vector3.Distance(LeftHand.position, GrapplingPoint);
+        float startTime = Time.time;
+
+        isShootHook = true;
+        lr.enabled = true;
+
+        while (true)
+        {
+            float elapsed = Time.time - startTime;
+            float t = elapsed * 20f / distance;
+
+            if (t >= 1f)
+            {
+                t = 1f;
+                break;
+            }
+
+            Vector3 currentPoint = Vector3.Lerp(LeftHand.position, GrapplingPoint, t);
+            float wave = Mathf.Sin(t * waveFrequency * Mathf.PI) * waveAmplitude;
+            currentPoint.y += wave;
+
+            lr.SetPosition(0, LeftHand.position);
+            lr.SetPosition(1, currentPoint);
+
+            yield return null;
+        }
+
+        lr.SetPosition(1, GrapplingPoint);
 
         //플레이어가 매달리는 애니메이션
         owner.Animator.SetTrigger(hashPullGrappling);
+        IsGrappling = true;
+        yield break;
     }
 
     public void StopGrapple()
@@ -199,6 +230,7 @@ public class RopeAction : MonoBehaviour
         owner.Animator.applyRootMotion = true;
         owner.Animator.SetBool(hashIsMoveAble, true);
 
+        isShootHook = false;
         IsGrappling = false;
         grapplingCdTimer = grapplingCd;
         lr.enabled = false;

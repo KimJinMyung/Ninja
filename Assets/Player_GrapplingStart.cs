@@ -16,7 +16,7 @@ public class Player_GrapplingStart : StateMachineBehaviour
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        if(stateInfo.normalizedTime >= 1f)
+        if(stateInfo.normalizedTime >= 0.5f)
         {
             owner.ExecuteGrapple();
         }
