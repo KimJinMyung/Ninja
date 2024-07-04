@@ -79,4 +79,21 @@ public static class Player_ViewModel_Extension
         input.LockOnTarget = tartget;        
     }
     #endregion
+    #region Assassinated
+    public static void ReigsterAssassinatedTypeChanged(this Player_ViewModel input, bool isRegister)
+    {
+        ActorLogicManager._instance.RegisterAssassinatedChangedCallback(input.OnResponseAssassinatedTypeChangedEvent, isRegister);
+    }
+
+    public static void RequestAssassinatedType(this Player_ViewModel input, AssassinatedType type, Monster monster)
+    {
+        ActorLogicManager._instance.OnAssassinated(type, monster);
+    }
+
+    public static void OnResponseAssassinatedTypeChangedEvent(this Player_ViewModel input, AssassinatedType type, Monster monster)
+    {
+        input.AssassinatedMonsters.monster = monster;
+        input.AssassinatedMonsters.Type = type;
+    }
+    #endregion
 }

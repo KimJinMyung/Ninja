@@ -17,6 +17,7 @@ public class ActorLogicManager : MonoBehaviour
     private Action<Transform> _lockOnAbleTargetChangedCallback;
     private Action<Transform, Player> _lockOnViewModel_TargetChangedCallback;
     private Action<Transform> _lockOnModelPlayer_TargetChangeCallback;
+    private Action<AssassinatedType, Monster> _assassinatedTypeChangedCallback;
     private Dictionary<int, Action<Transform>> _traceTargetChangedCallback = new Dictionary<int, Action<Transform>>();
     private Dictionary<int, Action<List<Monster_Attack>, Monster>> _AttackMethodChangedCallback = new Dictionary<int, Action<List<Monster_Attack>, Monster>>();
 
@@ -207,6 +208,11 @@ public class ActorLogicManager : MonoBehaviour
         if (isRegister) _lockOnModelPlayer_TargetChangeCallback += lockOnTargetChangedCallback;
         else _lockOnModelPlayer_TargetChangeCallback -= lockOnTargetChangedCallback;
     }
+    public void RegisterAssassinatedChangedCallback(Action<AssassinatedType, Monster> assassinatedTypeChangedCallback, bool isRegister)
+    {
+        if (isRegister) _assassinatedTypeChangedCallback += assassinatedTypeChangedCallback;
+        else _assassinatedTypeChangedCallback -= assassinatedTypeChangedCallback;
+    }
 
     public void RegisterLockOnAbleTargetChangedCallback(Action<Transform> lockOnAbleTargetChangedCallback, bool isRegister)
     {
@@ -325,6 +331,11 @@ public class ActorLogicManager : MonoBehaviour
     {
         if (_lockOnModelPlayer_TargetChangeCallback == null) return;
         _lockOnModelPlayer_TargetChangeCallback.Invoke(target);
+    }
+    public void OnAssassinated(AssassinatedType type, Monster monster)
+    {
+        if (_assassinatedTypeChangedCallback == null) return;
+        _assassinatedTypeChangedCallback.Invoke(type, monster);
     }
     public void OnTraceTarget(int actorId, Transform target)
     {

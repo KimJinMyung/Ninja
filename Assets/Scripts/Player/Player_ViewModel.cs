@@ -61,6 +61,18 @@ public class Player_ViewModel
             OnPropertyChanged(nameof(LockOnTarget));
         }
     }
+    private AssassinationData _assassinatedMonsters = new AssassinationData();
+    public AssassinationData AssassinatedMonsters
+    {
+        get { return _assassinatedMonsters; }
+        set
+        {
+            if (_assassinatedMonsters == value) return;
+
+            _assassinatedMonsters = value;
+            OnPropertyChanged(nameof(AssassinatedMonsters));
+        }
+    }
 
     #region propertyEvent
 

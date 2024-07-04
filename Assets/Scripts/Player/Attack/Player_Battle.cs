@@ -1,14 +1,25 @@
 using System.Collections.Generic;
+using System.Security.Cryptography;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.InputSystem;
+
+public enum AssassinatedType
+{
+    Forward,
+    Backward,
+    UpForward,
+    UpBackward
+}
 
 public class Player_Battle : MonoBehaviour
 {
     private Player owner;
+    private Player_LockOn ownerViewZone;
 
     private GameObject AttackCollider;
 
-    private LayerMask AssassinatedLayer;
+    private int AssassinatedLayer;
 
     protected readonly int hashDefence = Animator.StringToHash("Defence");
     protected readonly int hashParry = Animator.StringToHash("Parry");
@@ -19,15 +30,29 @@ public class Player_Battle : MonoBehaviour
     protected readonly int hashBattleMode = Animator.StringToHash("BattleMode");
     protected readonly int hashBattleModeChanged = Animator.StringToHash("BattleModeChanged");
 
+    public bool IsUpperPlayerToMonster;
+    private Monster ViewMonster;
+
     private void Awake()
     {
         owner = GetComponent<Player>();
+        ownerViewZone = GetComponent<Player_LockOn>();
         AttackBox attackBox = GetComponentInChildren<AttackBox>();
         AttackCollider = attackBox.GetComponent<Collider>().gameObject;
 
         AssassinatedLayer = LayerMask.GetMask("Monster", "LockOnAble", "LockOnTarget", "Incapacitated");
 
         owner.Katana.SetActive(false);
+    }
+
+    private void Update()
+    {
+        if (ownerViewZone.ViewModel.LockOnAbleTarget == null) return;
+        ViewMonster = ownerViewZone.ViewModel.LockOnAbleTarget.GetComponent<Monster>();
+
+        if (ViewMonster == null) return;
+        if ((owner.transform.position.y - (ViewMonster.transform.position.y + ViewMonster.monsterHeight)) > 0f) IsUpperPlayerToMonster = true;
+        else IsUpperPlayerToMonster = false;
     }
 
     public void OnAttack(InputAction.CallbackContext context)
@@ -52,49 +77,59 @@ public class Player_Battle : MonoBehaviour
                 return;
             }
 
-            if (Physics.Raycast(owner.transform.position + Vector3.up, owner.transform.forward, out RaycastHit hit, 2f))
+            if (!IsUpperPlayerToMonster)
             {
-                Debug.Log(hit.transform.name);
-
-                Monster monster = hit.transform.GetComponent<Monster>();
-
-                if(monster != null)
+                if (Physics.Raycast(owner.transform.position + Vector3.up, owner.transform.forward, out RaycastHit hit, 2f, AssassinatedLayer))
                 {
-                    float dotProductWithPlayer = Vector3.Dot(monster.transform.forward, owner.transform.forward);
-                    //플레이어가 몬스터와 마주보고 있다.
-                    if (dotProductWithPlayer < 0.5f)
-                    {
-                        if (monster != null && monster.MonsterViewModel.MonsterState == State.Incapacitated)
-                        {
-                            owner.transform.position = monster.transform.position + monster.transform.forward * 3f;
-                            //전방에서 몬스터를 즉사시키는 모션 실행
-                            owner.Animator.SetBool(hashForward, true);
-                            monster.animator.SetBool(hashForward, true);
+                    Monster monster = hit.transform.GetComponent<Monster>();
 
-                            owner.Animator.SetTrigger(hashAssasinated);
-                            monster.animator.SetTrigger(hashAssasinated);
-                            owner.ViewModel.RequestStateChanged(owner.player_id, State.Assasinate);
-                            return;
+                    if (monster != null)
+                    {
+                        float dotProductWithPlayer = Vector3.Dot(monster.transform.forward, owner.transform.forward);
+
+                        //플레이어가 몬스터와 마주보고 있다.
+                        if (dotProductWithPlayer < 0.5f)
+                        {
+                            if (monster != null && monster.MonsterViewModel.MonsterState == State.Incapacitated)
+                            {
+                                owner.ViewModel.RequestAssassinatedType(AssassinatedType.Forward, monster);
+                                owner.ViewModel.RequestStateChanged(owner.player_id, State.Assasinate);
+                                return;
+                            }
+                        }
+                        //플레이어가 몬스터의 등을 바라보고 있다.
+                        else if (dotProductWithPlayer > 0.3f)
+                        {
+                            if (monster.MonsterViewModel.TraceTarget == null || monster.MonsterViewModel.MonsterState == State.Incapacitated)
+                            {
+                                owner.ViewModel.RequestAssassinatedType(AssassinatedType.Backward, monster);
+                                owner.ViewModel.RequestStateChanged(owner.player_id, State.Assasinate);
+                                return;
+                            }
                         }
                     }
-                    //플레이어가 몬스터의 등을 바라보고 있다.
-                    else if (dotProductWithPlayer > 0.3f)
-                    {
-                        if (monster.MonsterViewModel.TraceTarget == null || monster.MonsterViewModel.MonsterState == State.Incapacitated)
-                        {
-                            owner.transform.position = monster.transform.position - monster.transform.forward * 0.8f;
-                            //등 뒤에서 몬스터를 즉사시키는 모션 실행
-                            owner.Animator.SetBool(hashForward, false);
-                            monster.animator.SetBool(hashForward, false);
-
-                            owner.Animator.SetTrigger(hashAssasinated);
-                            monster.animator.SetTrigger(hashAssasinated);
-                            owner.ViewModel.RequestStateChanged(owner.player_id, State.Assasinate);
-                            return;
-                        }
-                    }
-                }                
+                }
             }
+            else if(ViewMonster != null)
+            {
+                float dotProductWithPlayer = Vector3.Dot(ViewMonster.transform.forward, owner.transform.forward);
+
+                //플레이어가 몬스터와 마주보고 있다.
+                if (dotProductWithPlayer < 0.5f)
+                {
+                    owner.ViewModel.RequestAssassinatedType(AssassinatedType.UpForward, ViewMonster);
+                    owner.ViewModel.RequestStateChanged(owner.player_id, State.Assasinate);
+                    return;
+                }
+                //플레이어가 몬스터의 등을 바라보고 있다.
+                else 
+                {
+                    owner.ViewModel.RequestAssassinatedType(AssassinatedType.UpBackward, ViewMonster);
+                    owner.ViewModel.RequestStateChanged(owner.player_id, State.Assasinate);
+                    return;
+                }
+            }
+           
 
             owner.Animator.SetBool(hashAttackAble, false);
             owner.Animator.SetTrigger(hashAttack);

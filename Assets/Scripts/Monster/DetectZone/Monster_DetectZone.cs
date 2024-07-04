@@ -74,7 +74,7 @@ public class Monster_DetectZone : MonoBehaviour
     {
         if (player == null) return;
 
-        Vector3 playerDir = (new Vector3(player.transform.position.x, 0, player.transform.position.z) - new Vector3(transform.position.x, 0, transform.position.z)).normalized;
+        Vector3 playerDir = (player.transform.position - transform.position).normalized;
         float angleMonAndPlayer = Vector3.Angle(Eyes.forward, playerDir);
 
         float viewAngle = owner.MonsterViewModel.MonsterInfo.ViewAngel;

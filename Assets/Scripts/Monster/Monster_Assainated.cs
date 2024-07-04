@@ -11,9 +11,9 @@ public class Monster_Assainated : StateMachineBehaviour
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         owner = animator.GetComponent<Monster>();
+        animator.SetLayerWeight(1, 0);
         owner.MonsterViewModel.MonsterInfo.HP = 0;
         animator.SetBool(hashDead, true);
-        animator.SetLayerWeight(1, 0);
 
         owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.Die);
     }
@@ -24,10 +24,5 @@ public class Monster_Assainated : StateMachineBehaviour
         {
             owner.gameObject.SetActive(false);
         }
-    }
-
-    public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
-    {
-        animator.SetLayerWeight(1, 1);
     }
 }

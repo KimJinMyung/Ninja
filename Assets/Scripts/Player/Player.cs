@@ -25,7 +25,7 @@ public class Player : MonoBehaviour
     private float gravity = -20;
     public float GravityValue { get { return gravity; } }
     //현재 중력 가속도
-    private float _velocity;
+    public float _velocity {  get; set; }
 
     public bool isGravityAble { get; set; } = true;
 
@@ -130,6 +130,7 @@ public class Player : MonoBehaviour
         _viewModel.RegisterPlayerDataChanged(player_id, true);
         _viewModel.RegisterMoveVelocity(true);
         _viewModel.ReigsterLockOnTargetChanged(true);
+        _viewModel.ReigsterAssassinatedTypeChanged(true);
 
         SetPlayerInfo();
         InitRotation();
@@ -141,6 +142,7 @@ public class Player : MonoBehaviour
     {
         if (_viewModel != null)
         {
+            _viewModel.ReigsterAssassinatedTypeChanged(false);
             _viewModel.ReigsterLockOnTargetChanged(false);
             _viewModel.RegisterMoveVelocity(false);
             _viewModel.RegisterPlayerDataChanged(player_id, false);

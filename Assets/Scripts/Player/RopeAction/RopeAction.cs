@@ -72,7 +72,6 @@ public class RopeAction : MonoBehaviour
 
     private void LateUpdate()
     {
-        Debug.Log(owner.ViewModel.playerState);
         if (IsGrappling) 
         { 
             lr.SetPosition(0, LeftHand.position);
@@ -82,6 +81,7 @@ public class RopeAction : MonoBehaviour
     private void StartGrapple()
     {
         if (grapplingCdTimer > 0) return;
+        if (ownerViewZone.ViewModel.LockOnAbleTarget == null) return;
 
         GrapplingPoint = GetRopePoint();
         if (GrapplingPoint != Vector3.zero)
@@ -94,7 +94,7 @@ public class RopeAction : MonoBehaviour
             owner.transform.rotation = targetRotation;
 
             int layerIndex = owner.Animator.GetLayerIndex("Grappling");
-            owner.Animator.SetLayerWeight(layerIndex, 1);
+            //owner.Animator.SetLayerWeight(layerIndex, 1);
             owner.Animator.SetBool(hashIsGrappling, true);
 
             owner.isGravityAble = false;
@@ -176,10 +176,9 @@ public class RopeAction : MonoBehaviour
 
     public void ExecuteGrapple()
     {
-        currentState = owner.ViewModel.playerState;
+        if(owner.ViewModel.playerState != State.Grappling)
+            currentState = owner.ViewModel.playerState;
         owner.ViewModel.RequestStateChanged(owner.player_id, State.Grappling);
-
-        owner.isGravityAble = true;
 
         //그래플링 애니메이션
         if(!isShootHook)
@@ -219,7 +218,9 @@ public class RopeAction : MonoBehaviour
 
         //플레이어가 매달리는 애니메이션
         owner.Animator.SetTrigger(hashPullGrappling);
+
         IsGrappling = true;
+        owner.isGravityAble = true;
         yield break;
     }
 
@@ -227,11 +228,13 @@ public class RopeAction : MonoBehaviour
     {
         owner.Animator.SetBool(hashIsGrappling, false);
 
-        owner.Animator.applyRootMotion = true;
+        owner.Animator.applyRootMotion = false;
         owner.Animator.SetBool(hashIsMoveAble, true);
 
         isShootHook = false;
         IsGrappling = false;
+        owner.isGravityAble = true;
+
         grapplingCdTimer = grapplingCd;
         lr.enabled = false;
         owner.ViewModel.RequestStateChanged(owner.player_id, currentState);

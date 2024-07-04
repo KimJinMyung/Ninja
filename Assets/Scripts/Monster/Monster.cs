@@ -75,6 +75,8 @@ public class Monster : MonoBehaviour
     protected readonly int hashDead = Animator.StringToHash("Dead");
     protected readonly int hashDie = Animator.StringToHash("Die");
 
+    public float monsterHeight {  get; private set; }
+
     private void Awake()
     {
         Agent = GetComponent<NavMeshAgent>();
@@ -130,6 +132,10 @@ public class Monster : MonoBehaviour
         attackBox.gameObject.SetActive(false);
 
         MonsterManager.instance.SpawnMonster(this);
+
+        monsterHeight = GetComponent<CapsuleCollider>().height;
+
+        animator.SetLayerWeight(1, 1);
     }
 
     private void OnDisable()

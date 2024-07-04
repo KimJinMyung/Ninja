@@ -3,6 +3,7 @@ using ActorStateMachine;
 using System.Runtime.CompilerServices;
 using UnityEditor.SceneTemplate;
 using static UnityEditor.Profiling.HierarchyFrameDataView;
+using System.Threading;
 
 //Player의 동작 제어
 public class PlayerState : ActorState
@@ -30,12 +31,17 @@ public class PlayerState : ActorState
     protected readonly int hashClimbing = Animator.StringToHash("Climbing");
 
     protected readonly int hashHurt = Animator.StringToHash("Hurt");
-    protected readonly int hashDie = Animator.StringToHash("Die");    
+    protected readonly int hashDie = Animator.StringToHash("Die");
+
+    protected readonly int hashAssasinated = Animator.StringToHash("Assasinated");
+    protected readonly int hashForward = Animator.StringToHash("Forward");
+    protected readonly int hashUpper = Animator.StringToHash("Upper");
+    protected readonly int hashGrounded = Animator.StringToHash("IsGround");
 
     public override void Update()
     {
         base.Update();
-
+        Debug.Log(owner.ViewModel.playerState);
         PlayerMeshAnimation();
     }
 
@@ -159,12 +165,66 @@ public class AttackState : PlayerState
     }
 }
 public class AssassinatedState : PlayerState
-{    public AssassinatedState(Player owner) : base(owner) { }
+{    
+    public AssassinatedState(Player owner) : base(owner) { }
+
+    private AssassinationData _data;
 
     public override void Enter()
     {
         base.Enter();
+        owner.isGravityAble = false;
         owner.playerController.enabled = false;
+        _data = owner.ViewModel.AssassinatedMonsters;
+
+        switch (_data.Type)
+        {
+            case AssassinatedType.Forward:
+                owner.transform.position = _data.monster.transform.position + _data.monster.transform.forward * 3f;
+                //전방에서 몬스터를 즉사시키는 모션 실행
+                owner.Animator.SetBool(hashUpper, false);
+                owner.Animator.SetBool(hashForward, true);
+                _data.monster.animator.SetBool(hashForward, true);
+
+                owner.Animator.SetTrigger(hashAssasinated);
+                _data.monster.animator.SetTrigger(hashAssasinated);
+                break;
+            case AssassinatedType.Backward:
+                owner.transform.position = _data.monster.transform.position - _data.monster.transform.forward * 0.8f;
+                //등 뒤에서 몬스터를 즉사시키는 모션 실행
+                owner.Animator.SetBool(hashUpper, false);
+                owner.Animator.SetBool(hashForward, false);
+                _data.monster.animator.SetBool(hashForward, false);
+
+                owner.Animator.SetTrigger(hashAssasinated);
+                _data.monster.animator.SetTrigger(hashAssasinated);
+                break;
+            case AssassinatedType.UpForward:
+                owner.Animator.SetBool(hashGrounded, owner.isGround);
+                owner.Animator.SetBool(hashUpper, true);
+                _data.monster.animator.SetBool(hashUpper, true);
+
+                owner.Animator.SetBool(hashForward, true);
+                _data.monster.animator.SetBool(hashForward, true);
+
+                owner.Animator.SetTrigger(hashAssasinated);
+                //_data.monster.animator.SetTrigger(hashAssasinated);
+                break;
+            case AssassinatedType.UpBackward:
+                owner.Animator.SetBool(hashGrounded, owner.isGround);
+                owner.Animator.SetBool(hashUpper, true);
+                _data.monster.animator.SetBool(hashUpper, true);
+
+                owner.Animator.SetBool(hashForward, false);
+                _data.monster.animator.SetBool(hashForward, false);
+
+                owner.Animator.SetTrigger(hashAssasinated);
+                //_data.monster.animator.SetTrigger(hashAssasinated);
+                break;
+        }
+
+        Debug.Log(_data.monster.name);
+        owner.transform.rotation = Quaternion.LookRotation(_data.monster.transform.position);
     }
 
     public override void Exit()
