@@ -224,7 +224,11 @@ public class AssassinatedState : PlayerState
         }
 
         Debug.Log(_data.monster.name);
-        owner.transform.rotation = Quaternion.LookRotation(_data.monster.transform.position);
+
+        if (owner.Animator.GetBool(hashUpper))
+        {
+            owner.transform.rotation = Quaternion.LookRotation(_data.monster.transform.position);
+        }
     }
 
     public override void Exit()
