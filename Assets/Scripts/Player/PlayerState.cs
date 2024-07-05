@@ -9,9 +9,12 @@ using System.Threading;
 public class PlayerState : ActorState
 {
     protected Player owner;
+    protected Player_LockOn owenrViewZone;
+
     public PlayerState(Player owner)
     {
         this.owner = owner;
+        owenrViewZone = owner.GetComponent<Player_LockOn>();
     }
 
     protected readonly int hashMoveZ = Animator.StringToHash("Z_Value");
@@ -41,7 +44,6 @@ public class PlayerState : ActorState
     public override void Update()
     {
         base.Update();
-        Debug.Log(owner.ViewModel.playerState);
         PlayerMeshAnimation();
     }
 
@@ -144,6 +146,12 @@ public class BattleState : PlayerState
         base.Update();
 
         _timer = Mathf.Clamp(_timer + Time.deltaTime, 0f, 5f);
+
+        if (owner.Animator.GetBool(hashDefence) && owenrViewZone.ViewModel.HitColliders.Count > 0)
+        {
+            _timer = 0;
+            return;
+        }
 
         if (_timer >= 5f)
         {

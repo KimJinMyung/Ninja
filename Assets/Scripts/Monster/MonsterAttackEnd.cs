@@ -9,13 +9,24 @@ public class MonsterAttackEnd : StateMachineBehaviour
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         owner = animator.transform.GetComponent<Monster>();
-        animator.SetLayerWeight(1, 0);
+        if(animator.layerCount >= 2)
+            animator.SetLayerWeight(1, 0);
     }
 
     public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        animator.SetLayerWeight(1, 1);
-        if(owner.MonsterViewModel.MonsterInfo.Stamina > 0)
-             owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.RetreatAfterAttack);
+        if (animator.layerCount >= 2)
+            animator.SetLayerWeight(1, 1);
+
+        if(owner.MonsterViewModel.CurrentAttackMethod.AttackType == "Long")
+        {
+            owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.Battle);
+        }
+        else
+        {
+            if (owner.MonsterViewModel.MonsterInfo.Stamina > 0)
+                owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.RetreatAfterAttack);
+        }
+        
     }
 }

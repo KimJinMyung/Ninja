@@ -9,7 +9,6 @@ public class MonsterState : ActorState
     protected int monsterId;
     protected float MovementValue;
 
-    protected readonly int hashAttack = Animator.StringToHash("Attack");
     protected readonly int hashParried = Animator.StringToHash("Parried");
     protected readonly int hashDead = Animator.StringToHash("Dead");
     protected readonly int hashIncapacitated = Animator.StringToHash("Incapacitated");
@@ -437,7 +436,7 @@ public class Monster_AttackState : MonsterState
         owner.CombatMovementTimer = 0;
         owner.Agent.stoppingDistance = attackRange - 0.3f;
         owner.Agent.speed = owner.MonsterViewModel.MonsterInfo.RunSpeed;
-        owner.attackBox.gameObject.SetActive(true);
+        owner.attackBox.gameObject.SetActive(true);       
         AttackIndex = owner.AttackComboIndex_Random();
     }
 
@@ -462,7 +461,15 @@ public class Monster_AttackState : MonsterState
         if (distance <= attackRange && isAttackAble)
         {
             isAttackAble = false;
-            owner.animator.SetTrigger(hashAttack);
+
+            foreach(var state in System.Enum.GetValues(typeof(WeaponsType)))
+            {
+                if(owner.MonsterViewModel.CurrentAttackMethod.DataName == state.ToString())
+                {
+                    owner.animator.SetTrigger(state.ToString());
+                }
+            }            
+
             owner.animator.SetInteger("AttackIndex", AttackIndex);
         }
     }
@@ -484,15 +491,17 @@ public class Monster_RetreatAfterAttackState : MonsterState
     {
         base.Enter();
         MovementValue = -1;
-        owner.Agent.speed = owner.MonsterViewModel.MonsterInfo.WalkSpeed;
+
+        owner.Agent.speed = -owner.MonsterViewModel.MonsterInfo.WalkSpeed;
         attackRange = owner.MonsterViewModel.CurrentAttackMethod.AttackRange + 1f;
     }
 
     public override void Update()
     {
         base.Update();
+        Debug.Log(owner.Agent.speed);
 
-        if(owner.MonsterViewModel.TraceTarget == null)
+        if (owner.MonsterViewModel.TraceTarget == null)
         {
             owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.Alert);
             return;
@@ -507,9 +516,14 @@ public class Monster_RetreatAfterAttackState : MonsterState
         }
 
         Vector3 targetDir = owner.MonsterViewModel.TraceTarget.position - owner.transform.position;
-        owner.Agent.Move(-targetDir.normalized * attackRange * Time.deltaTime);
-        
         targetDir.y = 0;
+
+        if (owner.MonsterViewModel.CurrentAttackMethod.AttackType == "Short")
+        {
+            Debug.Log(-targetDir.normalized * attackRange * Time.deltaTime);
+            owner.Agent.Move(- targetDir.normalized * attackRange * Time.deltaTime);
+        }                
+        
         owner.transform.rotation = Quaternion.RotateTowards(owner.transform.rotation, Quaternion.LookRotation(targetDir), 500 * Time.deltaTime);
     }
 }

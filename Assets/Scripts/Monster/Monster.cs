@@ -82,7 +82,15 @@ public class Monster : MonoBehaviour
         Agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
-        attackBox = GetComponentInChildren<AttackBox>();
+
+        AttackBox[] foundAttackBoxes = GetComponentsInChildren<AttackBox>();
+        foreach(AttackBox attackBox in foundAttackBoxes)
+        {
+            if (attackBox.gameObject.activeSelf)
+            {
+                this.attackBox = attackBox;
+            }
+        }
 
         monsterMesh = new Dictionary<monsterType, MonsterMesh>();
 
@@ -195,10 +203,9 @@ public class Monster : MonoBehaviour
         }
 
 
-        Debug.Log(_monsterState.MonsterState);
+        //Debug.Log(_monsterState.MonsterState);
         Debug.Log(_monsterState.CurrentAttackMethod.DataName);
     }
-
     
 
     private void FixedUpdate()

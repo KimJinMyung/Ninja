@@ -85,23 +85,24 @@ public static class Monster_Extension
         {
             float distance = Vector3.Distance(monster_A.TraceTarget.position, owner.transform.position);
 
-            Monster_Attack currentAttackMethod = monster_A.CurrentAttackMethod ?? attackList.First();
+            Monster_Attack closestAttackMethod = null;
+            float closestDistanceDiff = float.MaxValue;
 
             foreach (var attackMethod in attackList)
             {
-                if (distance <= attackMethod.AttackRange)
+                float distanceDiff = Math.Abs(attackMethod.AttackRange - distance);
+
+                // 사거리 내에 있고, 더 가까운 사거리를 가진 무기를 선택
+                if (distance <= (attackMethod.AttackRange + 2.5f) && distanceDiff < closestDistanceDiff)
                 {
-                    // 현재 무기보다 더 짧은 사거리의 무기를 발견하거나,
-                    // 현재 무기의 사거리보다 먼 거리에 있는 타겟을 위해 더 긴 사거리 무기를 선택
-                    if (attackMethod.AttackRange < currentAttackMethod.AttackRange || distance > currentAttackMethod.AttackRange)
-                    {
-                        currentAttackMethod = attackMethod;
-                    }
+                    closestAttackMethod = attackMethod;
+                    closestDistanceDiff = distanceDiff;
                 }
             }
 
-            // 최종 선택된 공격 방식을 몬스터에 할당
-            monster_A.CurrentAttackMethod = currentAttackMethod;
+            // 사거리 내에 있는 가장 가까운 사거리의 공격 방식으로 설정
+            // 사거리 내에 적절한 공격 방식이 없으면 가장 긴 사거리의 무기 선택
+            monster_A.CurrentAttackMethod = closestAttackMethod ?? attackList.Last();
         }
     }
     #endregion
