@@ -35,6 +35,7 @@ public class PlayerState : ActorState
 
     protected readonly int hashHurt = Animator.StringToHash("Hurt");
     protected readonly int hashDie = Animator.StringToHash("Die");
+    protected readonly int hashDead = Animator.StringToHash("Dead");
 
     protected readonly int hashAssasinated = Animator.StringToHash("Assasinated");
     protected readonly int hashForward = Animator.StringToHash("Forward");
@@ -315,6 +316,7 @@ public class DieState : PlayerState
     {
         base.Enter();
         owner.Animator.SetBool(hashDie, true);
+        owner.Animator.SetTrigger(hashDead);
     }
 
     public override void Exit()

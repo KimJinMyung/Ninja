@@ -431,13 +431,25 @@ public class Monster_AttackState : MonsterState
     public override void Enter()
     {
         base.Enter();
+        owner.animator.applyRootMotion = true;
+
         isAttackAble = true;
         attackRange = owner.MonsterViewModel.CurrentAttackMethod.AttackRange;
         owner.CombatMovementTimer = 0;
         owner.Agent.stoppingDistance = attackRange - 0.3f;
         owner.Agent.speed = owner.MonsterViewModel.MonsterInfo.RunSpeed;
-        owner.attackBox.gameObject.SetActive(true);       
+        owner.attackBox.gameObject.SetActive(true);
+
         AttackIndex = owner.AttackComboIndex_Random();
+
+        float Heightdistance = Mathf.Abs(owner.MonsterViewModel.TraceTarget.position.y - owner.transform.position.y);
+
+        while (owner.MonsterViewModel.CurrentAttackMethod.DataName == System.Enum.GetName(typeof(WeaponsType), WeaponsType.DaggerAttack) 
+            && Heightdistance > 0.1f 
+            && AttackIndex == 1)
+        {
+            AttackIndex = owner.AttackComboIndex_Random();
+        }
     }
 
     public override void Update()
@@ -452,11 +464,14 @@ public class Monster_AttackState : MonsterState
         {
             owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.Alert);
             return;
-        }
-
-        owner.Agent.SetDestination(target.position);
+        }        
 
         float distance = Vector3.Distance(owner.transform.position, target.position);
+
+        if(distance > 1.7f)
+        {
+            owner.Agent.SetDestination(target.position);
+        }else owner.animator.applyRootMotion = false;
 
         if (distance <= attackRange && isAttackAble)
         {
@@ -499,7 +514,6 @@ public class Monster_RetreatAfterAttackState : MonsterState
     public override void Update()
     {
         base.Update();
-        Debug.Log(owner.Agent.speed);
 
         if (owner.MonsterViewModel.TraceTarget == null)
         {

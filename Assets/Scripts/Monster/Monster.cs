@@ -146,7 +146,8 @@ public class Monster : MonoBehaviour
 
         monsterHeight = GetComponent<CapsuleCollider>().height;
 
-        animator.SetLayerWeight(1, 1);
+        if(animator.layerCount >= 2)
+            animator.SetLayerWeight(1, 1);
     }
 
     private void OnDisable()
@@ -198,9 +199,10 @@ public class Monster : MonoBehaviour
 
         UpdateAttackMethod();
         _monsterStateMachine.OnUpdate();
+
         KnockBackEnd();
 
-        if(_monsterState.TraceTarget != null)
+        if (_monsterState.TraceTarget != null)
         {
             CombatMovementTimer += Time.deltaTime;
         }
@@ -295,9 +297,11 @@ public class Monster : MonoBehaviour
 
         if(_monsterState.MonsterInfo.HP > 0)
         {
-            ApplyKnockBack(attacker.transform.position);
             _monsterState.RequestTraceTargetChanged(monsterId, attacker.transform);
             _monsterState.RequestStateChanged(monsterId, State.Hurt);
+
+            if (type == monsterType.Boss && _monsterState.MonsterState == State.Attack) return;
+            ApplyKnockBack(attacker.transform.position);
         }
         else
         {
