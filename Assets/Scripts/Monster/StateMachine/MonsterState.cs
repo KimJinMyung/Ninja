@@ -307,7 +307,8 @@ public class Monster_BattleState : MonsterState
         }
 
         Vector3 direction = owner.MonsterViewModel.TraceTarget.position - owner.transform.position;
-        Quaternion targetRotation = Quaternion.LookRotation(direction);
+        direction.y= 0f;
+        Quaternion targetRotation = Quaternion.LookRotation(direction.normalized);
         owner.transform.rotation = Quaternion.Slerp(owner.transform.rotation, targetRotation, 3f * Time.deltaTime);
 
         //owner.transform.LookAt(owner.MonsterViewModel.TraceTarget);

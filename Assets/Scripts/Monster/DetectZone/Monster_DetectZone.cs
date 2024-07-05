@@ -38,6 +38,8 @@ public class Monster_DetectZone : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
+        if(owner.Type == monsterType.Boss) return;
+
         if (other.CompareTag("Player"))
         {
             if(Vector3.Distance(other.transform.position, transform.position) > collider.radius)

@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Security.Cryptography;
-using System.Threading;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -76,13 +73,13 @@ public class Player_Battle : MonoBehaviour
                 owner.ViewModel.RequestStateChanged(owner.player_id, State.Battle);
                 return;
             }
-
+            
             if (!IsUpperPlayerToMonster)
             {
                 if (Physics.Raycast(owner.transform.position + Vector3.up, owner.transform.forward, out RaycastHit hit, 2f, AssassinatedLayer))
-                {
+                {                    
                     Monster monster = hit.transform.GetComponent<Monster>();
-
+                    
                     if (monster != null)
                     {
                         float dotProductWithPlayer = Vector3.Dot(monster.transform.forward, owner.transform.forward);
@@ -110,7 +107,7 @@ public class Player_Battle : MonoBehaviour
                     }
                 }
             }
-            else if(ViewMonster != null)
+            else if(ViewMonster != null && ViewMonster.Type != monsterType.Boss)
             {
                 float dotProductWithPlayer = Vector3.Dot(ViewMonster.transform.forward, owner.transform.forward);
 

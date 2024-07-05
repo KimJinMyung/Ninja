@@ -1,14 +1,12 @@
 using ActorStateMachine;
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.InputSystem.iOS;
-using static Monster;
-using static UnityEngine.UI.GridLayoutGroup;
 public enum monsterType
 {
     monster_A,
@@ -63,7 +61,6 @@ public class Monster : MonoBehaviour
     private List<Monster_Attack> monsterAttackMethodList = new List<Monster_Attack>();
 
     private StateMachine _monsterStateMachine;
-    public StateMachine MonsterStateMachine {  get { return _monsterStateMachine; } }
 
     public int monsterId { get; private set; }
 
@@ -105,9 +102,17 @@ public class Monster : MonoBehaviour
 
         _monsterStateMachine = gameObject.AddComponent<StateMachine>();
 
+        if (type != monsterType.Boss) AddMonsterState_Common();
+        else AddMonsterState_Boss();
+
+        _monsterStateMachine.InitState(State.Idle);
+    }
+
+    private void AddMonsterState_Common()
+    {
         _monsterStateMachine.AddState(State.Idle, new Monster_IdleState(this));
         _monsterStateMachine.AddState(State.Walk, new Monster_PatrolState(this));
-        _monsterStateMachine.AddState(State.Run, new Monster_TraceState(this)); 
+        _monsterStateMachine.AddState(State.Run, new Monster_TraceState(this));
         _monsterStateMachine.AddState(State.Battle, new Monster_BattleState(this));
         _monsterStateMachine.AddState(State.Alert, new Monster_AlertState(this));
         _monsterStateMachine.AddState(State.Circling, new Monster_CirclingState(this));
@@ -117,8 +122,17 @@ public class Monster : MonoBehaviour
         _monsterStateMachine.AddState(State.Incapacitated, new Monster_SubduedState(this));
         _monsterStateMachine.AddState(State.Parried, new Monster_ParryiedState(this));
         _monsterStateMachine.AddState(State.Die, new Monster_DeadState(this));
+    }
 
-        _monsterStateMachine.InitState(State.Idle);
+    private void AddMonsterState_Boss()
+    {
+        _monsterStateMachine.AddState(State.Idle, new BossMonster_IdleState(this));
+        _monsterStateMachine.AddState(State.Run, new BossMonster_TraceState(this));
+        _monsterStateMachine.AddState(State.Attack, new BossMonster_AttackState(this));
+        _monsterStateMachine.AddState(State.Parried, new BossMonster_ParryiedState(this));
+        _monsterStateMachine.AddState(State.Incapacitated, new BossMonster_SubduedState(this));
+        _monsterStateMachine.AddState(State.Hurt, new BossMonster_HurtState(this));
+        _monsterStateMachine.AddState(State.Die, new BossMonster_DeadState(this));
     }
 
     private void OnEnable()
@@ -188,14 +202,15 @@ public class Monster : MonoBehaviour
 
     private void Update()
     {
-        if(_monsterState != null)
-        {
-            if(_monsterState.MonsterType != type)
-            {
-                monsterMesh[_monsterState.MonsterType].mesh.SetActive(false);
-                _monsterState.RequestMonsterTypeChanged(monsterId, type);
-            }
-        }
+        // 디버그 확인용
+        //if(_monsterState != null)
+        //{
+        //    if(_monsterState.MonsterType != type)
+        //    {
+        //        monsterMesh[_monsterState.MonsterType].mesh.SetActive(false);
+        //        _monsterState.RequestMonsterTypeChanged(monsterId, type);
+        //    }
+        //}
 
         UpdateAttackMethod();
         _monsterStateMachine.OnUpdate();
@@ -207,7 +222,6 @@ public class Monster : MonoBehaviour
             CombatMovementTimer += Time.deltaTime;
         }
     }
-    
 
     private void FixedUpdate()
     {
@@ -260,6 +274,8 @@ public class Monster : MonoBehaviour
         }
     }
 
+    //실시간으로 공격 방식 변화 조건 확인
+    //조건에 부합하면 공격 방식 변화
     private void UpdateAttackMethod()
     {
         if(_monsterState.TraceTarget == null) return;
@@ -300,7 +316,6 @@ public class Monster : MonoBehaviour
             _monsterState.RequestTraceTargetChanged(monsterId, attacker.transform);
             _monsterState.RequestStateChanged(monsterId, State.Hurt);
 
-            if (type == monsterType.Boss && _monsterState.MonsterState == State.Attack) return;
             ApplyKnockBack(attacker.transform.position);
         }
         else
@@ -345,7 +360,9 @@ public class Monster : MonoBehaviour
             if(KnockBackDuration <= 0)
             {
                 rb.isKinematic = true;
-                _monsterState.RequestStateChanged(monsterId, State.Battle);
+
+                if (type == monsterType.Boss) _monsterState.RequestStateChanged(monsterId, State.Idle);
+                else _monsterState.RequestStateChanged(monsterId, State.Battle);
                 animator.SetBool("IsKinematic", true);
             }
         }
@@ -403,8 +420,7 @@ public class Monster : MonoBehaviour
         {
             _currentAttackStateMachine.Clear();
 
-            //몬스터의 공격 패턴에 맞는 서브 스테이트 머신을 가져오지 않고 있다.
-            //수정 필요
+
             int Count = monsterStateMachines.Count;
 
             var subStateMachine = monsterStateMachines.Find(sm => sm.name == attackMethodName);
@@ -425,9 +441,7 @@ public class Monster : MonoBehaviour
     
     public void Parried(Player attacker)
     {
-        float addParriedPower;
-        if (this.type != monsterType.Boss) addParriedPower = 50f;
-        else addParriedPower = 1f;
+        float addParriedPower = 50f;
 
         _monsterState.MonsterInfo.Stamina -= attacker.Player_Info.Strength * addParriedPower;
 

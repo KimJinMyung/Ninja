@@ -84,13 +84,14 @@ public class MonsterManager : MonoBehaviour
 
         bool hasTarget = false;
 
-        foreach (var monsterTransform in _monsterLists.Values)
+        foreach (var monster in _monsterLists.Values)
         {
-            if (monsterTransform != null && monsterTransform.MonsterViewModel.TraceTarget != null)
+            if (monster.Type == monsterType.Boss) continue;
+            if (monster != null && monster.MonsterViewModel.TraceTarget != null)
             {
                 hasTarget = true;
 
-                if (monsterTransform.IsCurrentState(State.Attack)) return false;
+                if (monster.IsCurrentState(State.Attack)) return false;
             }
 
         }
@@ -107,7 +108,8 @@ public class MonsterManager : MonoBehaviour
         foreach (var monster in _monsterLists.Values)
         {
             Monster newMonster = monster.GetComponent<Monster>();
-            
+            if (newMonster.Type == monsterType.Boss) continue;
+
             if (newMonster.MonsterViewModel.MonsterState != State.Battle) continue;
 
             Transform target = newMonster.MonsterViewModel.TraceTarget;
