@@ -14,6 +14,7 @@ public class BossMonsterStateMachine : ActorState
     {
         base.Update();
 
+        if (owner.MonsterViewModel.MonsterState == State.Die) return;
         if(owner.MonsterViewModel.TraceTarget != null)
         {
             Vector3 dir = owner.MonsterViewModel.TraceTarget.position - owner.transform.position;

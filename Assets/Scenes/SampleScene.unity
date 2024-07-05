@@ -1995,6 +1995,11 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1599534517}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1965800301 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 9199670548106834930, guid: 3f89fe1ac60cb0c4f97a11f1be2239c6, type: 3}
+  m_PrefabInstance: {fileID: 9199670549387554436}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &2011816749 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 372432206639588553, guid: 9a77fa629deedb04ea2cd2370a260676, type: 3}
@@ -2192,13 +2197,41 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9199670548106708892, guid: 3f89fe1ac60cb0c4f97a11f1be2239c6, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 9199670548106812684, guid: 3f89fe1ac60cb0c4f97a11f1be2239c6, type: 3}
       propertyPath: m_Name
       value: Monster
       objectReference: {fileID: 0}
+    - target: {fileID: 9199670548106834930, guid: 3f89fe1ac60cb0c4f97a11f1be2239c6, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9199670548363021252, guid: 3f89fe1ac60cb0c4f97a11f1be2239c6, type: 3}
+      propertyPath: type
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 9199670548363021252, guid: 3f89fe1ac60cb0c4f97a11f1be2239c6, type: 3}
       propertyPath: monsterMeshes.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 9199670548363021252, guid: 3f89fe1ac60cb0c4f97a11f1be2239c6, type: 3}
+      propertyPath: monsterMeshes.Array.data[2].mesh
+      value: 
+      objectReference: {fileID: 1965800301}
+    - target: {fileID: 9199670548363021252, guid: 3f89fe1ac60cb0c4f97a11f1be2239c6, type: 3}
+      propertyPath: monsterMeshes.Array.data[2]._monsterType
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 9199670548363021252, guid: 3f89fe1ac60cb0c4f97a11f1be2239c6, type: 3}
+      propertyPath: monsterMeshes.Array.data[2].animation_controller
+      value: 
+      objectReference: {fileID: 9100000, guid: ab3d9adb36110fc46a129928d0524e51, type: 2}
+    - target: {fileID: 9199670549289361714, guid: 3f89fe1ac60cb0c4f97a11f1be2239c6, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9199670549289361725, guid: 3f89fe1ac60cb0c4f97a11f1be2239c6, type: 3}
       propertyPath: aa
