@@ -6,13 +6,13 @@ using System.Linq;
 using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.InputSystem.iOS;
 using static Monster;
 using static UnityEngine.UI.GridLayoutGroup;
 public enum monsterType
 {
     monster_A,
     monster_B,
-    monster_C,
     Boss
 }
 
@@ -48,6 +48,9 @@ public class Monster : MonoBehaviour
 
     [SerializeField]
     WeaponsMesh[] monsterWeapons;
+
+    [SerializeField] Transform throwShurikenPoint;
+    public Transform ThrowShurikenPoint { get { return throwShurikenPoint; } }
 
     private Dictionary<monsterType, MonsterMesh> monsterMesh;
 
@@ -201,10 +204,6 @@ public class Monster : MonoBehaviour
         {
             CombatMovementTimer += Time.deltaTime;
         }
-
-
-        //Debug.Log(_monsterState.MonsterState);
-        Debug.Log(_monsterState.CurrentAttackMethod.DataName);
     }
     
 
@@ -239,6 +238,8 @@ public class Monster : MonoBehaviour
     //사용하고 있는 무기
     private void ChangedWeaponsMesh()
     {
+        GameObject currentWeaponMesh = default;
+
         foreach(var weapon in monsterWeapons)
         {
             string AttackMethodName = _monsterState.CurrentAttackMethod.DataName.Replace("\"","");
@@ -247,8 +248,12 @@ public class Monster : MonoBehaviour
             if (AttackMethodName == CurrentWeaponsType)
             {
                 weapon.weaponMesh.SetActive(true);
+                currentWeaponMesh = weapon.weaponMesh;
                 continue;
             }
+
+            if(weapon.weaponMesh.Equals(currentWeaponMesh)) continue;
+
             weapon.weaponMesh.SetActive(false);
         }
     }

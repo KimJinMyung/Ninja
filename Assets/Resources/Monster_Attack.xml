@@ -4,7 +4,7 @@
     <data DataName="SwordAttack" AttackType="Short" AttackRange="2.5" AttackSpeed="5" />
     <data DataName="SpearAttack" AttackType="Short" AttackRange="2.8" AttackSpeed="5" />
     <data DataName="ShurikenAttack" AttackType="Long" AttackRange="8" AttackSpeed="6" />
-    <data DataName="DaggerAttack" AttackType="Short" AttackRange="2" AttackSpeed="3" />
+    <data DataName="DaggerAttack" AttackType="Short" AttackRange="2.5" AttackSpeed="3" />
     <data DataName="BowAttack" AttackType="Long" AttackRange="10" AttackSpeed="6" />
   </dataCategory>
 </MonsterAttack>

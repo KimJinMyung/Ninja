@@ -70,6 +70,11 @@ public class Player : MonoBehaviour
     private StateMachine _stateMachine;
     private EnvironmentScanner _environmentScanner;
 
+    [Header("Stamina Recovery")]
+    [SerializeField] private float StaminaRecoveryDelayTime;
+    private float _staminaRecoveryDelaytimer;
+
+    [HideInInspector]
     public bool isDefence;
 
     protected readonly int hashLockOn = Animator.StringToHash("LockOn");
@@ -136,6 +141,8 @@ public class Player : MonoBehaviour
         InitRotation();
 
         _viewModel.RequestStateChanged(player_id, State.Idle);
+
+        _staminaRecoveryDelaytimer = 0f;
     }
 
     private void OnDisable()
@@ -233,7 +240,8 @@ public class Player : MonoBehaviour
         }
 
         Movement();
-        
+        RecoveryStamina();
+
         _stateMachine.OnUpdate();
     }
 
@@ -391,24 +399,25 @@ public class Player : MonoBehaviour
         if (_viewModel.playerState == State.Die) return;
         if (_viewModel.playerState == State.Assasinate) return;
 
-        if (_viewModel.playerState == State.Parry)
+        if (IsDefenceSuccess(attacker.transform.position))
         {
-            if (attacker.MonsterViewModel.CurrentAttackMethod.AttackType != "Long")
+            if (_viewModel.playerState == State.Parry)
             {
-                attacker.Parried(this);
+                if (attacker.MonsterViewModel.CurrentAttackMethod.AttackType != "Long")
+                {
+                    attacker.Parried(this);
+                    return;
+                }
+                //원거리 공격은 아무런 효과가 없음으로 처리
                 return;
             }
-            //원거리 공격은 아무런 효과가 없음으로 처리
-            return;
-        }
 
-        if (animator.GetBool(hashDefence))
-        {
-            if (IsDefenceSuccess(attacker.transform.position))
+            if (animator.GetBool(hashDefence))
             {
+
                 //방어 성공
                 player_info.Stamina -= attacker.MonsterViewModel.MonsterInfo.Strength;
-                if(player_info.Stamina > 0f)
+                if (player_info.Stamina > 0f)
                 {
                     _viewModel.RequestStateChanged(player_id, State.Defence);
                     return;
@@ -418,8 +427,9 @@ public class Player : MonoBehaviour
                     _viewModel.RequestStateChanged(player_id, State.Incapacitated);
                     return;
                 }
+
             }
-        }
+        }      
 
         player_info.HP -= damage;
 
@@ -459,5 +469,17 @@ public class Player : MonoBehaviour
         float angle = Vector3.Angle(playerForward, attackDir);
         if(angle <= 45f) return true;
         else return false;
+    }
+
+    private void RecoveryStamina()
+    {
+        if (StaminaRecoveryDelayTime <= _staminaRecoveryDelaytimer)
+        {
+            player_info.Stamina = Mathf.Clamp(player_info.Stamina + Time.deltaTime, 0, _viewModel.playerInfo.Stamina);
+            return;
+        }
+
+        if (player_info.Stamina < _viewModel.playerInfo.Stamina && (_viewModel.playerState == State.Battle || _viewModel.playerState == State.Idle)) _staminaRecoveryDelaytimer += Time.deltaTime;
+        else _staminaRecoveryDelaytimer = 0f;
     }
 }

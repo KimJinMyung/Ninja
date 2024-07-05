@@ -492,7 +492,7 @@ public class Monster_RetreatAfterAttackState : MonsterState
         base.Enter();
         MovementValue = -1;
 
-        owner.Agent.speed = -owner.MonsterViewModel.MonsterInfo.WalkSpeed;
+        owner.Agent.speed = - owner.MonsterViewModel.MonsterInfo.WalkSpeed;
         attackRange = owner.MonsterViewModel.CurrentAttackMethod.AttackRange + 1f;
     }
 
@@ -520,8 +520,7 @@ public class Monster_RetreatAfterAttackState : MonsterState
 
         if (owner.MonsterViewModel.CurrentAttackMethod.AttackType == "Short")
         {
-            Debug.Log(-targetDir.normalized * attackRange * Time.deltaTime);
-            owner.Agent.Move(- targetDir.normalized * attackRange * Time.deltaTime);
+            owner.Agent.Move( - targetDir.normalized * attackRange * Time.deltaTime);
         }                
         
         owner.transform.rotation = Quaternion.RotateTowards(owner.transform.rotation, Quaternion.LookRotation(targetDir), 500 * Time.deltaTime);

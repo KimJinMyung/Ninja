@@ -147,7 +147,7 @@ public class BattleState : PlayerState
 
         _timer = Mathf.Clamp(_timer + Time.deltaTime, 0f, 5f);
 
-        if (owner.Animator.GetBool(hashDefence) && owenrViewZone.ViewModel.HitColliders.Count > 0)
+        if (owner.Animator.GetBool(hashDefence) || owenrViewZone.ViewModel.HitColliders.Count > 0)
         {
             _timer = 0;
             return;
