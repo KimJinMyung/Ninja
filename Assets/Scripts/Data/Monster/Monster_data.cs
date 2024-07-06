@@ -41,7 +41,7 @@ public enum WeaponsType
     SpearAttack,
     ShurikenAttack,
     DaggerAttack,
-    BowAttack
+    GreateSwordAttack
 }
 
 public class Monster_Attack

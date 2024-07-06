@@ -6,7 +6,6 @@ using UnityEngine;
 public class Monster_DetectZone : MonoBehaviour
 {
     private Transform player;
-
     private Monster owner;
 
     [SerializeField] private Transform Eyes;
@@ -63,14 +62,13 @@ public class Monster_DetectZone : MonoBehaviour
 
         if (owner.MonsterViewModel.TraceTarget != null) collider.radius = owner.MonsterViewModel.MonsterInfo.ViewRange + 3f;
         else if (!collider.radius.Equals(owner.MonsterViewModel.MonsterInfo.ViewRange)) DefaultDetectRange();
+   
     }
 
     private void FixedUpdate()
     {
          Detecting();
     }
-
-    [SerializeField] private GameObject aa;
 
     private void Detecting()
     {

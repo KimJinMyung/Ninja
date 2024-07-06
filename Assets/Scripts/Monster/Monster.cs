@@ -95,8 +95,6 @@ public class Monster : MonoBehaviour
 
         if (type != monsterType.Boss) AddMonsterState_Common();
         else AddMonsterState_Boss();
-
-        _monsterStateMachine.InitState(State.Idle);
     }
 
     private void AddMonsterState_Common()
@@ -142,8 +140,7 @@ public class Monster : MonoBehaviour
         }
 
         _monsterState.RequestMonsterTypeChanged(monsterId, type);
-        _monsterState.RequestStateChanged(monsterId, State.Idle);
-        
+
         ReadData_MonsterInfo(type);
 
         AttackBox[] foundAttackBoxes = GetComponentsInChildren<AttackBox>();
@@ -155,7 +152,7 @@ public class Monster : MonoBehaviour
             }
         }
 
-        attackBox.gameObject.SetActive(false);
+        if(attackBox != null) attackBox.gameObject.SetActive(false);
 
         MonsterManager.instance.SpawnMonster(this);
 
@@ -163,6 +160,10 @@ public class Monster : MonoBehaviour
 
         if(animator.layerCount >= 2)
             animator.SetLayerWeight(1, 1);
+
+
+        _monsterStateMachine.InitState(State.Idle);
+        _monsterState.RequestStateChanged(monsterId, State.Idle);
     }
 
     private void OnDisable()
@@ -390,6 +391,48 @@ public class Monster : MonoBehaviour
                 monsterStateMachines.Add(stateMachine.stateMachine);
             }
         }
+    }
+
+    public string GetRandomSubStateMachineName()
+    {
+        List<AnimatorStateMachine> AttackStateMachines = new List<AnimatorStateMachine>();
+
+        foreach (var stateMachine in monsterStateMachines)
+        {
+            if (stateMachine.name != _monsterState.CurrentAttackMethod.DataName) continue;
+
+            foreach(var subStateMachine in stateMachine.stateMachines)
+            {
+                AttackStateMachines.Add(subStateMachine.stateMachine);
+            }
+        }
+        
+        int index = UnityEngine.Random.Range(0, AttackStateMachines.Count);
+
+        return AttackStateMachines[index].name;
+    }
+
+    public List<AnimatorState> SearchSubStateMachineStates(string AttackStateMachineName)
+    {
+        List<AnimatorState> AttackState = new List<AnimatorState>();
+
+        foreach(var stateMachine in monsterStateMachines)
+        {
+            if (stateMachine.name != _monsterState.CurrentAttackMethod.DataName) continue;
+
+            foreach(var subStateMachine in stateMachine.stateMachines)
+            {
+                if(subStateMachine.stateMachine.name == AttackStateMachineName)
+                {
+                    foreach (var Attackstate in subStateMachine.stateMachine.states)
+                    {
+                        AttackState.Add(Attackstate.state);
+                    }                    
+                }
+            }
+        }
+
+        return AttackState;
     }
 
     private int FindSubStateMachineIndex(string subStateMachineName)
