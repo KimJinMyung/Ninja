@@ -117,6 +117,7 @@ public class Monster : MonoBehaviour
     {
         _monsterStateMachine.AddState(State.Idle, new BossMonster_IdleState(this));
         _monsterStateMachine.AddState(State.Run, new BossMonster_TraceState(this));
+        _monsterStateMachine.AddState(State.RetreatAfterAttack, new BossMonster_BackDashState(this));
         _monsterStateMachine.AddState(State.Attack, new BossMonster_AttackState(this));
         _monsterStateMachine.AddState(State.Parried, new BossMonster_ParryiedState(this));
         _monsterStateMachine.AddState(State.Incapacitated, new BossMonster_SubduedState(this));
@@ -393,7 +394,7 @@ public class Monster : MonoBehaviour
         }
     }
 
-    public string GetRandomSubStateMachineName()
+    public string GetRandomSubStateMachineName(out int index)
     {
         List<AnimatorStateMachine> AttackStateMachines = new List<AnimatorStateMachine>();
 
@@ -407,7 +408,7 @@ public class Monster : MonoBehaviour
             }
         }
         
-        int index = UnityEngine.Random.Range(0, AttackStateMachines.Count);
+        index = UnityEngine.Random.Range(0, AttackStateMachines.Count);
 
         return AttackStateMachines[index].name;
     }

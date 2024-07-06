@@ -7,6 +7,6 @@
     <data DataId = "2" Name="닌자" Description="성 내부의 이상 현상을 제거하는 암살자, 주군에 대한 충성심이 매우 높다." HP="150" ATK="15" WalkSpeed="3" RunSpeed="4.5" Strength="8" Stamina="100" AttackMethodName="{ShurikenAttack,DaggerAttack}" ViewRange="8" ViewAngel="120" />
   </dataCategory>
   <dataCategory>
-    <data DataId = "3" Name="사무라이" Description="무거운 갑주를 입고 있어 방어력이 매우 높고 일반적인 병사와는 다르게 근력이 높다." HP="1500" ATK="25" WalkSpeed="1.5" RunSpeed="5" Strength="15" Stamina="1000" AttackMethodName="{GreateSwordAttack}" ViewRange="50" ViewAngel="150" />
+    <data DataId = "3" Name="사무라이" Description="무거운 갑주를 입고 있어 방어력이 매우 높고 일반적인 병사와는 다르게 근력이 높다." HP="1500" ATK="25" WalkSpeed="1.5" RunSpeed="5" Strength="15" Stamina="1000" AttackMethodName="{GreateSwordAttack}" ViewRange="150" ViewAngel="360" />
   </dataCategory>
 </Monster_data>

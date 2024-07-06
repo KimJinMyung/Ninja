@@ -2,6 +2,7 @@ using ActorStateMachine;
 using System.Data.Common;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class BossMonsterStateMachine : ActorState
 {
@@ -15,6 +16,9 @@ public class BossMonsterStateMachine : ActorState
     protected static int hashMoveSpeed_z = Animator.StringToHash("MoveSpeed_Z");
 
     protected bool isAttackAble;
+
+    protected int attackTypeIndex;
+    protected int currentAttackIndex;
 
     public BossMonsterStateMachine(Monster owner)
     {
@@ -58,65 +62,61 @@ public class BossMonster_IdleState : BossMonsterStateMachine
 {
     public BossMonster_IdleState(Monster owner) : base(owner) { }
 
-    private float Movespeed;
-    private float currentSpeed;
-
-    private int AttackCount;
-
     private float _attackDelayTimer;
     private float attackDelay;
 
     string AttackStateMachineName;
 
+    private float AttackRange;
+
     public override void Enter()
     {
         base.Enter();
 
-        Movespeed = owner.MonsterViewModel.MonsterInfo.WalkSpeed;
-        owner.Agent.stoppingDistance = owner.MonsterViewModel.CurrentAttackMethod.AttackRange;
+        owner.Agent.speed = owner.MonsterViewModel.MonsterInfo.WalkSpeed;
 
-        AttackCount = owner.CurrentAttackStateMachine.Count;
+        AttackStateMachineName = owner.GetRandomSubStateMachineName(out attackTypeIndex);
 
-        AttackStateMachineName = owner.GetRandomSubStateMachineName();
-
-        Debug.Log("1. : "+AttackStateMachineName);
-        foreach(var item in owner.SearchSubStateMachineStates(AttackStateMachineName))
-        {
-            Debug.Log("2. : "+ item.name);
-        }
+        currentAttackIndex = Random.Range(0, owner.SearchSubStateMachineStates(AttackStateMachineName).Count);
 
         _attackDelayTimer = 0f;
-        attackDelay = owner.MonsterViewModel.CurrentAttackMethod.AttackSpeed;
+        attackDelay = owner.MonsterViewModel.CurrentAttackMethod.AttackSpeed - Random.Range(0f, owner.MonsterViewModel.CurrentAttackMethod.AttackSpeed);
+
+        AttackRange = owner.MonsterViewModel.CurrentAttackMethod.AttackRange;
     }
 
     public override void Update()
     {
         base.Update();
 
-        if(target != null)
+        if (target == null) return;
+
+        if (!isAttackAble)
         {
-            if (owner.Agent.remainingDistance > owner.Agent.stoppingDistance + 0.2f) currentSpeed = Movespeed;
-            else
-            {
-                //디버그용
-                currentSpeed = 0f;
-                
-                if(isAttackAble)
-                {
-                    isAttackAble = false;
-                    //공격 패턴 index 정하기
-                    //점프 공격으로 정해지면 Attack State 로
-                    //그렇지 않으면 공격 거리를 좁히기 위하여 Run State로 변경한다
-                    
-                }
-            }
+            _attackDelayTimer += Time.deltaTime;
+            if (_attackDelayTimer >= attackDelay) isAttackAble = true;
+        }
+        else
+        {
+            _attackDelayTimer = 0f;
+            isAttackAble = false;
+            //공격 패턴 index 정하기
+            //점프 공격으로 정해지면 Attack State 로
+            //그렇지 않으면 공격 거리를 좁히기 위하여 Run State로 변경한다
 
-            //MovementValue = Mathf.Lerp(MovementValue, currentSpeed, 3 * Time.deltaTime);
-            //if (MovementValue <= 0.1f) MovementValue = 0f;
+            owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.RetreatAfterAttack);
+            return;
+            //if (attackTypeIndex == 0) owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.Attack);
+            //else owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.Run);
+        }
 
-            owner.Agent.speed = currentSpeed;
+        float distance = Vector3.Distance(owner.transform.position, target.position);
+
+        if (distance > AttackRange)
+        {
             owner.Agent.SetDestination(target.position);
         }
+        else owner.Agent.ResetPath();
     }
 
 }
@@ -125,6 +125,73 @@ public class BossMonster_IdleState : BossMonsterStateMachine
 public class BossMonster_TraceState : BossMonsterStateMachine
 {
     public BossMonster_TraceState(Monster owner) : base(owner) { }
+
+    public override void Update()
+    {
+        base.Update();
+
+        float distance = Vector3.Distance(owner.transform.position, target.position);
+
+        if(attackTypeIndex == 1)
+        {
+            if (distance <= 3f)
+            {
+                //콤보 공격 시작
+                owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.Attack);
+                return;
+            }
+        }
+        else
+        {
+            if(distance <= 4f)
+            {
+                //뒤로 크게 물러난다.
+                owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.RetreatAfterAttack);
+                return;
+            }
+            else if(distance <= 6f)
+            {
+                //대쉬 공격
+                owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.Attack);
+                return;
+            }
+        }
+
+        owner.Agent.SetDestination(target.position);
+    }
+}
+
+public class BossMonster_BackDashState : BossMonsterStateMachine
+{
+    public BossMonster_BackDashState(Monster owner) : base(owner) { }
+
+    private float backDashPower = 20f;
+    private float jumpForce = 20f;
+
+    public override void Enter()
+    {
+        base.Enter();
+
+        owner.Agent.enabled = false;
+        owner.rb.velocity = Vector3.zero;
+
+        Vector3 jumpDir = (owner.transform.position - owner.transform.forward * backDashPower).normalized;
+        owner.rb.AddForce(jumpDir * jumpForce + Vector3.up * jumpForce, ForceMode.Impulse);
+    }
+
+    public override void Update()
+    {
+        base.Update();
+
+        
+    }
+
+    public override void Exit()
+    {
+        base.Exit();
+
+        owner.enabled = true;
+    }
 }
 
 //공격
