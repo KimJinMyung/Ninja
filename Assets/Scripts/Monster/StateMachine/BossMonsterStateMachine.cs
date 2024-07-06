@@ -1,6 +1,6 @@
 using ActorStateMachine;
+using System.Collections;
 using System.Data.Common;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -25,13 +25,19 @@ public class BossMonsterStateMachine : ActorState
         this.owner = owner;
     }
 
+    public override void Enter()
+    {
+        base.Enter();
+    }
+
     public override void Update()
     {
         base.Update();
 
         if (owner.MonsterViewModel.MonsterState == State.Die) return;
 
-        target = owner.MonsterViewModel.TraceTarget;
+        if (owner.MonsterViewModel != null)
+            target = owner.MonsterViewModel.TraceTarget;
 
         Debug.Log(owner.MonsterViewModel.MonsterState);
 
@@ -89,7 +95,11 @@ public class BossMonster_IdleState : BossMonsterStateMachine
     {
         base.Update();
 
-        if (target == null) return;
+        if (target == null)
+        {
+            target = owner.MonsterViewModel.TraceTarget;
+            return;
+        }
 
         if (!isAttackAble)
         {
@@ -165,32 +175,96 @@ public class BossMonster_BackDashState : BossMonsterStateMachine
 {
     public BossMonster_BackDashState(Monster owner) : base(owner) { }
 
-    private float backDashPower = 20f;
-    private float jumpForce = 20f;
+    private float backDashPower = 10f;
+    private float gravityMultiplier = 15f;
+    private float initJumpSpeed = 15f;
+    private float maxJumpHeight;
+    private float slowDownRate = 0.98f; // 상승 속도 감소율
+    private float slowDownThreshold = 0.5f; // 속도가 이 값 이하가 되면 느리게
+
+    private Vector3 jumpDirection;
+    private Transform newtarget;
+    private bool isFalling;
+    private bool isAtPeak;
 
     public override void Enter()
     {
         base.Enter();
 
         owner.Agent.enabled = false;
+        owner.animator.applyRootMotion = false;
         owner.rb.velocity = Vector3.zero;
+        owner.rb.isKinematic = false;
 
-        Vector3 jumpDir = (owner.transform.position - owner.transform.forward * backDashPower).normalized;
-        owner.rb.AddForce(jumpDir * jumpForce + Vector3.up * jumpForce, ForceMode.Impulse);
+        maxJumpHeight = owner.transform.position.y + owner.monsterHeight + 1.5f;
+
+        newtarget = owner.MonsterViewModel.TraceTarget;
+        if (newtarget == null) return;
+        //owner.rb.AddForce(jumpDir * backDashPower + Vector3.up * initJumpSpeed, ForceMode.Impulse);
+
+        jumpDirection = (owner.transform.position - (newtarget.position - owner.transform.position).normalized * backDashPower).normalized;
+        owner.rb.velocity = jumpDirection * backDashPower + Vector3.up * initJumpSpeed; // 초기 속도 설정
+
+        isFalling = false;
+        isAtPeak = false;
     }
 
     public override void Update()
     {
         base.Update();
 
-        
+        if (!isFalling && owner.rb.velocity.y > 0)
+        {
+            // 상승 중일 때 속도를 점차 감소시킴
+            owner.rb.velocity = new Vector3(owner.rb.velocity.x, owner.rb.velocity.y * slowDownRate, owner.rb.velocity.z);
+
+            // 최고점 근처에서 속도를 거의 멈추게 함
+            if (owner.rb.velocity.y < slowDownThreshold && !isAtPeak)
+            {
+                owner.rb.velocity = new Vector3(owner.rb.velocity.x, slowDownThreshold, owner.rb.velocity.z);
+                isAtPeak = true;
+            }
+        }
+
+        if (owner.transform.position.y >= maxJumpHeight && !isFalling)
+        {
+            // 최고점에 도달하면 상승 속도를 거의 멈추게 설정
+            owner.rb.velocity = new Vector3(owner.rb.velocity.x, slowDownThreshold, owner.rb.velocity.z);
+            isFalling = true;
+            owner.StartCoroutine(HoverAtPeaak());
+        }
+
+        if (owner.rb.velocity.y < 0 && !isFalling)
+        {
+            // 속도가 하강 상태로 변경되면 isFalling 상태로 전환
+            isFalling = true;
+        }
+
+        if (isFalling)
+        {
+            // 하강 상태에서는 중력을 강화하여 빠르게 내려오게 함
+            owner.rb.AddForce(Vector3.down * gravityMultiplier, ForceMode.Acceleration);
+        }
+
+        Debug.Log("뒤로 점프");
+
+    }   
+    
+    private IEnumerator HoverAtPeaak()
+    {
+        owner.rb.isKinematic = true;
+        yield return new WaitForSeconds(0.2f); // 0.2초 동안 대기
+        owner.rb.isKinematic = false;
+        owner.rb.velocity = jumpDirection * backDashPower + Vector3.down * initJumpSpeed; // 초기 방향과 속도로 하강
     }
 
     public override void Exit()
     {
         base.Exit();
 
-        owner.enabled = true;
+        owner.Agent.enabled = true;
+        owner.rb.isKinematic = true;
+        owner.animator.applyRootMotion = true;
     }
 }
 

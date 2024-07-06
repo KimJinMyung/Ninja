@@ -95,6 +95,8 @@ public class Monster : MonoBehaviour
 
         if (type != monsterType.Boss) AddMonsterState_Common();
         else AddMonsterState_Boss();
+
+        _monsterStateMachine.InitState(State.Idle);
     }
 
     private void AddMonsterState_Common()
@@ -162,8 +164,6 @@ public class Monster : MonoBehaviour
         if(animator.layerCount >= 2)
             animator.SetLayerWeight(1, 1);
 
-
-        _monsterStateMachine.InitState(State.Idle);
         _monsterState.RequestStateChanged(monsterId, State.Idle);
     }
 
@@ -356,7 +356,7 @@ public class Monster : MonoBehaviour
     {
         if (_monsterState.MonsterState == State.Die) return;
 
-        if (!rb.isKinematic)
+        if (!rb.isKinematic && _monsterState.MonsterState == State.Hurt)
         {
             KnockBackDuration -= Time.deltaTime;
 
