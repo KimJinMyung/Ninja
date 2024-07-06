@@ -83,15 +83,6 @@ public class Monster : MonoBehaviour
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
 
-        AttackBox[] foundAttackBoxes = GetComponentsInChildren<AttackBox>();
-        foreach(AttackBox attackBox in foundAttackBoxes)
-        {
-            if (attackBox.gameObject.activeSelf)
-            {
-                this.attackBox = attackBox;
-            }
-        }
-
         monsterMesh = new Dictionary<monsterType, MonsterMesh>();
 
         foreach(MonsterMesh monster in monsterMeshes)
@@ -154,6 +145,16 @@ public class Monster : MonoBehaviour
         _monsterState.RequestStateChanged(monsterId, State.Idle);
         
         ReadData_MonsterInfo(type);
+
+        AttackBox[] foundAttackBoxes = GetComponentsInChildren<AttackBox>();
+        foreach (AttackBox attackBox in foundAttackBoxes)
+        {
+            if (attackBox.gameObject.activeSelf)
+            {
+                this.attackBox = attackBox;
+            }
+        }
+
         attackBox.gameObject.SetActive(false);
 
         MonsterManager.instance.SpawnMonster(this);

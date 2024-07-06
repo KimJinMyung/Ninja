@@ -18,8 +18,8 @@ public class AttackBox : MonoBehaviour
 
     private void Awake()
     {
-        owner_player = transform.root.GetComponentInParent<Player>();
-        owner_monster = transform.root.GetComponentInParent<Monster>();
+        owner_player = transform.GetComponentInParent<Player>();
+        owner_monster = transform.GetComponentInParent<Monster>();
 
         if (owner_player != null)
         {

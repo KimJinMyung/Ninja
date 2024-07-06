@@ -11,6 +11,9 @@ public class MonsterAttack : StateMachineBehaviour
     [Header("Throw Weapons")]
     [SerializeField] GameObject shuriken;
 
+    [Header("AttackBox DIsable DelayTime")]
+    [SerializeField] float DelayTime;
+
     private bool isAction;
 
     protected readonly int hashAttackIndex = Animator.StringToHash("AttackIndex");
@@ -36,7 +39,12 @@ public class MonsterAttack : StateMachineBehaviour
                 Shuriken shootShuriken = Instantiate(shuriken, owner.ThrowShurikenPoint.position, CreateDir).GetComponent<Shuriken>();
                 shootShuriken.SetShooterData(owner);
             }
-        }        
+        }    
+        
+        if(DelayTime != 0f && stateInfo.normalizedTime >= DelayTime)
+        {
+            owner.attackBox.gameObject.SetActive(false);
+        }
     }
 
     public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
@@ -52,6 +60,7 @@ public class MonsterAttack : StateMachineBehaviour
         {
             if (owner.MonsterViewModel.MonsterInfo.Stamina > 0)
                 owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.RetreatAfterAttack);
+            else owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.Incapacitated);
         }
         
     }
