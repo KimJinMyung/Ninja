@@ -82,7 +82,7 @@ public class BossMonster_IdleState : BossMonsterStateMachine
         owner.Agent.speed = owner.MonsterViewModel.MonsterInfo.WalkSpeed;
 
         //AttackStateMachineName = owner.GetRandomSubStateMachineName(out attackTypeIndex);
-        owner.SetAttackMethodIndex(2, 0);
+        owner.SetAttackMethodIndex(0, 0);
         //currentAttackIndex = Random.Range(0, owner.SearchSubStateMachineStates(AttackStateMachineName).Count);
 
         _attackDelayTimer = 0f;
@@ -274,7 +274,6 @@ public class BossMonster_AttackState : BossMonsterStateMachine
     public BossMonster_AttackState(Monster owner) : base(owner) { }
 
     private Vector3 targetDir;
-    private Vector3 rotatedPos;
 
     private bool isAttackAble;
 
@@ -285,7 +284,16 @@ public class BossMonster_AttackState : BossMonsterStateMachine
         owner.animator.applyRootMotion = false;
 
         owner.Agent.speed = owner.MonsterViewModel.MonsterInfo.RunSpeed;
-        owner.Agent.stoppingDistance = 2.8f;
+
+        switch (owner.BossAttackTypeIndex)
+        {
+            case 0:
+                owner.Agent.stoppingDistance = 2.5f;
+                break;
+            case 2:
+                owner.Agent.stoppingDistance = 2.8f;
+                break;
+        }
 
         targetDir = (owner.MonsterViewModel.TraceTarget.position - owner.transform.position).normalized;
         isAttackAble = true;
@@ -295,31 +303,37 @@ public class BossMonster_AttackState : BossMonsterStateMachine
     {
         base.Update();
 
-        //점프 공격이면 백대쉬와 유사한 로직
-        //점프한 이후, 내려찍을때 플레이어를 향해 이동
-
-        //대쉬 공격이면 플레이어를 향해 돌진
-        //공격 사거리까지 거리를 좁히고 공격
-        if(owner.BossAttackTypeIndex == 2)
+        float distance = Vector3.Distance(owner.transform.position, target.position);
+        if (distance <= owner.Agent.stoppingDistance && isAttackAble)
         {
-            owner.Agent.Move(targetDir * owner.Agent.speed * Time.deltaTime);
-
-            float distance = Vector3.Distance(owner.transform.position, target.position);
-            if(distance <= owner.Agent.stoppingDistance && isAttackAble)
+            //점프 공격이면 백대쉬와 유사한 로직
+            //점프한 이후, 내려찍을때 플레이어를 향해 이동
+            //대쉬 공격이면 플레이어를 향해 돌진
+            //공격 사거리까지 거리를 좁히고 공격
+            //콤보 공격이면 플레이어를 바라보며 나아가도록 설정
+            switch (owner.BossAttackTypeIndex)
             {
-                isAttackAble = false;
+                case 0:
+                    //owner.animator.applyRootMotion = true;
+                    owner.rb.isKinematic = false;
+                    owner.Agent.enabled = false;
+                    break;
+                case 2:
+                    owner.rb.isKinematic = false;
+                    owner.Agent.enabled = false;
+                    break;
+            }
 
-                owner.animator.SetTrigger(hashAttack);
-                owner.animator.SetInteger(hashAttackTypeIndex, owner.BossAttackTypeIndex);
-                owner.animator.SetInteger(hashAttackIndex, owner.BossCurrentAttackIndex);
-                //대쉬 공격을 받으면 뒤로 밀려난다.
-                return;
-            }              
+            owner.animator.SetTrigger(hashAttack);
+            owner.animator.SetInteger(hashAttackTypeIndex, owner.BossAttackTypeIndex);
+            owner.animator.SetInteger(hashAttackIndex, owner.BossCurrentAttackIndex);
+            isAttackAble = false;
+            return;
         }
 
-        //콤보 공격이면 플레이어를 바라보며 나아가도록 설정
-
-
+        //owner.Agent.Move(targetDir * owner.Agent.speed * Time.deltaTime);
+        if(owner.Agent.enabled)
+            owner.Agent.SetDestination(target.position);
 
         Debug.Log($"현재 스테이트 {owner.MonsterViewModel.MonsterState} : 어택 타입 인덱스 {owner.BossAttackTypeIndex}");
 
