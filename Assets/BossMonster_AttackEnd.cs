@@ -97,6 +97,8 @@ public class BossMonster_AttackEnd : StateMachineBehaviour
                         Quaternion targetRotation = Quaternion.LookRotation(dir.normalized);
                         owner.transform.rotation = Quaternion.Lerp(owner.transform.rotation, targetRotation, 1.5f * Time.deltaTime);
                     }
+
+                    if (stateInfo.normalizedTime >= 0.21f) owner.attackBox.gameObject.SetActive(false);
                 }
 
                 break;
@@ -110,6 +112,8 @@ public class BossMonster_AttackEnd : StateMachineBehaviour
                             animator.SetBool(hashAttackMove, true);
                         }
                         else animator.SetBool(hashAttackMove, false);
+
+                        if (stateInfo.normalizedTime >= 0.66) owner.attackBox.gameObject.SetActive(false);
                         break;
                     case 1:
                         if ((stateInfo.normalizedTime >= 0.06f && stateInfo.normalizedTime <= 0.1f) || (stateInfo.normalizedTime >= 0.2f && stateInfo.normalizedTime <= 0.45f) || (stateInfo.normalizedTime >= 0.6f && stateInfo.normalizedTime <= 0.64f))
@@ -117,6 +121,8 @@ public class BossMonster_AttackEnd : StateMachineBehaviour
                             animator.SetBool(hashAttackMove, true);
                         }
                         else animator.SetBool(hashAttackMove, false);
+
+                        if (stateInfo.normalizedTime >= 0.66) owner.attackBox.gameObject.SetActive(false);
                         break;
                     case 2:
                         if ((stateInfo.normalizedTime >= 0.03f && stateInfo.normalizedTime <= 0.1f) || (stateInfo.normalizedTime >= 0.18f && stateInfo.normalizedTime <= 0.27f) || (stateInfo.normalizedTime >= 0.4f && stateInfo.normalizedTime <= 0.43f) || (stateInfo.normalizedTime >= 0.63f && stateInfo.normalizedTime <= 0.65f))
@@ -124,6 +130,8 @@ public class BossMonster_AttackEnd : StateMachineBehaviour
                             animator.SetBool(hashAttackMove, true);
                         }
                         else animator.SetBool(hashAttackMove, false);
+
+                        if (stateInfo.normalizedTime >= 0.74) owner.attackBox.gameObject.SetActive(false);
                         break;
                 }
 
@@ -153,6 +161,8 @@ public class BossMonster_AttackEnd : StateMachineBehaviour
                 {
                     owner.rb.velocity = Vector3.up * owner.rb.velocity.y;
                 }
+
+                if(stateInfo.normalizedTime >= 0.5f) owner.attackBox.gameObject.SetActive(false);
                 break;
         }
     }

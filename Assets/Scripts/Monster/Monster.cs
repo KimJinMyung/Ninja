@@ -73,8 +73,9 @@ public class Monster : MonoBehaviour
 
     private float KnockBackDuration = 0.2f;
 
-    protected readonly int hashDead = Animator.StringToHash("Dead");
-    protected readonly int hashDie = Animator.StringToHash("Die");
+    private readonly int hashDefence = Animator.StringToHash("Defence");
+    private readonly int hashDead = Animator.StringToHash("Dead");
+    private readonly int hashDie = Animator.StringToHash("Die");
 
     public float monsterHeight {  get; private set; }
 
@@ -314,9 +315,24 @@ public class Monster : MonoBehaviour
        if (_monsterState.MonsterState == State.Die) return;
 
         _monsterState.MonsterInfo.HP -= damage;
+        _monsterState.MonsterInfo.Stamina -= attacker.ViewModel.playerInfo.Strength * 2f;
 
         if(_monsterState.MonsterInfo.HP > 0)
         {
+            if(_monsterState.MonsterInfo.Stamina <= 0)
+            {
+                _monsterState.RequestStateChanged(monsterId, State.Incapacitated);
+                return;
+            }
+
+            if (type == monsterType.Boss && _monsterState.MonsterState != State.Idle) return;
+            if(UnityEngine.Random.Range(0f, 100f) <= _monsterState.MonsterInfo.DefencePer)
+            {
+                //방어하는 애니메이션
+                animator.SetTrigger(hashDefence);
+                return;
+            }
+
             _monsterState.RequestTraceTargetChanged(monsterId, attacker.transform);
             _monsterState.RequestStateChanged(monsterId, State.Hurt);
 

@@ -79,6 +79,7 @@ public class DataManager : MonoBehaviour
             monster.Description = data.Attribute(nameof(monster.Description)).Value;
             monster.ViewRange = float.Parse(data.Attribute(nameof(monster.ViewRange)).Value);
             monster.ViewAngel = float.Parse(data.Attribute(nameof(monster.ViewAngel)).Value);
+            monster.DefencePer = float.Parse(data.Attribute(nameof(monster.DefencePer)).Value);
 
             string AttackMethodNameString = data.Attribute(nameof(monster.AttackMethodName)).Value;
             if (!string.IsNullOrEmpty(AttackMethodNameString))

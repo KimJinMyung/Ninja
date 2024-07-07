@@ -13,6 +13,7 @@ public class Monster_data
     public float Stamina { get; set; }
     public float ViewRange { get; set; }
     public float ViewAngel { get; set; }
+    public float DefencePer {  get; set; }
     public List<string> AttackMethodName { get; set; }
     public Monster_data MonsterDataClone() 
     {
@@ -29,6 +30,7 @@ public class Monster_data
             Stamina = this.Stamina,
             ViewRange = this.ViewRange,
             ViewAngel = this.ViewAngel,
+            DefencePer = this.DefencePer,
             AttackMethodName = new List<string>(this.AttackMethodName)
         };
     }
