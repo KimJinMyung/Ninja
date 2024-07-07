@@ -3,7 +3,6 @@ using System.Collections;
 using System.Data.Common;
 using UnityEngine;
 using UnityEngine.AI;
-using static UnityEngine.UI.GridLayoutGroup;
 
 public class BossMonsterStateMachine : ActorState
 {
@@ -82,7 +81,7 @@ public class BossMonster_IdleState : BossMonsterStateMachine
         owner.Agent.speed = owner.MonsterViewModel.MonsterInfo.WalkSpeed;
 
         //AttackStateMachineName = owner.GetRandomSubStateMachineName(out attackTypeIndex);
-        owner.SetAttackMethodIndex(0, 0);
+        owner.SetAttackMethodIndex(0,1);
         //currentAttackIndex = Random.Range(0, owner.SearchSubStateMachineStates(AttackStateMachineName).Count);
 
         _attackDelayTimer = 0f;
@@ -216,8 +215,10 @@ public class BossMonster_BackDashState : BossMonsterStateMachine
 
         newtarget = owner.MonsterViewModel.TraceTarget;
         if (newtarget == null) return;
-        jumpDirection = (owner.transform.position - (newtarget.position - owner.transform.position).normalized * backDashPower).normalized;
-        
+        jumpDirection = (owner.transform.position - (newtarget.position - owner.transform.position).normalized * backDashPower);
+        jumpDirection.y = 0f;
+        jumpDirection.Normalize();
+
         owner.rb.AddForce(jumpDirection * backDashPower + Vector3.up * initJumpSpeed, ForceMode.Impulse);
 
         isFalling = false;
@@ -290,6 +291,9 @@ public class BossMonster_AttackState : BossMonsterStateMachine
             case 0:
                 owner.Agent.stoppingDistance = 2.5f;
                 break;
+            case 1:
+                owner.Agent.stoppingDistance = 2.8f;
+                break;
             case 2:
                 owner.Agent.stoppingDistance = 2.8f;
                 break;
@@ -318,8 +322,11 @@ public class BossMonster_AttackState : BossMonsterStateMachine
                     owner.rb.isKinematic = false;
                     owner.Agent.enabled = false;
                     break;
+                case 1:
+
+                    break;
                 case 2:
-                    owner.rb.isKinematic = false;
+                    owner.rb.isKinematic = true;
                     owner.Agent.enabled = false;
                     break;
             }

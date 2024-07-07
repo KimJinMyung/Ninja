@@ -20,23 +20,28 @@ public class BossMonster_AttackEnd : StateMachineBehaviour
     [Header("End Animation?")]
     [SerializeField] private bool isNotEnd;
 
+    private bool isJump;
     private bool isStop;
+    Vector3 jumpDirection;
 
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         owner = animator.GetComponent<Monster>();
         target = owner.MonsterViewModel.TraceTarget;
         isStop = false;
+        isJump = false;
+
+        jumpDirection = (target.position - owner.transform.position);
+        jumpDirection.y = 0;
+        jumpDirection.Normalize();
 
         switch (owner.BossAttackTypeIndex)
         {
             case 0:
-                Vector3 jumpDirection = (target.position - owner.transform.position);
-                jumpDirection.y = 0;
-                jumpDirection.Normalize();
                 if (isNotEnd)
                 {                    
-                    owner.rb.AddForce(Vector3.up * JumpPower + JumpDashPower * jumpDirection, ForceMode.Impulse);
+                    if(owner.BossCurrentAttackIndex == 0)
+                        owner.rb.AddForce(Vector3.up * JumpPower + JumpDashPower * jumpDirection, ForceMode.Impulse);
                 }
                 else
                 {
@@ -46,8 +51,12 @@ public class BossMonster_AttackEnd : StateMachineBehaviour
                     owner.rb.AddForce(Vector3.down * JumpPower + JumpDashPower * jumpDirection, ForceMode.Impulse);
                 }
                 break;
-            case 2:                
-                owner.rb.AddForce(owner.transform.forward * DashPower, ForceMode.Impulse);
+            case 2:
+                animator.applyRootMotion = false;
+                owner.rb.isKinematic = false;
+                owner.Agent.enabled = false;
+                owner.Agent.stoppingDistance = default;
+                owner.rb.AddForce(jumpDirection * DashPower, ForceMode.Impulse);
                 break;
         }
     }
@@ -57,17 +66,41 @@ public class BossMonster_AttackEnd : StateMachineBehaviour
         switch(owner.BossAttackTypeIndex)
         {
             case 0:
-                if(stateInfo.normalizedTime >= 1f && !isStop)
+                if (isNotEnd)
                 {
-                    owner.StartCoroutine(StartNextAttack());
-                    return;
+                    if (owner.BossCurrentAttackIndex == 1 && stateInfo.normalizedTime >= 0.5f && !isJump)
+                    {
+                        isJump = true;
+                        owner.rb.AddForce(Vector3.up * JumpPower + JumpDashPower * jumpDirection, ForceMode.Impulse);
+                        return;
+                    }
+                    
+                    if (stateInfo.normalizedTime >= 1f && !isStop)
+                    {
+                        owner.StartCoroutine(StartNextAttack());
+                        return;
+                    }
+                }
+                else
+                {
+                    if(stateInfo.normalizedTime <= 0.35f)
+                    {
+                        Vector3 dir = target.position - owner.transform.position;
+                        dir.y = 0;
+                        Quaternion targetRotation = Quaternion.LookRotation(dir.normalized);
+                        owner.transform.rotation = Quaternion.Lerp(owner.transform.rotation, targetRotation, 1.5f * Time.deltaTime);
+                    }
                 }
                 
+                
+                break;
+            case 1:
+
                 break;
             case 2:
                 if (stateInfo.normalizedTime >= 0.3f)
                 {
-                    owner.rb.velocity = Vector3.Lerp(owner.rb.velocity, new Vector3(0, owner.rb.velocity.y,0), 50f * Time.deltaTime);
+                    owner.rb.velocity = Vector3.Lerp(owner.rb.velocity, new Vector3(0, owner.rb.velocity.y, 0), 50f * Time.deltaTime);
                 }
 
                 if (stateInfo.normalizedTime >= 0.45f)

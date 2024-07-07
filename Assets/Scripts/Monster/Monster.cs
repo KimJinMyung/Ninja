@@ -7,6 +7,7 @@ using System.Linq;
 using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.AI;
+using static UnityEngine.UI.GridLayoutGroup;
 public enum monsterType
 {
     monster_A,
@@ -497,9 +498,29 @@ public class Monster : MonoBehaviour
     public int BossAttackTypeIndex { get; private set; }
     public int BossCurrentAttackIndex { get; private set; }
 
+    //디버그용
     public void SetAttackMethodIndex(int attackType, int attackIndex)
     {
         BossAttackTypeIndex= attackType;
         BossCurrentAttackIndex = attackIndex;
+
+        if (BossAttackTypeIndex == 0 && BossCurrentAttackIndex >= 1)
+        {
+            BossCurrentAttackIndex %= 2;
+        }       
+    }
+
+    public void SetAttackMethodIndex()
+    {
+        int typeIndex;
+        string AttackStateMachineName = GetRandomSubStateMachineName(out typeIndex);
+
+        BossAttackTypeIndex = typeIndex;
+        BossCurrentAttackIndex = UnityEngine.Random.Range(0, SearchSubStateMachineStates(AttackStateMachineName).Count);
+
+        if (BossAttackTypeIndex == 0 && BossCurrentAttackIndex >= 1)
+        {
+            BossCurrentAttackIndex--;
+        }
     }
 }
