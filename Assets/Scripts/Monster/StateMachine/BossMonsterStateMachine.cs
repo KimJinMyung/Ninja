@@ -3,6 +3,7 @@ using System.Collections;
 using System.Data.Common;
 using UnityEngine;
 using UnityEngine.AI;
+using static UnityEngine.UI.GridLayoutGroup;
 
 public class BossMonsterStateMachine : ActorState
 {
@@ -14,11 +15,12 @@ public class BossMonsterStateMachine : ActorState
 
     protected static int hashMoveSpeed_x = Animator.StringToHash("MoveSpeed_X");
     protected static int hashMoveSpeed_z = Animator.StringToHash("MoveSpeed_Z");
+    protected static int hashAttack = Animator.StringToHash("Attack");
+    protected static int hashAttackTypeIndex = Animator.StringToHash("AttackTypeIndex");
+    protected static int hashAttackIndex = Animator.StringToHash("AttackIndex");
 
     protected bool isAttackAble;
 
-    protected int attackTypeIndex;
-    protected int currentAttackIndex;
 
     public BossMonsterStateMachine(Monster owner)
     {
@@ -38,8 +40,6 @@ public class BossMonsterStateMachine : ActorState
 
         if (owner.MonsterViewModel != null)
             target = owner.MonsterViewModel.TraceTarget;
-
-        Debug.Log(owner.MonsterViewModel.MonsterState);
 
         if (target != null && owner.MonsterViewModel.MonsterState != State.Attack)
         {
@@ -81,9 +81,9 @@ public class BossMonster_IdleState : BossMonsterStateMachine
 
         owner.Agent.speed = owner.MonsterViewModel.MonsterInfo.WalkSpeed;
 
-        AttackStateMachineName = owner.GetRandomSubStateMachineName(out attackTypeIndex);
-
-        currentAttackIndex = Random.Range(0, owner.SearchSubStateMachineStates(AttackStateMachineName).Count);
+        //AttackStateMachineName = owner.GetRandomSubStateMachineName(out attackTypeIndex);
+        owner.SetAttackMethodIndex(2, 0);
+        //currentAttackIndex = Random.Range(0, owner.SearchSubStateMachineStates(AttackStateMachineName).Count);
 
         _attackDelayTimer = 0f;
         attackDelay = owner.MonsterViewModel.CurrentAttackMethod.AttackSpeed - Random.Range(0f, owner.MonsterViewModel.CurrentAttackMethod.AttackSpeed);
@@ -114,10 +114,10 @@ public class BossMonster_IdleState : BossMonsterStateMachine
             //점프 공격으로 정해지면 Attack State 로
             //그렇지 않으면 공격 거리를 좁히기 위하여 Run State로 변경한다
 
-            owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.RetreatAfterAttack);
+            //owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.RetreatAfterAttack);
+            if (owner.BossAttackTypeIndex == 0) owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.Attack);
+            else owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.Run);
             return;
-            //if (attackTypeIndex == 0) owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.Attack);
-            //else owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.Run);
         }
 
         float distance = Vector3.Distance(owner.transform.position, target.position);
@@ -129,6 +129,11 @@ public class BossMonster_IdleState : BossMonsterStateMachine
         else owner.Agent.ResetPath();
     }
 
+    public override void Exit()
+    {
+        base.Exit();
+    }
+
 }
 
 //뒤쫓기
@@ -136,13 +141,20 @@ public class BossMonster_TraceState : BossMonsterStateMachine
 {
     public BossMonster_TraceState(Monster owner) : base(owner) { }
 
+    public override void Enter()
+    {
+        base.Enter();
+        Debug.Log($"현재 스테이트 {owner.MonsterViewModel.MonsterState} : 어택 타입 인덱스 {owner.BossAttackTypeIndex}");
+
+    }
+
     public override void Update()
     {
         base.Update();
 
         float distance = Vector3.Distance(owner.transform.position, target.position);
 
-        if(attackTypeIndex == 1)
+        if(owner.BossAttackTypeIndex == 1)
         {
             if (distance <= 3f)
             {
@@ -169,6 +181,11 @@ public class BossMonster_TraceState : BossMonsterStateMachine
 
         owner.Agent.SetDestination(target.position);
     }
+
+    public override void Exit()
+    {
+        base.Exit();
+    }
 }
 
 public class BossMonster_BackDashState : BossMonsterStateMachine
@@ -179,13 +196,12 @@ public class BossMonster_BackDashState : BossMonsterStateMachine
     private float gravityMultiplier = 15f;
     private float initJumpSpeed = 15f;
     private float maxJumpHeight;
-    private float slowDownRate = 0.98f; // 상승 속도 감소율
     private float slowDownThreshold = 0.5f; // 속도가 이 값 이하가 되면 느리게
 
     private Vector3 jumpDirection;
     private Transform newtarget;
     private bool isFalling;
-    private bool isAtPeak;
+    private bool isGround;
 
     public override void Enter()
     {
@@ -196,66 +212,50 @@ public class BossMonster_BackDashState : BossMonsterStateMachine
         owner.rb.velocity = Vector3.zero;
         owner.rb.isKinematic = false;
 
-        maxJumpHeight = owner.transform.position.y + owner.monsterHeight + 1.5f;
+        maxJumpHeight = owner.transform.position.y + owner.monsterHeight + 2f;
 
         newtarget = owner.MonsterViewModel.TraceTarget;
         if (newtarget == null) return;
-        //owner.rb.AddForce(jumpDir * backDashPower + Vector3.up * initJumpSpeed, ForceMode.Impulse);
-
         jumpDirection = (owner.transform.position - (newtarget.position - owner.transform.position).normalized * backDashPower).normalized;
-        owner.rb.velocity = jumpDirection * backDashPower + Vector3.up * initJumpSpeed; // 초기 속도 설정
+        
+        owner.rb.AddForce(jumpDirection * backDashPower + Vector3.up * initJumpSpeed, ForceMode.Impulse);
 
         isFalling = false;
-        isAtPeak = false;
+        isGround = false;
     }
 
     public override void Update()
     {
         base.Update();
 
-        if (!isFalling && owner.rb.velocity.y > 0)
-        {
-            // 상승 중일 때 속도를 점차 감소시킴
-            owner.rb.velocity = new Vector3(owner.rb.velocity.x, owner.rb.velocity.y * slowDownRate, owner.rb.velocity.z);
-
-            // 최고점 근처에서 속도를 거의 멈추게 함
-            if (owner.rb.velocity.y < slowDownThreshold && !isAtPeak)
-            {
-                owner.rb.velocity = new Vector3(owner.rb.velocity.x, slowDownThreshold, owner.rb.velocity.z);
-                isAtPeak = true;
-            }
-        }
-
         if (owner.transform.position.y >= maxJumpHeight && !isFalling)
         {
             // 최고점에 도달하면 상승 속도를 거의 멈추게 설정
             owner.rb.velocity = new Vector3(owner.rb.velocity.x, slowDownThreshold, owner.rb.velocity.z);
-            isFalling = true;
             owner.StartCoroutine(HoverAtPeaak());
-        }
-
-        if (owner.rb.velocity.y < 0 && !isFalling)
-        {
-            // 속도가 하강 상태로 변경되면 isFalling 상태로 전환
-            isFalling = true;
         }
 
         if (isFalling)
         {
             // 하강 상태에서는 중력을 강화하여 빠르게 내려오게 함
             owner.rb.AddForce(Vector3.down * gravityMultiplier, ForceMode.Acceleration);
+
+            if (owner.rb.velocity.y == 0f && !isGround)
+            {
+                isGround = true;
+                owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.Attack);
+                return;
+            }
         }
+    }
 
-        Debug.Log("뒤로 점프");
-
-    }   
-    
     private IEnumerator HoverAtPeaak()
     {
         owner.rb.isKinematic = true;
         yield return new WaitForSeconds(0.2f); // 0.2초 동안 대기
         owner.rb.isKinematic = false;
         owner.rb.velocity = jumpDirection * backDashPower + Vector3.down * initJumpSpeed; // 초기 방향과 속도로 하강
+        isFalling = true;
     }
 
     public override void Exit()
@@ -272,6 +272,58 @@ public class BossMonster_BackDashState : BossMonsterStateMachine
 public class BossMonster_AttackState : BossMonsterStateMachine
 {
     public BossMonster_AttackState(Monster owner) : base(owner) { }
+
+    private Vector3 targetDir;
+    private Vector3 rotatedPos;
+
+    private bool isAttackAble;
+
+    public override void Enter()
+    {
+        base.Enter();
+
+        owner.animator.applyRootMotion = false;
+
+        owner.Agent.speed = owner.MonsterViewModel.MonsterInfo.RunSpeed;
+        owner.Agent.stoppingDistance = 2.8f;
+
+        targetDir = (owner.MonsterViewModel.TraceTarget.position - owner.transform.position).normalized;
+        isAttackAble = true;
+    }
+
+    public override void Update()
+    {
+        base.Update();
+
+        //점프 공격이면 백대쉬와 유사한 로직
+        //점프한 이후, 내려찍을때 플레이어를 향해 이동
+
+        //대쉬 공격이면 플레이어를 향해 돌진
+        //공격 사거리까지 거리를 좁히고 공격
+        if(owner.BossAttackTypeIndex == 2)
+        {
+            owner.Agent.Move(targetDir * owner.Agent.speed * Time.deltaTime);
+
+            float distance = Vector3.Distance(owner.transform.position, target.position);
+            if(distance <= owner.Agent.stoppingDistance && isAttackAble)
+            {
+                isAttackAble = false;
+
+                owner.animator.SetTrigger(hashAttack);
+                owner.animator.SetInteger(hashAttackTypeIndex, owner.BossAttackTypeIndex);
+                owner.animator.SetInteger(hashAttackIndex, owner.BossCurrentAttackIndex);
+                //대쉬 공격을 받으면 뒤로 밀려난다.
+                return;
+            }              
+        }
+
+        //콤보 공격이면 플레이어를 바라보며 나아가도록 설정
+
+
+
+        Debug.Log($"현재 스테이트 {owner.MonsterViewModel.MonsterState} : 어택 타입 인덱스 {owner.BossAttackTypeIndex}");
+
+    }
 }
 
 //패링당함

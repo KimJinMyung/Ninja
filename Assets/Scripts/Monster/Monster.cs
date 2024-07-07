@@ -492,4 +492,14 @@ public class Monster : MonoBehaviour
 
         _monsterState.RequestStateChanged(monsterId, State.Parried);
     }
+
+
+    public int BossAttackTypeIndex { get; private set; }
+    public int BossCurrentAttackIndex { get; private set; }
+
+    public void SetAttackMethodIndex(int attackType, int attackIndex)
+    {
+        BossAttackTypeIndex= attackType;
+        BossCurrentAttackIndex = attackIndex;
+    }
 }
