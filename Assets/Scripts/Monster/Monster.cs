@@ -314,6 +314,14 @@ public class Monster : MonoBehaviour
     {
        if (_monsterState.MonsterState == State.Die) return;
 
+        if (UnityEngine.Random.Range(0f, 100f) <= _monsterState.MonsterInfo.DefencePer)
+        {
+            //방어하는 애니메이션
+            animator.SetTrigger(hashDefence);
+            _monsterState.MonsterInfo.Stamina -= attacker.ViewModel.playerInfo.Strength;
+            return;
+        }
+
         _monsterState.MonsterInfo.HP -= damage;
         _monsterState.MonsterInfo.Stamina -= attacker.ViewModel.playerInfo.Strength * 2f;
 
@@ -326,13 +334,7 @@ public class Monster : MonoBehaviour
             }
 
             if (type == monsterType.Boss && _monsterState.MonsterState != State.Idle) return;
-            if(UnityEngine.Random.Range(0f, 100f) <= _monsterState.MonsterInfo.DefencePer)
-            {
-                //방어하는 애니메이션
-                animator.SetTrigger(hashDefence);
-                return;
-            }
-
+            
             _monsterState.RequestTraceTargetChanged(monsterId, attacker.transform);
             _monsterState.RequestStateChanged(monsterId, State.Hurt);
 

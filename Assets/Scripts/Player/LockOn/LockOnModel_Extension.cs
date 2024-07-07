@@ -91,7 +91,13 @@ public static class LockOnModel_Extension
                     }                    
                 }
             }
-            else model.LockOnAbleTarget.gameObject.layer = MonsterLayer;
+            else
+            {
+                if (model.LockOnAbleTarget.CompareTag("RopePoint"))
+                    model.LockOnAbleTarget.gameObject.layer = RopePointLayer;
+                else
+                    model.LockOnAbleTarget.gameObject.layer = MonsterLayer;
+            }
         }
         else
         {

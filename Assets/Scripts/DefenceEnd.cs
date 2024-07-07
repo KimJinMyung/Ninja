@@ -5,6 +5,7 @@ using UnityEngine;
 public class DefenceEnd : StateMachineBehaviour
 {
     private Player owner;
+    private readonly int hashDefence = Animator.StringToHash("Defence");
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         owner = animator.transform.GetComponent<Player>();
