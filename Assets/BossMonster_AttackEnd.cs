@@ -24,6 +24,8 @@ public class BossMonster_AttackEnd : StateMachineBehaviour
     private bool isStop;
     Vector3 jumpDirection;
 
+    protected static int hashAttackMove = Animator.StringToHash("AttackMove");
+
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         owner = animator.GetComponent<Monster>();
@@ -51,6 +53,11 @@ public class BossMonster_AttackEnd : StateMachineBehaviour
                     owner.rb.AddForce(Vector3.down * JumpPower + JumpDashPower * jumpDirection, ForceMode.Impulse);
                 }
                 break;
+            case 1:
+                animator.applyRootMotion = false;
+                owner.rb.isKinematic = true;
+                owner.Agent.enabled = true;
+                break;
             case 2:
                 animator.applyRootMotion = false;
                 owner.rb.isKinematic = false;
@@ -63,7 +70,7 @@ public class BossMonster_AttackEnd : StateMachineBehaviour
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        switch(owner.BossAttackTypeIndex)
+        switch (owner.BossAttackTypeIndex)
         {
             case 0:
                 if (isNotEnd)
@@ -74,7 +81,7 @@ public class BossMonster_AttackEnd : StateMachineBehaviour
                         owner.rb.AddForce(Vector3.up * JumpPower + JumpDashPower * jumpDirection, ForceMode.Impulse);
                         return;
                     }
-                    
+
                     if (stateInfo.normalizedTime >= 1f && !isStop)
                     {
                         owner.StartCoroutine(StartNextAttack());
@@ -83,7 +90,7 @@ public class BossMonster_AttackEnd : StateMachineBehaviour
                 }
                 else
                 {
-                    if(stateInfo.normalizedTime <= 0.35f)
+                    if (stateInfo.normalizedTime <= 0.35f)
                     {
                         Vector3 dir = target.position - owner.transform.position;
                         dir.y = 0;
@@ -91,10 +98,49 @@ public class BossMonster_AttackEnd : StateMachineBehaviour
                         owner.transform.rotation = Quaternion.Lerp(owner.transform.rotation, targetRotation, 1.5f * Time.deltaTime);
                     }
                 }
-                
-                
+
                 break;
             case 1:
+
+                switch (owner.BossCurrentAttackIndex)
+                {
+                    case 0:
+                        if ((stateInfo.normalizedTime >= 0.11f && stateInfo.normalizedTime <= 0.175f) || (stateInfo.normalizedTime >= 0.29f && stateInfo.normalizedTime <= 0.37f) || (stateInfo.normalizedTime >= 0.51f && stateInfo.normalizedTime <= 0.66f))
+                        {
+                            animator.SetBool(hashAttackMove, true);
+                        }
+                        else animator.SetBool(hashAttackMove, false);
+                        break;
+                    case 1:
+                        if ((stateInfo.normalizedTime >= 0.06f && stateInfo.normalizedTime <= 0.1f) || (stateInfo.normalizedTime >= 0.2f && stateInfo.normalizedTime <= 0.45f) || (stateInfo.normalizedTime >= 0.6f && stateInfo.normalizedTime <= 0.64f))
+                        {
+                            animator.SetBool(hashAttackMove, true);
+                        }
+                        else animator.SetBool(hashAttackMove, false);
+                        break;
+                    case 2:
+                        if ((stateInfo.normalizedTime >= 0.03f && stateInfo.normalizedTime <= 0.1f) || (stateInfo.normalizedTime >= 0.18f && stateInfo.normalizedTime <= 0.27f) || (stateInfo.normalizedTime >= 0.4f && stateInfo.normalizedTime <= 0.43f) || (stateInfo.normalizedTime >= 0.63f && stateInfo.normalizedTime <= 0.65f))
+                        {
+                            animator.SetBool(hashAttackMove, true);
+                        }
+                        else animator.SetBool(hashAttackMove, false);
+                        break;
+                }
+
+
+                Vector3 vecToTarget = target.position - owner.transform.position;
+                vecToTarget.y = 0;
+                vecToTarget.Normalize();
+                Quaternion rotation = Quaternion.LookRotation(vecToTarget);
+
+                owner.Agent.speed = animator.GetBool(hashAttackMove) ? 1.5f : 0f;
+
+                if (/*회전 조건*/ animator.GetBool(hashAttackMove))
+                {
+                    owner.transform.rotation = Quaternion.Lerp(owner.transform.rotation, rotation, 2f * Time.deltaTime);
+                    
+                    owner.Agent.Move(vecToTarget * 0.5f * Time.deltaTime);
+                }                
 
                 break;
             case 2:

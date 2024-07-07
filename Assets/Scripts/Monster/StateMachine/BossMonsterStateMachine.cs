@@ -81,7 +81,7 @@ public class BossMonster_IdleState : BossMonsterStateMachine
         owner.Agent.speed = owner.MonsterViewModel.MonsterInfo.WalkSpeed;
 
         //AttackStateMachineName = owner.GetRandomSubStateMachineName(out attackTypeIndex);
-        owner.SetAttackMethodIndex(0,1);
+        owner.SetAttackMethodIndex(1,0);
         //currentAttackIndex = Random.Range(0, owner.SearchSubStateMachineStates(AttackStateMachineName).Count);
 
         _attackDelayTimer = 0f;
@@ -315,21 +315,23 @@ public class BossMonster_AttackState : BossMonsterStateMachine
             //대쉬 공격이면 플레이어를 향해 돌진
             //공격 사거리까지 거리를 좁히고 공격
             //콤보 공격이면 플레이어를 바라보며 나아가도록 설정
-            switch (owner.BossAttackTypeIndex)
-            {
-                case 0:
-                    //owner.animator.applyRootMotion = true;
-                    owner.rb.isKinematic = false;
-                    owner.Agent.enabled = false;
-                    break;
-                case 1:
-
-                    break;
-                case 2:
-                    owner.rb.isKinematic = true;
-                    owner.Agent.enabled = false;
-                    break;
-            }
+            //switch (owner.BossAttackTypeIndex)
+            //{
+            //    case 0:
+            //        //owner.animator.applyRootMotion = true;
+            //        owner.rb.isKinematic = false;
+            //        owner.Agent.enabled = false;
+            //        break;
+            //    case 1:
+            //        owner.animator.applyRootMotion = true;
+            //        owner.rb.isKinematic = true;
+            //        owner.Agent.enabled = false;
+            //        break;
+            //    case 2:
+            //        owner.rb.isKinematic = true;
+            //        owner.Agent.enabled = false;
+            //        break;
+            //}
 
             owner.animator.SetTrigger(hashAttack);
             owner.animator.SetInteger(hashAttackTypeIndex, owner.BossAttackTypeIndex);
