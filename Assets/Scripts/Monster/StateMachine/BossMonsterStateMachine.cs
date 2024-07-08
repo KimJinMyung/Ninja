@@ -30,10 +30,12 @@ public class BossMonsterStateMachine : ActorState
 
     protected bool isAttackAble;
 
+    protected Vector3 SpawnPosition;
 
     public BossMonsterStateMachine(Monster owner)
     {
         this.owner = owner;
+        SpawnPosition = owner.transform.position;
     }
 
     public override void Enter()
@@ -87,10 +89,10 @@ public class BossMonster_IdleState : BossMonsterStateMachine
     public override void Enter()
     {
         base.Enter();
-
+        owner.Agent.stoppingDistance = 0;
         owner.Agent.speed = owner.MonsterViewModel.MonsterInfo.WalkSpeed;
 
-        owner.SetAttackMethodIndex(0,0);
+        owner.SetAttackMethodIndex(1,0);
 
         _attackDelayTimer = 0f;
         attackDelay = owner.MonsterViewModel.CurrentAttackMethod.AttackSpeed - Random.Range(0f, owner.MonsterViewModel.CurrentAttackMethod.AttackSpeed);
@@ -107,6 +109,13 @@ public class BossMonster_IdleState : BossMonsterStateMachine
             target = owner.MonsterViewModel.TraceTarget;
             return;
         }
+
+        Player player = target.GetComponent<Player>();
+        if (player.ViewModel.playerState == State.Die)
+        {
+            owner.Agent.SetDestination(SpawnPosition);
+            return;
+        }else
 
         if (!isAttackAble)
         {
@@ -126,7 +135,7 @@ public class BossMonster_IdleState : BossMonsterStateMachine
         }
 
         float distance = Vector3.Distance(owner.transform.position, target.position);
-
+        
         if (distance > AttackRange)
         {
             owner.Agent.SetDestination(target.position);
@@ -368,7 +377,7 @@ public class BossMonster_SubduedState : BossMonsterStateMachine
         if (_timer < IncapacitatedRangeTime) _timer = Mathf.Clamp(_timer + Time.deltaTime, 0f, IncapacitatedRangeTime);
         else
         {
-            owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.Battle);
+            owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.Idle);
             return;
         }
     }

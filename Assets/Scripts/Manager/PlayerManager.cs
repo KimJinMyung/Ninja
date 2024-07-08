@@ -61,8 +61,4 @@ public class PlayerManager : MonoBehaviour
         LifeCountUpdateEventHandler?.Invoke(player_data.Life);
     }
 
-    private void Update()
-    {
-        Debug.Log("3. : " + player_data.HP);
-    }
 }

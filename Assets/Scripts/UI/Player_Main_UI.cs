@@ -42,8 +42,8 @@ public class Player_Main_UI : MonoBehaviour
 
     private void Update()
     {
-        Debug.Log("1. : " + ui_Viewmodel.MaxHP);
-        Debug.Log("1.5 : " + ui_Viewmodel.HP);
+        Debug.Log("1.6 : " + ui_Viewmodel.Stamina);
+        Debug.Log("1.8 : "+ ui_Viewmodel.MaxStamina);
     }
 
     private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -62,6 +62,20 @@ public class Player_Main_UI : MonoBehaviour
             case nameof(ui_Viewmodel.Stamina):
                 StaminaBar.SetCurrentStamina(ui_Viewmodel.Stamina);
                 break;            
+            case nameof(ui_Viewmodel.LifeCount):
+                int index = 0;
+                foreach(Transform child in player_Life)
+                {
+                    if(index > ui_Viewmodel.LifeCount)
+                    {
+                        child.gameObject.SetActive(false);
+                        continue;
+                    }
+
+                    child.gameObject.SetActive(true);
+                    index++;
+                }
+                break;
         }
     }
 }

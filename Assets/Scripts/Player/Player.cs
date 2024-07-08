@@ -43,9 +43,6 @@ public class Player : MonoBehaviour
 
     [Header("Climb")]
     [SerializeField] List<ParkourAction> parkourActions;
-
-    private Player_data player_info;
-    public Player_data Player_Info { get { return player_info; } }
     public int player_id {  get; private set; }
 
     [Header("Player Cinemachine Setting")]
@@ -174,7 +171,6 @@ public class Player : MonoBehaviour
         var player = DataManager.Instance.GetPlayerData(0);
         if (player == null) return;
 
-        player_info = player.Clone();
         _viewModel.RequestPlayerDataChanged(player_id, player.Clone());
     }
 
@@ -235,8 +231,8 @@ public class Player : MonoBehaviour
     public void ResurrectPlayer()
     {
         _viewModel.RequestStateChanged(player_id, State.Idle);
-        _viewModel.playerInfo.HP = player_info.HP;
-        _viewModel.playerInfo.Stamina = player_info.Stamina;
+        _viewModel.playerInfo.HP = _viewModel.playerInfo.MaxHP;
+        _viewModel.playerInfo.Stamina = _viewModel.playerInfo.MaxStamina;
         isResurrectionAble = false;
     }
 
@@ -258,7 +254,6 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
-        Debug.Log("2. : " + ViewModel.playerInfo.HP);
 
         IsDead();
 
@@ -293,28 +288,25 @@ public class Player : MonoBehaviour
     {
         if(_viewModel.playerState == State.Die)
         {
-            if(player_info.Life > 0)
-            {
-                isResurrectionAble = true;
-            }
-            else
+            if(_viewModel.playerInfo.Life <= 0)
             {
                 //»ç¸Á UI On
+                //isResurrectionAble = true;
             }
         }
     }
 
     private void MoveSpeed()
     {
-        if (player_info == null) return;
+        if (_viewModel.playerInfo == null) return;
 
         if (_isRun)
         {
-            movementSpeed = player_info.RunSpeed;
+            movementSpeed = _viewModel.playerInfo.RunSpeed;
         }
         else
         {
-            movementSpeed = player_info.WalkSpeed;
+            movementSpeed = _viewModel.playerInfo.WalkSpeed;
         }
     }
 
@@ -556,11 +548,13 @@ public class Player : MonoBehaviour
     {
         if (StaminaRecoveryDelayTime <= _staminaRecoveryDelaytimer)
         {
-            player_info.Stamina = Mathf.Clamp(player_info.Stamina + Time.deltaTime, 0, _viewModel.playerInfo.Stamina);
+            Player_data StaminaData = _viewModel.playerInfo;
+            StaminaData.Stamina = Mathf.Clamp(StaminaData.Stamina + Time.deltaTime, 0, _viewModel.playerInfo.MaxStamina);
+            _viewModel.RequestPlayerDataChanged(player_id, StaminaData);
             return;
         }
 
-        if (player_info.Stamina < _viewModel.playerInfo.Stamina && (_viewModel.playerState == State.Battle || _viewModel.playerState == State.Idle)) _staminaRecoveryDelaytimer += Time.deltaTime;
+        if (_viewModel.playerInfo.Stamina < _viewModel.playerInfo.MaxStamina && (_viewModel.playerState == State.Battle || _viewModel.playerState == State.Idle)) _staminaRecoveryDelaytimer += Time.deltaTime;
         else _staminaRecoveryDelaytimer = 0f;
     }
 }

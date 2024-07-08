@@ -312,7 +312,7 @@ public class IncapacitatedState : PlayerState
     {
         base.Exit();
         owner.Animator.SetBool(hashIncapacitated, false);
-        owner.ViewModel.playerInfo.Stamina = owner.Player_Info.Stamina;
+        owner.ViewModel.playerInfo.Stamina = owner.ViewModel.playerInfo.MaxStamina;
     }
 }
 public class UsingItemState : PlayerState

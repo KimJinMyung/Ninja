@@ -45,6 +45,6 @@ public static class Player_UI_Extension
 
     public static void OnPlayerLifeCountChanged(this Player_UI_ViewModel vm, float LifeCount)
     {
-        vm.Stamina = LifeCount;
+        vm.LifeCount = LifeCount;
     }
 }

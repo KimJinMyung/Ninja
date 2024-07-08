@@ -117,31 +117,36 @@ public class BossMonster_AttackEnd : StateMachineBehaviour
                 switch (owner.BossCurrentAttackIndex)
                 {
                     case 0:
-                        if ((stateInfo.normalizedTime >= 0.11f && stateInfo.normalizedTime <= 0.175f) || (stateInfo.normalizedTime >= 0.29f && stateInfo.normalizedTime <= 0.37f) || (stateInfo.normalizedTime >= 0.51f && stateInfo.normalizedTime <= 0.66f))
-                        {
-                            animator.SetBool(hashAttackMove, true);
-                        }
+                        if ((stateInfo.normalizedTime >= 0.11f && stateInfo.normalizedTime <= 0.175f) || (stateInfo.normalizedTime >= 0.29f && stateInfo.normalizedTime <= 0.37f) || 
+                            (stateInfo.normalizedTime >= 0.51f && stateInfo.normalizedTime <= 0.66f)) animator.SetBool(hashAttackMove, true);
                         else animator.SetBool(hashAttackMove, false);
 
-                        if (stateInfo.normalizedTime >= 0.66) owner.attackBox.gameObject.SetActive(false);
+                        if ((stateInfo.normalizedTime >= 0.05f && stateInfo.normalizedTime <= 0.13f) || (stateInfo.normalizedTime >= 0.2f && stateInfo.normalizedTime <= 0.37f) || 
+                            (stateInfo.normalizedTime >= 0.51f && stateInfo.normalizedTime <= 0.66f)) owner.attackBox.gameObject.SetActive(true);
+                        else owner.attackBox.gameObject.SetActive(false);
+
                         break;
                     case 1:
-                        if ((stateInfo.normalizedTime >= 0.06f && stateInfo.normalizedTime <= 0.1f) || (stateInfo.normalizedTime >= 0.2f && stateInfo.normalizedTime <= 0.45f) || (stateInfo.normalizedTime >= 0.6f && stateInfo.normalizedTime <= 0.64f))
-                        {
-                            animator.SetBool(hashAttackMove, true);
-                        }
+                        if ((stateInfo.normalizedTime >= 0.06f && stateInfo.normalizedTime <= 0.1f) || (stateInfo.normalizedTime >= 0.2f && stateInfo.normalizedTime <= 0.45f) || 
+                            (stateInfo.normalizedTime >= 0.6f && stateInfo.normalizedTime <= 0.64f)) animator.SetBool(hashAttackMove, true);
                         else animator.SetBool(hashAttackMove, false);
 
-                        if (stateInfo.normalizedTime >= 0.66) owner.attackBox.gameObject.SetActive(false);
+                        if ((stateInfo.normalizedTime >= 0f && stateInfo.normalizedTime <= 0.12f) || (stateInfo.normalizedTime >= 0.2f && stateInfo.normalizedTime <= 0.32f) || 
+                            (stateInfo.normalizedTime >= 0.33f && stateInfo.normalizedTime <= 0.39f) || (stateInfo.normalizedTime >= 0.4f && stateInfo.normalizedTime <= 0.51f) || 
+                            (stateInfo.normalizedTime >= 0.58f && stateInfo.normalizedTime <= 0.68f)) owner.attackBox.gameObject.SetActive(true);
+                        else owner.attackBox.gameObject.SetActive(false);
+
                         break;
                     case 2:
-                        if ((stateInfo.normalizedTime >= 0.03f && stateInfo.normalizedTime <= 0.1f) || (stateInfo.normalizedTime >= 0.18f && stateInfo.normalizedTime <= 0.27f) || (stateInfo.normalizedTime >= 0.4f && stateInfo.normalizedTime <= 0.43f) || (stateInfo.normalizedTime >= 0.63f && stateInfo.normalizedTime <= 0.65f))
-                        {
-                            animator.SetBool(hashAttackMove, true);
-                        }
-                        else animator.SetBool(hashAttackMove, false);
+                        if ((stateInfo.normalizedTime >= 0.03f && stateInfo.normalizedTime <= 0.1f) || (stateInfo.normalizedTime >= 0.18f && stateInfo.normalizedTime <= 0.27f) || 
+                            (stateInfo.normalizedTime >= 0.4f && stateInfo.normalizedTime <= 0.43f) || (stateInfo.normalizedTime >= 0.63f && stateInfo.normalizedTime <= 0.65f)) animator.SetBool(hashAttackMove, true);
+                        else owner.attackBox.gameObject.SetActive(false);
 
-                        if (stateInfo.normalizedTime >= 0.74) owner.attackBox.gameObject.SetActive(false);
+                        if ((stateInfo.normalizedTime >= 0.07f && stateInfo.normalizedTime <= 0.15f) || (stateInfo.normalizedTime >= 0.18f && stateInfo.normalizedTime <= 0.23f) ||
+                            (stateInfo.normalizedTime >= 0.25f && stateInfo.normalizedTime <= 0.31f) || (stateInfo.normalizedTime >= 0.35f && stateInfo.normalizedTime <= 0.44f) ||
+                            (stateInfo.normalizedTime >= 0.53f && stateInfo.normalizedTime <= 0.65f) || (stateInfo.normalizedTime >= 0.66f && stateInfo.normalizedTime <= 0.76f)) owner.attackBox.gameObject.SetActive(true);
+                        else owner.attackBox.gameObject.SetActive(false);
+
                         break;
                 }
 

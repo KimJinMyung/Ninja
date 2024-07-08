@@ -16,11 +16,6 @@ public class StaminaBar : MonoBehaviour
         UpdateHPBar();
     }
 
-    private void Update()
-    {
-        UpdateHPBar();
-    }
-
     public void SetMaxStamina(float maxStamina)
     {
         this.maxStamina = maxStamina;
@@ -47,7 +42,8 @@ public class StaminaBar : MonoBehaviour
 
     private void UpdateHPBar()
     {
-        float fillAmount = currentStamina / maxStamina;
+        float fillAmount = (float)(currentStamina / maxStamina);
+        Debug.Log("33 : " + fillAmount);
         StaminaBarLeft.fillAmount = fillAmount;
         StaminaBarRight.fillAmount = fillAmount;
     }
