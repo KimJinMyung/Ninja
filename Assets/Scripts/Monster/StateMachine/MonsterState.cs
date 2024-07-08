@@ -10,14 +10,16 @@ public class MonsterState : ActorState
     protected float MovementValue;
 
     protected readonly int hashParried = Animator.StringToHash("Parried");
+    protected readonly int hashParry = Animator.StringToHash("Parry");
     protected readonly int hashDead = Animator.StringToHash("Dead");
     protected readonly int hashIncapacitated = Animator.StringToHash("Incapacitated");
+    protected readonly int hashTriggerIncapacitate = Animator.StringToHash("Incapacitate");
 
     protected static int IncapacitatedLayer = LayerMask.NameToLayer("Incapacitated");
     protected static int monsterLayer = LayerMask.NameToLayer("Monster");
     protected static int LockOnTargetLayer = LayerMask.NameToLayer("LockOnTarget");
     protected static int LockOnAbleLayer = LayerMask.NameToLayer("LockOnAble");
-
+    
     public MonsterState(Monster owner)
     {
         this.owner = owner;     
@@ -189,6 +191,13 @@ public class Monster_ParryiedState : MonsterState
         base.Enter();
         owner.animator.SetTrigger(hashParried);
     }
+
+    public override void Exit()
+    {
+        base.Exit();
+
+        if (owner.MonsterViewModel.MonsterState != State.Incapacitated) owner.animator.SetBool(hashParry, false);
+    }
 }
 
 //무력화 상태
@@ -203,6 +212,7 @@ public class Monster_SubduedState : MonsterState
     {
         base.Enter();
         owner.gameObject.layer = IncapacitatedLayer;
+        owner.animator.SetTrigger(hashTriggerIncapacitate);
         owner.animator.SetBool(hashIncapacitated, true);
         _timer = 0;
     }
@@ -230,6 +240,7 @@ public class Monster_SubduedState : MonsterState
         base.Exit();
         if (owner.MonsterViewModel.MonsterState == State.Die) return;
 
+        owner.animator.SetBool(hashParry, false);
         owner.animator.SetBool(hashIncapacitated, false);
 
         owner.MonsterViewModel.MonsterInfo.Stamina = owner.InitMonsterData.Stamina;

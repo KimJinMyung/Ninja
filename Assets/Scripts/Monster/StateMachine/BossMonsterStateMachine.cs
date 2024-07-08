@@ -20,6 +20,13 @@ public class BossMonsterStateMachine : ActorState
 
     protected static int hashBackJump = Animator.StringToHash("BackJump");
     protected static int hashNextAction = Animator.StringToHash("NextAction");
+    protected readonly int hashIncapacitated = Animator.StringToHash("Incapacitated");
+    protected readonly int hashTriggerIncapacitate = Animator.StringToHash("Incapacitate");
+
+    protected static int IncapacitatedLayer = LayerMask.NameToLayer("Incapacitated");
+    protected static int monsterLayer = LayerMask.NameToLayer("Monster");
+    protected static int LockOnTargetLayer = LayerMask.NameToLayer("LockOnTarget");
+    protected static int LockOnAbleLayer = LayerMask.NameToLayer("LockOnAble");
 
     protected bool isAttackAble;
 
@@ -146,8 +153,6 @@ public class BossMonster_TraceState : BossMonsterStateMachine
     public override void Enter()
     {
         base.Enter();
-        Debug.Log($"현재 스테이트 {owner.MonsterViewModel.MonsterState} : 어택 타입 인덱스 {owner.BossAttackTypeIndex}");
-
     }
 
     public override void Update()
@@ -324,8 +329,6 @@ public class BossMonster_AttackState : BossMonsterStateMachine
         if(owner.Agent.enabled)
             owner.Agent.SetDestination(target.position);
 
-        Debug.Log($"현재 스테이트 {owner.MonsterViewModel.MonsterState} : 어택 타입 인덱스 {owner.BossAttackTypeIndex}");
-
     }
 
     public override void Exit()
@@ -345,6 +348,63 @@ public class BossMonster_ParryiedState : BossMonsterStateMachine
 public class BossMonster_SubduedState : BossMonsterStateMachine
 {
     public BossMonster_SubduedState(Monster owner) : base(owner) { }
+
+    private float _timer;
+    private float IncapacitatedRangeTime = 5f;
+    public override void Enter()
+    {
+        base.Enter();
+        owner.gameObject.layer = IncapacitatedLayer;
+        owner.animator.SetTrigger(hashTriggerIncapacitate);
+        owner.animator.SetBool(hashIncapacitated, true);
+        _timer = 0;
+    }
+
+    public override void Update()
+    {
+        base.Update();
+
+        if (owner.MonsterViewModel.MonsterInfo.HP <= 0)
+        {
+            owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.Die);
+            return;
+        }
+
+        if (_timer < IncapacitatedRangeTime) _timer = Mathf.Clamp(_timer + Time.deltaTime, 0f, IncapacitatedRangeTime);
+        else
+        {
+            owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.Battle);
+            return;
+        }
+    }
+
+    public override void Exit()
+    {
+        base.Exit();
+        if (owner.MonsterViewModel.MonsterState == State.Die) return;
+
+        owner.animator.SetBool(hashIncapacitated, false);
+
+        owner.MonsterViewModel.MonsterInfo.Stamina = owner.InitMonsterData.Stamina;
+
+        if (owner.MonsterViewModel.TraceTarget == null)
+        {
+            owner.gameObject.layer = monsterLayer;
+            return;
+        }
+
+        Player_LockOn player = owner.MonsterViewModel.TraceTarget.GetComponent<Player_LockOn>();
+
+        if (player.ViewModel.LockOnTarget == owner.transform)
+        {
+            owner.gameObject.layer = LockOnTargetLayer;
+        }
+        else if (player.ViewModel.LockOnAbleTarget)
+        {
+            owner.gameObject.layer = LockOnAbleLayer;
+        }
+        else owner.gameObject.layer = monsterLayer;
+    }
 }
 
 //공격 받음
@@ -357,4 +417,38 @@ public class BossMonster_HurtState : BossMonsterStateMachine
 public class BossMonster_DeadState : BossMonsterStateMachine
 {
     public BossMonster_DeadState(Monster owner) : base(owner) { }
+
+    private int _DeadMonsterLayer = LayerMask.NameToLayer("Dead");
+    private int _RespawnMonsterLayer = LayerMask.NameToLayer("Monster");
+
+    public override void Enter()
+    {
+        base.Enter();
+
+        owner.Agent.speed = 0f;
+        owner.Agent.destination = default;
+        owner.rb.isKinematic = false;
+        owner.animator.SetLayerWeight(1, 0);
+        MonsterManager.instance.DieMonster(owner);
+    }
+
+    public override void Update()
+    {
+        base.Update();
+
+        if (owner.gameObject.layer != _DeadMonsterLayer)
+        {
+            owner.gameObject.layer = _DeadMonsterLayer;
+        }
+    }
+
+    public override void Exit()
+    {
+        base.Exit();
+
+        Debug.Log(owner.MonsterViewModel.MonsterState);
+        owner.animator.SetLayerWeight(1, 1);
+        owner.gameObject.layer = _RespawnMonsterLayer;
+        owner.animator.SetBool("Dead", false);
+    }
 }

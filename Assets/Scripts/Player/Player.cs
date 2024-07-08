@@ -5,6 +5,7 @@ using System.Collections;
 using UnityEngine.InputSystem;
 using System.Buffers;
 using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
 
 public class Player : MonoBehaviour
 {
@@ -414,6 +415,10 @@ public class Player : MonoBehaviour
 
             if (animator.GetBool(hashDefence))
             {
+                if(attacker.Type == monsterType.Boss && (attacker.BossAttackTypeIndex == 0 || attacker.BossAttackTypeIndex == 2))
+                {
+                    StartCoroutine(PushBack(attacker.transform.position, 3));
+                }
 
                 //방어 성공
                 player_info.Stamina -= attacker.MonsterViewModel.MonsterInfo.Strength;
@@ -448,8 +453,28 @@ public class Player : MonoBehaviour
         }
     }
 
+    IEnumerator PushBack(Vector3 attackerPosition, float AddPower)
+    {
+        Vector3 dir = transform.position - attackerPosition;
+        dir.y = 0;
+        dir.Normalize();
+
+        float timer = 0f;
+
+        while(timer < 1f)
+        {
+            playerController.Move(dir * AddPower * Time.deltaTime);
+            timer += Time.deltaTime;
+            yield return null;
+        }
+
+        yield break;
+    }
+
     private void AttackDir(Vector3 attakerPosition)
     {
+        StartCoroutine(PushBack(attakerPosition, 5));
+
         Vector3 knockbackDir = transform.position - attakerPosition;
         knockbackDir.y = 0;
         knockbackDir.Normalize();

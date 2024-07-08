@@ -70,6 +70,12 @@ public class BossMonster_AttackEnd : StateMachineBehaviour
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
+        if(owner.MonsterViewModel.MonsterInfo.Stamina <= 0)
+        {
+            owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.Incapacitated);
+            return;
+        }
+
         switch (owner.BossAttackTypeIndex)
         {
             case 0:
@@ -180,6 +186,8 @@ public class BossMonster_AttackEnd : StateMachineBehaviour
 
     public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
+        if (owner.MonsterViewModel.MonsterState == State.Incapacitated) return;
+
         if (!isNotEnd)
         {
             owner.rb.isKinematic = true;

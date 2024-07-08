@@ -217,6 +217,9 @@ public class Monster : MonoBehaviour
         //    }
         //}
 
+        Debug.Log(_monsterState.MonsterInfo.Stamina);
+        Debug.Log(_monsterState.MonsterState);
+
         UpdateAttackMethod();
         _monsterStateMachine.OnUpdate();
 
@@ -324,7 +327,7 @@ public class Monster : MonoBehaviour
 
         _monsterState.MonsterInfo.HP -= damage;
         _monsterState.MonsterInfo.Stamina -= attacker.ViewModel.playerInfo.Strength * 2f;
-
+               
         if(_monsterState.MonsterInfo.HP > 0)
         {
             if(_monsterState.MonsterInfo.Stamina <= 0)
