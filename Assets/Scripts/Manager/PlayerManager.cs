@@ -8,6 +8,8 @@ public class PlayerManager : MonoBehaviour
     public static PlayerManager instance;
 
     Action<float> HPChangedEvnetHandler;
+    Action<float> StaminaUpdateEvnetHandler;
+    Action<float> LifeCountUpdateEventHandler;
 
     private void Awake()
     {
@@ -25,11 +27,24 @@ public class PlayerManager : MonoBehaviour
         else HPChangedEvnetHandler -= HPChanged;
     }
 
+    public void BindStaminaChanged(Action<float> StaminaChanged, bool isBind)
+    {
+        if (isBind) StaminaUpdateEvnetHandler += StaminaChanged;
+        else StaminaUpdateEvnetHandler -= StaminaChanged;
+    }
+    public void BindLifeCountChanged(Action<float> LifeCountChanged, bool isBind)
+    {
+        if (isBind) LifeCountUpdateEventHandler += LifeCountChanged;
+        else LifeCountUpdateEventHandler -= LifeCountChanged;
+    }
+
     public void SetPlayer_data(Player_data player_data)
     {
         this.player_data = player_data;
 
         HPChangedEvnetHandler?.Invoke(player_data.HP);
+        StaminaUpdateEvnetHandler?.Invoke(player_data.Stamina);
+        LifeCountUpdateEventHandler?.Invoke(player_data.Life);
     }
 
     public Player_data GetPlayer_data()
@@ -39,6 +54,6 @@ public class PlayerManager : MonoBehaviour
 
     private void Update()
     {
-        Debug.Log(player_data.HP);
+        Debug.Log("3. : " + player_data.HP);
     }
 }

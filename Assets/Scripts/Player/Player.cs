@@ -137,7 +137,9 @@ public class Player : MonoBehaviour
         _viewModel.RegisterMoveVelocity(true);
         _viewModel.ReigsterLockOnTargetChanged(true);
         _viewModel.ReigsterAssassinatedTypeChanged(true);
-        _viewModel.BindPlayerInfoChangedEvent(true);
+        _viewModel.BindPlayerHPChangedEvent(true);
+        _viewModel.BindPlayerStaminaChangedEvent(true);
+        _viewModel.BindPlayerLifeCountChangedEvent(true);
 
         SetPlayerInfo();
         InitRotation();
@@ -151,7 +153,9 @@ public class Player : MonoBehaviour
     {
         if (_viewModel != null)
         {
-            _viewModel.BindPlayerInfoChangedEvent(false);
+            _viewModel.BindPlayerLifeCountChangedEvent(false);
+            _viewModel.BindPlayerStaminaChangedEvent(false);
+            _viewModel.BindPlayerHPChangedEvent(false);
             _viewModel.ReigsterAssassinatedTypeChanged(false);
             _viewModel.ReigsterLockOnTargetChanged(false);
             _viewModel.RegisterMoveVelocity(false);
@@ -250,6 +254,8 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
+        Debug.Log("2. : " + ViewModel.playerInfo.HP);
+
         IsDead();
 
         Gravity();

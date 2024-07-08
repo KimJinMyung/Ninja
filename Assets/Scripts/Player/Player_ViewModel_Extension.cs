@@ -20,14 +20,38 @@ public static class Player_ViewModel_Extension
     }
     #endregion
     #region PlayerHP_UI
-    public static void BindPlayerInfoChangedEvent(this Player_ViewModel input, bool isBind)
+    public static void BindPlayerHPChangedEvent(this Player_ViewModel input, bool isBind)
     {
-        PlayerManager.instance.BindHPChanged(input.OnPlayerInfoChanged, isBind);
+        PlayerManager.instance.BindHPChanged(input.OnPlayerStaminaChanged, isBind);
     }
 
-    public static void OnPlayerInfoChanged(this Player_ViewModel input, float hp)
+    public static void OnPlayerHPChanged(this Player_ViewModel input, float hp)
     {
         input.playerInfo.HP = hp;
+        input.OnPropertyChanged(nameof(input.playerInfo));
+        input.playerInfo = input.playerInfo;
+    }
+
+    public static void BindPlayerStaminaChangedEvent(this Player_ViewModel input, bool isBind)
+    {
+        PlayerManager.instance.BindStaminaChanged(input.OnPlayerStaminaChanged, isBind);
+    }
+
+    public static void OnPlayerStaminaChanged(this Player_ViewModel input, float stamina)
+    {
+        input.playerInfo.Stamina = stamina;
+        input.OnPropertyChanged(nameof(input.playerInfo));
+        input.playerInfo = input.playerInfo;
+    }
+
+    public static void BindPlayerLifeCountChangedEvent(this Player_ViewModel input, bool isBind)
+    {
+        PlayerManager.instance.BindLifeCountChanged(input.OnPlayerLifeCountChanged, isBind);
+    }
+
+    public static void OnPlayerLifeCountChanged(this Player_ViewModel input, float lifeCount)
+    {
+        input.playerInfo.Life = lifeCount;
         input.OnPropertyChanged(nameof(input.playerInfo));
         input.playerInfo = input.playerInfo;
     }
