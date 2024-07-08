@@ -10,6 +10,15 @@ public static class Player_UI_Extension
     {
         vm.HP = HP;
     }
+    public static void RegisterPlayerMaxHPChanged(this Player_UI_ViewModel vm, bool isRegister)
+    {
+        PlayerManager.instance.BindMaxHPChanged(vm.OnPlayerMaxHpChanged, isRegister);
+    }
+
+    public static void OnPlayerMaxHpChanged(this Player_UI_ViewModel vm, float maxHp)
+    {
+        vm.MaxHP = maxHp;
+    }
 
     public static void RegisterPlayerStaminaChanged(this Player_UI_ViewModel vm, bool isRegister)
     {
@@ -20,7 +29,15 @@ public static class Player_UI_Extension
     {
         vm.Stamina = stamina;
     }
+    public static void RegisterPlayerMaxStaminaChanged(this Player_UI_ViewModel vm, bool isRegister)
+    {
+        PlayerManager.instance.BindMaxStaminaChanged(vm.OnPlayerMaxStaminaiChanged, isRegister);
+    }
 
+    public static void OnPlayerMaxStaminaiChanged(this Player_UI_ViewModel vm, float maxStamina)
+    {
+        vm.MaxStamina = maxStamina;
+    }
     public static void RegisterPlayerLifeCountChanged(this Player_UI_ViewModel vm, bool isRegister)
     {
         PlayerManager.instance.BindLifeCountChanged(vm.OnPlayerLifeCountChanged, isRegister);

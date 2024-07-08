@@ -7,12 +7,12 @@ public class StaminaBar : MonoBehaviour
 {
     [SerializeField] private Image StaminaBarLeft;
     [SerializeField] private Image StaminaBarRight;
-    public float maxHP = 100f;
-    [SerializeField] private float currentHP;
+    public float maxStamina = 100f;
+    [SerializeField] private float currentStamina;
 
     void Start()
     {
-        currentHP = maxHP;
+        currentStamina = maxStamina;
         UpdateHPBar();
     }
 
@@ -21,21 +21,33 @@ public class StaminaBar : MonoBehaviour
         UpdateHPBar();
     }
 
-    public void TakeDamage(float amount)
+    public void SetMaxStamina(float maxStamina)
     {
-        currentHP = Mathf.Clamp(currentHP - amount, 0, maxHP);
+        this.maxStamina = maxStamina;
         UpdateHPBar();
     }
 
-    public void Heal(float amount)
+    public void SetCurrentStamina(float amount)
     {
-        currentHP = Mathf.Clamp(currentHP + amount, 0, maxHP);
+        currentStamina = amount;
         UpdateHPBar();
     }
+
+    //public void TakeStamina(float amount)
+    //{
+    //    currentStamina = Mathf.Clamp(currentStamina - amount, 0, maxStamina);
+    //    UpdateHPBar();
+    //}
+
+    //public void HealStamina(float amount)
+    //{
+    //    currentStamina = Mathf.Clamp(currentStamina + amount, 0, maxStamina);
+    //    UpdateHPBar();
+    //}
 
     private void UpdateHPBar()
     {
-        float fillAmount = currentHP / maxHP;
+        float fillAmount = currentStamina / maxStamina;
         StaminaBarLeft.fillAmount = fillAmount;
         StaminaBarRight.fillAmount = fillAmount;
     }

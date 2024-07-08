@@ -137,7 +137,9 @@ public class Player : MonoBehaviour
         _viewModel.RegisterMoveVelocity(true);
         _viewModel.ReigsterLockOnTargetChanged(true);
         _viewModel.ReigsterAssassinatedTypeChanged(true);
+        _viewModel.BindPlayerMaxHPChangedEvent(true);
         _viewModel.BindPlayerHPChangedEvent(true);
+        _viewModel.BindPlayerMaxStaminaChangedEvent(true);
         _viewModel.BindPlayerStaminaChangedEvent(true);
         _viewModel.BindPlayerLifeCountChangedEvent(true);
 
@@ -154,7 +156,9 @@ public class Player : MonoBehaviour
         if (_viewModel != null)
         {
             _viewModel.BindPlayerLifeCountChangedEvent(false);
+            _viewModel.BindPlayerMaxStaminaChangedEvent(false);
             _viewModel.BindPlayerStaminaChangedEvent(false);
+            _viewModel.BindPlayerMaxHPChangedEvent(false);
             _viewModel.BindPlayerHPChangedEvent(false);
             _viewModel.ReigsterAssassinatedTypeChanged(false);
             _viewModel.ReigsterLockOnTargetChanged(false);

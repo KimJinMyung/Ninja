@@ -8,7 +8,9 @@ public class PlayerManager : MonoBehaviour
     public static PlayerManager instance;
 
     Action<float> HPChangedEvnetHandler;
+    Action<float> MaxHPChangedEventHandler;
     Action<float> StaminaUpdateEvnetHandler;
+    Action<float> MaxStaminaChangedEventHandler;
     Action<float> LifeCountUpdateEventHandler;
 
     private void Awake()
@@ -26,11 +28,21 @@ public class PlayerManager : MonoBehaviour
         if(isBind) HPChangedEvnetHandler += HPChanged;
         else HPChangedEvnetHandler -= HPChanged;
     }
+    public void BindMaxHPChanged(Action<float> maxHPChanged, bool isBind)
+    {
+        if (isBind) MaxHPChangedEventHandler += maxHPChanged;
+        else MaxHPChangedEventHandler -= maxHPChanged;
+    }
 
     public void BindStaminaChanged(Action<float> StaminaChanged, bool isBind)
     {
         if (isBind) StaminaUpdateEvnetHandler += StaminaChanged;
         else StaminaUpdateEvnetHandler -= StaminaChanged;
+    }
+    public void BindMaxStaminaChanged(Action<float> MaxStaminaChanged, bool isBind)
+    {
+        if (isBind) MaxStaminaChangedEventHandler += MaxStaminaChanged;
+        else MaxStaminaChangedEventHandler -= MaxStaminaChanged;
     }
     public void BindLifeCountChanged(Action<float> LifeCountChanged, bool isBind)
     {
@@ -42,14 +54,11 @@ public class PlayerManager : MonoBehaviour
     {
         this.player_data = player_data;
 
+        MaxHPChangedEventHandler?.Invoke(player_data.MaxHP);
         HPChangedEvnetHandler?.Invoke(player_data.HP);
+        MaxStaminaChangedEventHandler?.Invoke(player_data.MaxStamina);
         StaminaUpdateEvnetHandler?.Invoke(player_data.Stamina);
         LifeCountUpdateEventHandler?.Invoke(player_data.Life);
-    }
-
-    public Player_data GetPlayer_data()
-    {
-        return this.player_data;
     }
 
     private void Update()

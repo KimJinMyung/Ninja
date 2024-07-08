@@ -16,6 +16,17 @@ public class Player_UI_ViewModel : MonoBehaviour
             OnPropertyChanged(nameof(HP));
         }
     }
+    private float _maxHP;
+    public float MaxHP
+    {
+        get { return _maxHP; }
+        set
+        {
+            if (value == _maxHP) return;
+            _maxHP = value;
+            OnPropertyChanged(nameof(MaxHP));
+        }
+    }
     private float _stamina;
     public float Stamina
     {
@@ -25,6 +36,17 @@ public class Player_UI_ViewModel : MonoBehaviour
             if(_stamina == value) return;
             _stamina = value;
             OnPropertyChanged(nameof(Stamina));
+        }
+    }
+    private float _maxStamina;
+    public float MaxStamina
+    {
+        get { return _maxStamina; }
+        set
+        {
+            if (_maxStamina == value) return;
+            _maxStamina = value;
+            OnPropertyChanged(nameof(MaxStamina));
         }
     }
     private float _lifeCount;

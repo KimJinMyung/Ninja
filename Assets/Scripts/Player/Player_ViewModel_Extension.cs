@@ -22,7 +22,7 @@ public static class Player_ViewModel_Extension
     #region PlayerHP_UI
     public static void BindPlayerHPChangedEvent(this Player_ViewModel input, bool isBind)
     {
-        PlayerManager.instance.BindHPChanged(input.OnPlayerStaminaChanged, isBind);
+        PlayerManager.instance.BindHPChanged(input.OnPlayerHPChanged, isBind);
     }
 
     public static void OnPlayerHPChanged(this Player_ViewModel input, float hp)
@@ -31,7 +31,17 @@ public static class Player_ViewModel_Extension
         input.OnPropertyChanged(nameof(input.playerInfo));
         input.playerInfo = input.playerInfo;
     }
+    public static void BindPlayerMaxHPChangedEvent(this Player_ViewModel input, bool isBind)
+    {
+        PlayerManager.instance.BindMaxHPChanged(input.OnPlayerMaxHPChanged, isBind);
+    }
 
+    public static void OnPlayerMaxHPChanged(this Player_ViewModel input, float maxhp)
+    {
+        input.playerInfo.MaxHP = maxhp;
+        input.OnPropertyChanged(nameof(input.playerInfo));
+        input.playerInfo = input.playerInfo;
+    }
     public static void BindPlayerStaminaChangedEvent(this Player_ViewModel input, bool isBind)
     {
         PlayerManager.instance.BindStaminaChanged(input.OnPlayerStaminaChanged, isBind);
@@ -43,7 +53,17 @@ public static class Player_ViewModel_Extension
         input.OnPropertyChanged(nameof(input.playerInfo));
         input.playerInfo = input.playerInfo;
     }
+    public static void BindPlayerMaxStaminaChangedEvent(this Player_ViewModel input, bool isBind)
+    {
+        PlayerManager.instance.BindMaxStaminaChanged(input.OnPlayerMaxStaminaChanged, isBind);
+    }
 
+    public static void OnPlayerMaxStaminaChanged(this Player_ViewModel input, float maxStamina)
+    {
+        input.playerInfo.MaxStamina = maxStamina;
+        input.OnPropertyChanged(nameof(input.playerInfo));
+        input.playerInfo = input.playerInfo;
+    }
     public static void BindPlayerLifeCountChangedEvent(this Player_ViewModel input, bool isBind)
     {
         PlayerManager.instance.BindLifeCountChanged(input.OnPlayerLifeCountChanged, isBind);

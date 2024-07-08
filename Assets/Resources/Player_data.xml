@@ -1,5 +1,5 @@
 ﻿<Player_data>
   <dataCategory>
-    <data PlayerId="1" HP="100" ATK="35" WalkSpeed="1.5" RunSpeed="5" Strength="10" Stamina="300" HP_Plus="50" ATK_Plus="5" Strength_Plus="5" Stamina_Plus="10" Life="2" Exp="100" PlusExp="2"/>
+    <data PlayerId="1" HP="100" MaxHP="100" ATK="35" WalkSpeed="1.5" RunSpeed="5" Strength="10" Stamina="300" MaxStamina="300" HP_Plus="50" ATK_Plus="5" Strength_Plus="5" Stamina_Plus="10" Life="2" Exp="100" PlusExp="2"/>
   </dataCategory>
 </Player_data>

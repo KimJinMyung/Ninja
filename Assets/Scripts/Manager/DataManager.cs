@@ -128,11 +128,13 @@ public class DataManager : MonoBehaviour
             Player_data player_Data = new Player_data();
             player_Data.PlayerId = int.Parse(data.Attribute(nameof(player_Data.PlayerId)).Value);
             player_Data.HP = float.Parse(data.Attribute(nameof(player_Data.HP)).Value);
+            player_Data.MaxHP = float.Parse(data.Attribute(nameof(player_Data.MaxHP)).Value);
             player_Data.ATK = float.Parse(data.Attribute(nameof(player_Data.ATK)).Value);
             player_Data.WalkSpeed = float.Parse(data.Attribute(nameof(player_Data.WalkSpeed)).Value);
             player_Data.RunSpeed = float.Parse(data.Attribute(nameof(player_Data.RunSpeed)).Value);
             player_Data.Strength = float.Parse(data.Attribute(nameof(player_Data.Strength)).Value);
             player_Data.Stamina = float.Parse(data.Attribute(nameof(player_Data.Stamina)).Value);
+            player_Data.MaxStamina = float.Parse(data.Attribute(nameof(player_Data.MaxStamina)).Value);
             player_Data.HP_Plus = float.Parse(data.Attribute(nameof(player_Data.HP_Plus)).Value);
             player_Data.ATK_Plus = float.Parse(data.Attribute(nameof(player_Data.ATK_Plus)).Value);
             player_Data.Strength_Plus = float.Parse(data.Attribute(nameof(player_Data.Strength_Plus)).Value);

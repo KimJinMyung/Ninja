@@ -19,7 +19,9 @@ public class Player_Main_UI : MonoBehaviour
             ui_Viewmodel = new Player_UI_ViewModel();
             ui_Viewmodel.PropertyChanged += OnPropertyChanged;
             ui_Viewmodel.RegisterPlayerHPChanged(true);
+            ui_Viewmodel.RegisterPlayerMaxHPChanged(true);
             ui_Viewmodel.RegisterPlayerStaminaChanged(true);
+            ui_Viewmodel.RegisterPlayerMaxStaminaChanged(true);
             ui_Viewmodel.RegisterPlayerLifeCountChanged(true);
         }        
     }
@@ -29,7 +31,9 @@ public class Player_Main_UI : MonoBehaviour
         if (ui_Viewmodel != null)
         {
             ui_Viewmodel.RegisterPlayerHPChanged(false);
+            ui_Viewmodel.RegisterPlayerMaxHPChanged(false);
             ui_Viewmodel.RegisterPlayerStaminaChanged(false);
+            ui_Viewmodel.RegisterPlayerMaxStaminaChanged(false);
             ui_Viewmodel.RegisterPlayerLifeCountChanged(false);
             ui_Viewmodel.PropertyChanged -= OnPropertyChanged;
             ui_Viewmodel = null;
@@ -38,7 +42,8 @@ public class Player_Main_UI : MonoBehaviour
 
     private void Update()
     {
-        Debug.Log("1. : " + ui_Viewmodel.HP);
+        Debug.Log("1. : " + ui_Viewmodel.MaxHP);
+        Debug.Log("1.5 : " + ui_Viewmodel.HP);
     }
 
     private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -46,8 +51,17 @@ public class Player_Main_UI : MonoBehaviour
         switch(e.PropertyName)
         {
             case nameof(ui_Viewmodel.HP):
-                
+                HP_Bar.fillAmount = (float)ui_Viewmodel.HP/ui_Viewmodel.MaxHP;
                 break;
+            case nameof(ui_Viewmodel.MaxHP):
+                HP_Bar.rectTransform.sizeDelta += new Vector2(ui_Viewmodel.MaxHP - 100, 0);
+                break;
+            case nameof(ui_Viewmodel.MaxStamina):
+                StaminaBar.SetMaxStamina(ui_Viewmodel.MaxStamina);
+                break;
+            case nameof(ui_Viewmodel.Stamina):
+                StaminaBar.SetCurrentStamina(ui_Viewmodel.Stamina);
+                break;            
         }
     }
 }
