@@ -102,7 +102,7 @@ public class Player : MonoBehaviour
 
         if (_viewModel == null)
         {
-            _viewModel = new Player_ViewModel();
+            _viewModel = new Player_ViewModel();            
         }
     }
 
@@ -137,6 +137,7 @@ public class Player : MonoBehaviour
         _viewModel.RegisterMoveVelocity(true);
         _viewModel.ReigsterLockOnTargetChanged(true);
         _viewModel.ReigsterAssassinatedTypeChanged(true);
+        _viewModel.BindPlayerInfoChangedEvent(true);
 
         SetPlayerInfo();
         InitRotation();
@@ -150,6 +151,7 @@ public class Player : MonoBehaviour
     {
         if (_viewModel != null)
         {
+            _viewModel.BindPlayerInfoChangedEvent(false);
             _viewModel.ReigsterAssassinatedTypeChanged(false);
             _viewModel.ReigsterLockOnTargetChanged(false);
             _viewModel.RegisterMoveVelocity(false);
@@ -210,6 +212,26 @@ public class Player : MonoBehaviour
         }        
     }    
 
+    public void OnResurrection(InputAction.CallbackContext context)
+    {
+        if(context.started)
+        {
+            if(_viewModel.playerState == State.Die && isResurrectionAble)
+            {
+                ResurrectPlayer();
+                return;
+            }
+        }
+    }
+
+    public void ResurrectPlayer()
+    {
+        _viewModel.RequestStateChanged(player_id, State.Idle);
+        _viewModel.playerInfo.HP = player_info.HP;
+        _viewModel.playerInfo.Stamina = player_info.Stamina;
+        isResurrectionAble = false;
+    }
+
     private void ClimbAnimationStart(ParkourAction action)
     {
         currentAction = action;
@@ -228,6 +250,8 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
+        IsDead();
+
         Gravity();
         MoveSpeed();
 
@@ -251,7 +275,24 @@ public class Player : MonoBehaviour
         _stateMachine.OnFixedUpdate();
 
         Rotation();
-    }       
+    }
+
+    public bool isResurrectionAble;
+
+    private void IsDead()
+    {
+        if(_viewModel.playerState == State.Die)
+        {
+            if(player_info.Life > 0)
+            {
+                isResurrectionAble = true;
+            }
+            else
+            {
+                //사망 UI On
+            }
+        }
+    }
 
     private void MoveSpeed()
     {
@@ -421,8 +462,11 @@ public class Player : MonoBehaviour
                 }
 
                 //방어 성공
-                player_info.Stamina -= attacker.MonsterViewModel.MonsterInfo.Strength;
-                if (player_info.Stamina > 0f)
+                Player_data StaminaData = _viewModel.playerInfo;
+                StaminaData.Stamina -= attacker.MonsterViewModel.MonsterInfo.Strength;
+                _viewModel.RequestPlayerDataChanged(player_id, StaminaData);
+
+                if (_viewModel.playerInfo.Stamina > 0f)
                 {
                     _viewModel.RequestStateChanged(player_id, State.Defence);
                     return;
@@ -434,14 +478,16 @@ public class Player : MonoBehaviour
                 }
 
             }
-        }      
+        }
 
-        player_info.HP -= damage;
+        Player_data HPData = _viewModel.playerInfo;
+        HPData.HP -= damage;
+        _viewModel.RequestPlayerDataChanged(player_id, HPData);
 
         //UnityEngine.Debug.Log(player_info.HP);
         AttackDir(attacker.transform.position);
 
-        if (player_info.HP > 0f)
+        if (_viewModel.playerInfo.HP > 0f)
         {
             _viewModel.RequestStateChanged(player_id, State.Hurt);
             return;

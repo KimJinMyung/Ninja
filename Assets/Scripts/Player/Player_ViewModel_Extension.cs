@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Windows;
 
 public static class Player_ViewModel_Extension
 {
@@ -18,6 +19,19 @@ public static class Player_ViewModel_Extension
         input.playerState = state;
     }
     #endregion
+    #region PlayerHP_UI
+    public static void BindPlayerInfoChangedEvent(this Player_ViewModel input, bool isBind)
+    {
+        PlayerManager.instance.BindHPChanged(input.OnPlayerInfoChanged, isBind);
+    }
+
+    public static void OnPlayerInfoChanged(this Player_ViewModel input, float hp)
+    {
+        input.playerInfo.HP = hp;
+        input.OnPropertyChanged(nameof(input.playerInfo));
+        input.playerInfo = input.playerInfo;
+    }
+    #endregion
     #region PlayerInfo
     public static void RegisterPlayerDataChanged(this Player_ViewModel input, int ActirId, bool isRegister)
     {
@@ -30,6 +44,7 @@ public static class Player_ViewModel_Extension
     public static void OnResponsePlayerDataChangedEvent(this Player_ViewModel input, Player_data data)
     {
         input.playerInfo = data;
+        PlayerManager.instance.SetPlayer_data(data);
     }
     #endregion
     #region Move

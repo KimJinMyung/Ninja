@@ -229,8 +229,8 @@ public class Monster : MonoBehaviour
         //    }
         //}
 
-        Debug.Log(_monsterState.MonsterInfo.Stamina);
-        Debug.Log(_monsterState.MonsterState);
+        //Debug.Log(_monsterState.MonsterInfo.Stamina);
+        //Debug.Log(_monsterState.MonsterState);
 
         UpdateAttackMethod();
         _monsterStateMachine.OnUpdate();
@@ -522,7 +522,7 @@ public class Monster : MonoBehaviour
     {
         float addParriedPower = 50f;
 
-        _monsterState.MonsterInfo.Stamina -= attacker.Player_Info.Strength * addParriedPower;
+        _monsterState.MonsterInfo.Stamina -= attacker.ViewModel.playerInfo.Strength * addParriedPower;
 
         _monsterState.RequestStateChanged(monsterId, State.Parried);
     }
@@ -532,16 +532,16 @@ public class Monster : MonoBehaviour
     public int BossCurrentAttackIndex { get; private set; }
 
     //디버그용
-    //public void SetAttackMethodIndex(int attackType, int attackIndex)
-    //{
-    //    BossAttackTypeIndex= attackType;
-    //    BossCurrentAttackIndex = attackIndex;
+    public void SetAttackMethodIndex(int attackType, int attackIndex)
+    {
+        BossAttackTypeIndex = attackType;
+        BossCurrentAttackIndex = attackIndex;
 
-    //    if (BossAttackTypeIndex == 0 && BossCurrentAttackIndex >= 1)
-    //    {
-    //        BossCurrentAttackIndex %= 2;
-    //    }       
-    //}
+        if (BossAttackTypeIndex == 0 && BossCurrentAttackIndex >= 1)
+        {
+            BossCurrentAttackIndex %= 2;
+        }
+    }
 
     public void SetAttackMethodIndex()
     {

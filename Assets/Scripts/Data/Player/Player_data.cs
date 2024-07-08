@@ -12,6 +12,9 @@ public class Player_data
     public float ATK_Plus { get; set; }
     public float Strength_Plus { get; set; }
     public float Stamina_Plus { get; set; }
+    public float Life {  get; set; }
+    public float Exp {  get; set; }
+    public float PlusExp {  get; set; }
 
     public Player_data Clone()
     {
@@ -27,6 +30,9 @@ public class Player_data
             ATK_Plus = this.ATK_Plus,
             Strength_Plus = this.Strength_Plus,
             Stamina_Plus = this.Stamina_Plus,
+            Life = this.Life,
+            Exp = this.Exp,
+            PlusExp = this.PlusExp,
         };
     }
 }

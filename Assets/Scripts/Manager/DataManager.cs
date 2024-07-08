@@ -137,6 +137,9 @@ public class DataManager : MonoBehaviour
             player_Data.ATK_Plus = float.Parse(data.Attribute(nameof(player_Data.ATK_Plus)).Value);
             player_Data.Strength_Plus = float.Parse(data.Attribute(nameof(player_Data.Strength_Plus)).Value);
             player_Data.Stamina_Plus = float.Parse(data.Attribute(nameof(player_Data.Stamina_Plus)).Value);
+            player_Data.Life = float.Parse(data.Attribute(nameof(player_Data.Life)).Value);
+            player_Data.Exp = float.Parse(data.Attribute(nameof(player_Data.Exp)).Value);
+            player_Data.PlusExp = float.Parse(data.Attribute(nameof(player_Data.PlusExp)).Value);
 
             LoadPlayerData.Add(player_Data.PlayerId, player_Data);
         }

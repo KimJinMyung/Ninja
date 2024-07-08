@@ -80,7 +80,7 @@ public class AttackBox : MonoBehaviour
                     Monster target = collider.GetComponent<Monster>();
                     if(target != null)
                     {                      
-                        target.Hurt(owner_player.Player_Info.ATK, owner_player);
+                        target.Hurt(owner_player.ViewModel.playerInfo.ATK, owner_player);
 
                         Debug.Log($"플레이어의 공격 : {target.name}이 공격을 받음");
                     }                    

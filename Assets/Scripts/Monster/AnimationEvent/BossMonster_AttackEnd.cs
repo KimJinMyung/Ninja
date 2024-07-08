@@ -41,8 +41,12 @@ public class BossMonster_AttackEnd : StateMachineBehaviour
         {
             case 0:
                 if (isNotEnd)
-                {                    
-                    if(owner.BossCurrentAttackIndex == 0)
+                {
+                    owner.rb.useGravity = false;
+                    owner.Agent.enabled = false;
+                    owner.rb.isKinematic = false;
+
+                    if (owner.BossCurrentAttackIndex == 0)
                         owner.rb.AddForce(Vector3.up * JumpPower + JumpDashPower * jumpDirection, ForceMode.Impulse);
                 }
                 else
@@ -179,7 +183,7 @@ public class BossMonster_AttackEnd : StateMachineBehaviour
         owner.rb.useGravity = false;
         owner.rb.velocity = Vector3.zero;
         yield return new WaitForSeconds(0.5f);
-        owner.animator.SetTrigger("NextAttack");
+        owner.animator.SetTrigger("NextAction");
         owner.rb.useGravity = true;
         owner.rb.isKinematic = false;
     }

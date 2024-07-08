@@ -146,50 +146,50 @@ public class ActorLogicManager : MonoBehaviour
         }
     }
 
-    public void RegisterHpChangedCallback(int actorId,Action<float> hpChangedCallback, bool isRegister)
-    {
-        if (isRegister)
-        {
-            if (!_hpChangedCallbacks.ContainsKey(actorId))
-            {
-                _hpChangedCallbacks[actorId] = hpChangedCallback;
-            }
-            else
-            {
-                _hpChangedCallbacks.Add(actorId, hpChangedCallback);
-            }
-        }
-        else
-        {
-            if (_hpChangedCallbacks.ContainsKey(actorId))
-            {
-                _hpChangedCallbacks[actorId] -= hpChangedCallback;
-                if (_hpChangedCallbacks[actorId] == null) _hpChangedCallbacks.Remove(actorId);
-            }
-        }
-    }
-    public void RegisterPlayerInfoChangedCallback(int actorId, Action<Player_data> playerInfoChangedCallback, bool isRegister)
-    {
-        if (isRegister)
-        {
-            if (!_playerInfoChangedCallbacks.ContainsKey(actorId))
-            {
-                _playerInfoChangedCallbacks[actorId] = playerInfoChangedCallback;
-            }
-            else
-            {
-                _playerInfoChangedCallbacks.Add(actorId, playerInfoChangedCallback);
-            }
-        }
-        else
-        {
-            if (_playerInfoChangedCallbacks.ContainsKey(actorId))
-            {
-                _playerInfoChangedCallbacks[actorId] -= playerInfoChangedCallback;
-                if (_playerInfoChangedCallbacks[actorId] == null) _playerInfoChangedCallbacks.Remove(actorId);
-            }
-        }
-    }
+    //public void RegisterHpChangedCallback(int actorId,Action<float> hpChangedCallback, bool isRegister)
+    //{
+    //    if (isRegister)
+    //    {
+    //        if (!_hpChangedCallbacks.ContainsKey(actorId))
+    //        {
+    //            _hpChangedCallbacks[actorId] = hpChangedCallback;
+    //        }
+    //        else
+    //        {
+    //            _hpChangedCallbacks.Add(actorId, hpChangedCallback);
+    //        }
+    //    }
+    //    else
+    //    {
+    //        if (_hpChangedCallbacks.ContainsKey(actorId))
+    //        {
+    //            _hpChangedCallbacks[actorId] -= hpChangedCallback;
+    //            if (_hpChangedCallbacks[actorId] == null) _hpChangedCallbacks.Remove(actorId);
+    //        }
+    //    }
+    //}
+    //public void RegisterPlayerInfoChangedCallback(int actorId, Action<Player_data> playerInfoChangedCallback, bool isRegister)
+    //{
+    //    if (isRegister)
+    //    {
+    //        if (!_playerInfoChangedCallbacks.ContainsKey(actorId))
+    //        {
+    //            _playerInfoChangedCallbacks[actorId] = playerInfoChangedCallback;
+    //        }
+    //        else
+    //        {
+    //            _playerInfoChangedCallbacks.Add(actorId, playerInfoChangedCallback);
+    //        }
+    //    }
+    //    else
+    //    {
+    //        if (_playerInfoChangedCallbacks.ContainsKey(actorId))
+    //        {
+    //            _playerInfoChangedCallbacks[actorId] -= playerInfoChangedCallback;
+    //            if (_playerInfoChangedCallbacks[actorId] == null) _playerInfoChangedCallbacks.Remove(actorId);
+    //        }
+    //    }
+    //}
 
     public void RegisterLockOnTargetListChangedCallback(Action<List<Transform>> lockOnTargetListChangedCallback, bool isRegister)
     {
@@ -303,14 +303,14 @@ public class ActorLogicManager : MonoBehaviour
         if (_InfoChangedCallback.ContainsKey(actorId)) _InfoChangedCallback[actorId]?.Invoke(info);
     }
 
-    public void OnHpChanged(int actorId,float damage)
-    {
-        if (_hpChangedCallbacks.ContainsKey(actorId)) _hpChangedCallbacks[actorId]?.Invoke(damage);
-    }
-    public void OnPlayerInfoChanged(int actorId, Player_data data)
-    {
-        if (_playerInfoChangedCallbacks.ContainsKey(actorId)) _playerInfoChangedCallbacks[actorId]?.Invoke(data);
-    }
+    //public void OnHpChanged(int actorId,float damage)
+    //{
+    //    if (_hpChangedCallbacks.ContainsKey(actorId)) _hpChangedCallbacks[actorId]?.Invoke(damage);
+    //}
+    //public void OnPlayerInfoChanged(int actorId, Player_data data)
+    //{
+    //    if (_playerInfoChangedCallbacks.ContainsKey(actorId)) _playerInfoChangedCallbacks[actorId]?.Invoke(data);
+    //}
     public void OnLockOnTargetList(List<Transform> lockOnTargetList)
     {
         if(_lockOnTargetListChangedCallback == null) return;

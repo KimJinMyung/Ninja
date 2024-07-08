@@ -41,6 +41,8 @@ public class PlayerState : ActorState
     protected readonly int hashForward = Animator.StringToHash("Forward");
     protected readonly int hashUpper = Animator.StringToHash("Upper");
     protected readonly int hashGrounded = Animator.StringToHash("IsGround");
+    protected readonly int hashIncapacitated = Animator.StringToHash("Incapacitated");
+    protected readonly int hashTriggerIncapacitate = Animator.StringToHash("Incapacitate");
 
     public override void Update()
     {
@@ -74,6 +76,7 @@ public class Player_IdleState : PlayerState
     public override void Enter()
     {
         base.Enter();
+        owner.Animator.SetBool(hashDead, false);
     }
 
     public override void Update()
@@ -279,6 +282,38 @@ public class IncapacitatedState : PlayerState
 {
     public IncapacitatedState(Player owner) : base(owner) { }
 
+    private float _timer;
+    public override void Enter()
+    {
+        base.Enter();
+        owner.ViewModel.playerInfo.Stamina = 0;
+        _timer = 0;
+
+        owner.Animator.SetBool(hashIncapacitated, true);
+        owner.Animator.SetTrigger(hashTriggerIncapacitate);
+    }
+
+    public override void Update()
+    {
+        base.Update();
+
+        if(_timer < 3f)
+        {
+            _timer += Time.deltaTime;
+        }
+        else
+        {
+            owner.ViewModel.RequestStateChanged(owner.player_id, State.Battle);
+            return;
+        }
+    }
+
+    public override void Exit()
+    {
+        base.Exit();
+        owner.Animator.SetBool(hashIncapacitated, false);
+        owner.ViewModel.playerInfo.Stamina = owner.Player_Info.Stamina;
+    }
 }
 public class UsingItemState : PlayerState
 {
@@ -303,6 +338,8 @@ public class HurtState : PlayerState
         owner.Animator.SetBool(hashAttackAble, false);
     }
 
+
+
     public override void Exit()
     {
         base.Exit();
@@ -317,6 +354,7 @@ public class DieState : PlayerState
         base.Enter();
         owner.Animator.SetBool(hashDie, true);
         owner.Animator.SetTrigger(hashDead);
+        owner.ViewModel.playerInfo.Life--;
     }
 
     public override void Exit()
