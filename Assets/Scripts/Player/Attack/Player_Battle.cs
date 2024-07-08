@@ -107,7 +107,7 @@ public class Player_Battle : MonoBehaviour
                     }
                 }
             }
-            else if(ViewMonster != null && ViewMonster.Type != monsterType.Boss)
+            else if(ViewMonster != null && ViewMonster.Type != MonsterType.Boss)
             {
                 float dotProductWithPlayer = Vector3.Dot(ViewMonster.transform.forward, owner.transform.forward);
 

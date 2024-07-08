@@ -86,7 +86,7 @@ public class MonsterManager : MonoBehaviour
 
         foreach (var monster in _monsterLists.Values)
         {
-            if (monster.Type == monsterType.Boss) continue;
+            if (monster.Type == MonsterType.Boss) continue;
             if (monster != null && monster.MonsterViewModel.TraceTarget != null)
             {
                 hasTarget = true;
@@ -108,7 +108,7 @@ public class MonsterManager : MonoBehaviour
         foreach (var monster in _monsterLists.Values)
         {
             Monster newMonster = monster.GetComponent<Monster>();
-            if (newMonster.Type == monsterType.Boss) continue;
+            if (newMonster.Type == MonsterType.Boss) continue;
 
             if (newMonster.MonsterViewModel.MonsterState != State.Battle) continue;
 

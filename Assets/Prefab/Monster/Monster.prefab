@@ -2400,7 +2400,7 @@ GameObject:
   - component: {fileID: 9199670548363021254}
   - component: {fileID: 9199670548363021240}
   m_Layer: 7
-  m_Name: Monster_A
+  m_Name: Monster
   m_TagString: Monster
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2460,8 +2460,8 @@ MonoBehaviour:
     weaponMesh: {fileID: 2599184593576131307}
   - WeaponsType: 3
     weaponMesh: {fileID: 2599184593576131307}
-  - WeaponsType: 3
-    weaponMesh: {fileID: 2599184593576131307}
+  - WeaponsType: 4
+    weaponMesh: {fileID: 9199670547687673321}
   throwShurikenPoint: {fileID: 540015366}
 --- !u!95 &9199670548099432966
 Animator:
@@ -3926,7 +3926,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Eyes: {fileID: 9199670548106545376}
-  aa: {fileID: 0}
 --- !u!1001 &172704120533513413
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4188,6 +4187,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0d0dd636cf6e86e46be04857f3d2a353, type: 3}
+--- !u!1 &9199670547687673321 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2553150048707846171, guid: 0d0dd636cf6e86e46be04857f3d2a353, type: 3}
+  m_PrefabInstance: {fileID: 6684845902320676338}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &9199670547687673322 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2553150048707846168, guid: 0d0dd636cf6e86e46be04857f3d2a353, type: 3}

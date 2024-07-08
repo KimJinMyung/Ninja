@@ -12,11 +12,11 @@ public static class Monster_Extension
     {
         ActorLogicManager._instance.RegisterMonsterTypeChangedCallback(acotrId, monster_A.OnResponseMonsterTypeChangedEvent, isRegister);
     }
-    public static void RequestMonsterTypeChanged(this Monster_Status_ViewModel monster_A, int acotrId, monsterType type)
+    public static void RequestMonsterTypeChanged(this Monster_Status_ViewModel monster_A, int acotrId, MonsterType type)
     {
         ActorLogicManager._instance.OnChangedMonsterType(acotrId, type);
     }
-    public static void OnResponseMonsterTypeChangedEvent(this Monster_Status_ViewModel monster_A, monsterType type)
+    public static void OnResponseMonsterTypeChangedEvent(this Monster_Status_ViewModel monster_A, MonsterType type)
     {
         monster_A.MonsterType = type;
     }

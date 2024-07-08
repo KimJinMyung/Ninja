@@ -8,7 +8,7 @@ using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.AI;
 using static UnityEngine.UI.GridLayoutGroup;
-public enum monsterType
+public enum MonsterType
 {
     monster_A,
     monster_B,
@@ -24,13 +24,13 @@ public enum MonsterFileType
 public class Monster : MonoBehaviour
 {
     [Header("Monster Type")]
-    [SerializeField] private monsterType type;
-    public monsterType Type { get { return type; } }
+    [SerializeField] private MonsterType type;
+    public MonsterType Type { get { return type; } set { type = value; } }
 
     [Serializable]
     public class MonsterMesh
     {
-        public monsterType _monsterType;
+        public MonsterType _monsterType;
         public GameObject mesh;
         public AnimatorController animation_controller;
     }
@@ -51,7 +51,7 @@ public class Monster : MonoBehaviour
     [SerializeField] Transform throwShurikenPoint;
     public Transform ThrowShurikenPoint { get { return throwShurikenPoint; } }
 
-    private Dictionary<monsterType, MonsterMesh> monsterMesh;
+    private Dictionary<MonsterType, MonsterMesh> monsterMesh;
 
     private Monster_data _initMonsterData;
     public Monster_data InitMonsterData { get { return _initMonsterData; } }
@@ -68,7 +68,7 @@ public class Monster : MonoBehaviour
     public Rigidbody rb {  get; private set; }
     public NavMeshAgent Agent { get; private set; }
     public Animator animator { get; private set; }
-
+    private Monster_DetectZone zone;
     public AttackBox attackBox {  get; private set; }
 
     private float KnockBackDuration = 0.2f;
@@ -84,8 +84,9 @@ public class Monster : MonoBehaviour
         Agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
+        zone = GetComponentInChildren<Monster_DetectZone>();
 
-        monsterMesh = new Dictionary<monsterType, MonsterMesh>();
+        monsterMesh = new Dictionary<MonsterType, MonsterMesh>();
 
         foreach(MonsterMesh monster in monsterMeshes)
         {
@@ -95,10 +96,52 @@ public class Monster : MonoBehaviour
 
         _monsterStateMachine = gameObject.AddComponent<StateMachine>();
 
-        if (type != monsterType.Boss) AddMonsterState_Common();
+      
+    }
+
+    public void SetStateOnCreate(MonsterType type)
+    {
+        this.type = type;
+
+        if (type != MonsterType.Boss) AddMonsterState_Common();
         else AddMonsterState_Boss();
 
         _monsterStateMachine.InitState(State.Idle);
+
+        if (_monsterState == null)
+        {
+            _monsterState = new Monster_Status_ViewModel();
+            _monsterState.PropertyChanged += OnPropertyChanged;
+            _monsterState.RegisterMonsterTypeChanged(monsterId, true);
+            _monsterState.RegisterStateChanged(monsterId, true);
+            _monsterState.RegisterMonsterInfoChanged(monsterId, true);
+            _monsterState.RegisterAttackMethodChanged(monsterId, true);
+            _monsterState.RegisterTraceTargetChanged(monsterId, true);
+        }
+
+        _monsterState.RequestMonsterTypeChanged(monsterId, type);
+
+        ReadData_MonsterInfo(type);
+
+        AttackBox[] foundAttackBoxes = GetComponentsInChildren<AttackBox>();
+        foreach (AttackBox attackBox in foundAttackBoxes)
+        {
+            if (attackBox.gameObject.activeSelf)
+            {
+                this.attackBox = attackBox;
+            }
+        }
+
+        if (attackBox != null) attackBox.gameObject.SetActive(false);
+
+        MonsterManager.instance.SpawnMonster(this);
+
+        _monsterState.RequestStateChanged(monsterId, State.Idle);
+
+        zone.DefaultDetectRange();
+
+        if (animator.layerCount >= 2)
+            animator.SetLayerWeight(1, 1);
     }
 
     private void AddMonsterState_Common()
@@ -133,40 +176,7 @@ public class Monster : MonoBehaviour
     {
         monsterId = this.gameObject.GetInstanceID();
 
-        if(_monsterState == null)
-        {
-            _monsterState = new Monster_Status_ViewModel();
-            _monsterState.PropertyChanged += OnPropertyChanged;
-            _monsterState.RegisterMonsterTypeChanged(monsterId, true);
-            _monsterState.RegisterStateChanged(monsterId, true);
-            _monsterState.RegisterMonsterInfoChanged(monsterId, true);
-            _monsterState.RegisterAttackMethodChanged(monsterId, true);
-            _monsterState.RegisterTraceTargetChanged(monsterId, true);
-        }
-
-        _monsterState.RequestMonsterTypeChanged(monsterId, type);
-
-        ReadData_MonsterInfo(type);
-
-        AttackBox[] foundAttackBoxes = GetComponentsInChildren<AttackBox>();
-        foreach (AttackBox attackBox in foundAttackBoxes)
-        {
-            if (attackBox.gameObject.activeSelf)
-            {
-                this.attackBox = attackBox;
-            }
-        }
-
-        if(attackBox != null) attackBox.gameObject.SetActive(false);
-
-        MonsterManager.instance.SpawnMonster(this);
-
-        monsterHeight = GetComponent<CapsuleCollider>().height;
-
-        if(animator.layerCount >= 2)
-            animator.SetLayerWeight(1, 1);
-
-        _monsterState.RequestStateChanged(monsterId, State.Idle);
+        monsterHeight = GetComponent<CapsuleCollider>().height;     
     }
 
     private void OnDisable()
@@ -185,7 +195,7 @@ public class Monster : MonoBehaviour
 
     public float CombatMovementTimer {  get; set; }
 
-    private void ReadData_MonsterInfo(monsterType type)
+    private void ReadData_MonsterInfo(MonsterType type)
     {
         var monster = DataManager.Instance.GetMonsterData((int)type);
         if (monster == null) return;
@@ -198,7 +208,7 @@ public class Monster : MonoBehaviour
         UpdateAttackMethod_Data(monster);
     }
 
-    private void ChangedCharacterMesh(monsterType type)
+    private void ChangedCharacterMesh(MonsterType type)
     {
         monsterMesh[type].mesh.SetActive(true);
         animator.runtimeAnimatorController = monsterMesh[type].animation_controller;
@@ -207,10 +217,12 @@ public class Monster : MonoBehaviour
 
     private void Update()
     {
-        // 디버그 확인용
-        //if(_monsterState != null)
+        if (_monsterState == null) return;
+
+        //디버그 확인용
+        //if (_monsterState != null)
         //{
-        //    if(_monsterState.MonsterType != type)
+        //    if (_monsterState.MonsterType != type)
         //    {
         //        monsterMesh[_monsterState.MonsterType].mesh.SetActive(false);
         //        _monsterState.RequestMonsterTypeChanged(monsterId, type);
@@ -336,7 +348,7 @@ public class Monster : MonoBehaviour
                 return;
             }
 
-            if (type == monsterType.Boss && _monsterState.MonsterState != State.Idle) return;
+            if (type == MonsterType.Boss && _monsterState.MonsterState != State.Idle) return;
             
             _monsterState.RequestTraceTargetChanged(monsterId, attacker.transform);
             _monsterState.RequestStateChanged(monsterId, State.Hurt);
@@ -386,7 +398,7 @@ public class Monster : MonoBehaviour
             {
                 rb.isKinematic = true;
 
-                if (type == monsterType.Boss) _monsterState.RequestStateChanged(monsterId, State.Idle);
+                if (type == MonsterType.Boss) _monsterState.RequestStateChanged(monsterId, State.Idle);
                 else _monsterState.RequestStateChanged(monsterId, State.Battle);
                 animator.SetBool("IsKinematic", true);
             }
@@ -520,16 +532,16 @@ public class Monster : MonoBehaviour
     public int BossCurrentAttackIndex { get; private set; }
 
     //디버그용
-    public void SetAttackMethodIndex(int attackType, int attackIndex)
-    {
-        BossAttackTypeIndex= attackType;
-        BossCurrentAttackIndex = attackIndex;
+    //public void SetAttackMethodIndex(int attackType, int attackIndex)
+    //{
+    //    BossAttackTypeIndex= attackType;
+    //    BossCurrentAttackIndex = attackIndex;
 
-        if (BossAttackTypeIndex == 0 && BossCurrentAttackIndex >= 1)
-        {
-            BossCurrentAttackIndex %= 2;
-        }       
-    }
+    //    if (BossAttackTypeIndex == 0 && BossCurrentAttackIndex >= 1)
+    //    {
+    //        BossCurrentAttackIndex %= 2;
+    //    }       
+    //}
 
     public void SetAttackMethodIndex()
     {

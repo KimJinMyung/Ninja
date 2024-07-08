@@ -19,7 +19,7 @@ public class Monster_DetectZone : MonoBehaviour
 
     private void OnEnable()
     {
-        DefaultDetectRange();
+        //DefaultDetectRange();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -30,14 +30,14 @@ public class Monster_DetectZone : MonoBehaviour
         }
     }
 
-    private void DefaultDetectRange()
+    public void DefaultDetectRange()
     {
         collider.radius = owner.MonsterViewModel.MonsterInfo.ViewRange;
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if(owner.Type == monsterType.Boss) return;
+        if(owner.Type == MonsterType.Boss) return;
 
         if (other.CompareTag("Player"))
         {

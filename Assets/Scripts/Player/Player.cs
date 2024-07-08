@@ -415,7 +415,7 @@ public class Player : MonoBehaviour
 
             if (animator.GetBool(hashDefence))
             {
-                if(attacker.Type == monsterType.Boss && (attacker.BossAttackTypeIndex == 0 || attacker.BossAttackTypeIndex == 2))
+                if(attacker.Type == MonsterType.Boss && (attacker.BossAttackTypeIndex == 0 || attacker.BossAttackTypeIndex == 2))
                 {
                     StartCoroutine(PushBack(attacker.transform.position, 3));
                 }

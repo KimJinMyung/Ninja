@@ -90,9 +90,7 @@ public class BossMonster_IdleState : BossMonsterStateMachine
 
         owner.Agent.speed = owner.MonsterViewModel.MonsterInfo.WalkSpeed;
 
-        //AttackStateMachineName = owner.GetRandomSubStateMachineName(out attackTypeIndex);
-        owner.SetAttackMethodIndex(2,0);
-        //currentAttackIndex = Random.Range(0, owner.SearchSubStateMachineStates(AttackStateMachineName).Count);
+        owner.SetAttackMethodIndex();
 
         _attackDelayTimer = 0f;
         attackDelay = owner.MonsterViewModel.CurrentAttackMethod.AttackSpeed - Random.Range(0f, owner.MonsterViewModel.CurrentAttackMethod.AttackSpeed);
@@ -122,8 +120,6 @@ public class BossMonster_IdleState : BossMonsterStateMachine
             //공격 패턴 index 정하기
             //점프 공격으로 정해지면 Attack State 로
             //그렇지 않으면 공격 거리를 좁히기 위하여 Run State로 변경한다
-
-            //owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.RetreatAfterAttack);
             if (owner.BossAttackTypeIndex == 0) owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.Attack);
             else owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.Run);
             return;
@@ -325,7 +321,6 @@ public class BossMonster_AttackState : BossMonsterStateMachine
             return;
         }
 
-        //owner.Agent.Move(targetDir * owner.Agent.speed * Time.deltaTime);
         if(owner.Agent.enabled)
             owner.Agent.SetDestination(target.position);
 

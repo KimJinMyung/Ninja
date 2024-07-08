@@ -35,6 +35,8 @@ public class MonsterState : ActorState
     {
         base.Update();
 
+        if(owner.MonsterViewModel == null) return;
+
         owner.animator.SetBool("ComBatMode", owner.MonsterViewModel.TraceTarget != null);
 
         owner.animator.SetFloat("MoveSpeed", MovementValue);
@@ -72,7 +74,7 @@ public class Monster_IdleState : MonsterState
             _timer = Mathf.Clamp(_timer + Time.deltaTime, 0f, _patrolDelay);
             if(_timer >= _patrolDelay)
             {
-                //owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.Walk);
+                owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.Walk);
                 return;
             }
         }
@@ -124,14 +126,20 @@ public class Monster_PatrolState : MonsterState
 
     protected virtual Vector3 RandomPoint()
     {
-        while (true)
+        int maxAttempts = 30;
+        int attempts = 0;
+
+        while (attempts < maxAttempts)
         {
             Vector3 randomPoint = owner.transform.position + Random.insideUnitSphere * _distance;
             if (NavMesh.SamplePosition(randomPoint, out NavMeshHit hit, 1.0f, (1 << NavMesh.GetAreaFromName("Walkable"))))
             {
                 return hit.position;
             }
+            attempts++;
         }
+
+        return owner.transform.position;
     }
 }
 
@@ -293,8 +301,6 @@ public class Monster_BattleState : MonsterState
             return;
         }
 
-        //Debug.Log($"{owner.MonsterViewModel.MonsterState} {owner.Agent.remainingDistance}/{owner.Agent.stoppingDistance + 1.5f}");
-
         if (owner.Agent.remainingDistance > owner.Agent.stoppingDistance + 1.5f)
         {
             owner.MonsterViewModel.RequestStateChanged(monsterId, State.Run);
@@ -321,8 +327,6 @@ public class Monster_BattleState : MonsterState
         direction.y= 0f;
         Quaternion targetRotation = Quaternion.LookRotation(direction.normalized);
         owner.transform.rotation = Quaternion.Slerp(owner.transform.rotation, targetRotation, 3f * Time.deltaTime);
-
-        //owner.transform.LookAt(owner.MonsterViewModel.TraceTarget);
     }
 }
 
@@ -400,7 +404,6 @@ public class Monster_CirclingState : MonsterState
             owner.MonsterViewModel.RequestStateChanged(monsterId, State.Run);
             return;
         }
-        //Debug.Log($"{owner.MonsterViewModel.MonsterState} {owner.Agent.remainingDistance}/{owner.Agent.stoppingDistance + 1.5f}");
 
         _time = Mathf.Clamp(_time + Time.deltaTime, 0f, _circleTimeRange);
         if(_time >= _circleTimeRange)

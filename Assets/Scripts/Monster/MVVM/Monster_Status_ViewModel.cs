@@ -5,8 +5,8 @@ using UnityEngine.InputSystem.iOS;
 
 public class Monster_Status_ViewModel
 {
-    private monsterType _monsterType;
-    public monsterType MonsterType
+    private MonsterType _monsterType;
+    public MonsterType MonsterType
     {
         get { return _monsterType; }
         set
