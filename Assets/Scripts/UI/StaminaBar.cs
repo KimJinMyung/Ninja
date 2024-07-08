@@ -43,7 +43,6 @@ public class StaminaBar : MonoBehaviour
     private void UpdateHPBar()
     {
         float fillAmount = (float)(currentStamina / maxStamina);
-        Debug.Log("33 : " + fillAmount);
         StaminaBarLeft.fillAmount = fillAmount;
         StaminaBarRight.fillAmount = fillAmount;
     }

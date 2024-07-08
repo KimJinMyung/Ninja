@@ -40,12 +40,6 @@ public class Player_Main_UI : MonoBehaviour
         }
     }
 
-    private void Update()
-    {
-        Debug.Log("1.6 : " + ui_Viewmodel.Stamina);
-        Debug.Log("1.8 : "+ ui_Viewmodel.MaxStamina);
-    }
-
     private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
     { 
         switch(e.PropertyName)

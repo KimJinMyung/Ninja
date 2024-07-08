@@ -92,7 +92,7 @@ public class BossMonster_IdleState : BossMonsterStateMachine
         owner.Agent.stoppingDistance = 0;
         owner.Agent.speed = owner.MonsterViewModel.MonsterInfo.WalkSpeed;
 
-        owner.SetAttackMethodIndex(1,0);
+        owner.SetAttackMethodIndex(0,0);
 
         _attackDelayTimer = 0f;
         attackDelay = owner.MonsterViewModel.CurrentAttackMethod.AttackSpeed - Random.Range(0f, owner.MonsterViewModel.CurrentAttackMethod.AttackSpeed);
