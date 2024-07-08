@@ -58,7 +58,7 @@ public class AttackBox : MonoBehaviour
         {
             if (owner_player.ViewModel.playerState != State.Attack) return;
         }
-        else if (owner_monster != null)
+        else if (owner_monster != null && owner_monster.MonsterViewModel != null)
         {
             if (owner_monster.MonsterViewModel.MonsterState != State.Attack) return;
         }
