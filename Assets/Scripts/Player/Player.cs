@@ -334,7 +334,7 @@ public class Player : MonoBehaviour
 
         Debug.DrawRay(transform.position, Vector3.down * 0.01f, Color.red);
 
-        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 0.01f, gravityLayermask) && _velocity <= 0.1f)
+        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 0.1f, gravityLayermask) && _velocity <= 0.1f)
         {
             _velocity = 0f;
             isGround = true;

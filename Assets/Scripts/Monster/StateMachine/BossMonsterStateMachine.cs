@@ -1,6 +1,7 @@
 using ActorStateMachine;
 using System.Collections;
 using System.Data.Common;
+using System.Net;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -49,6 +50,8 @@ public class BossMonsterStateMachine : ActorState
 
         if (owner.MonsterViewModel.MonsterState == State.Die) return;
 
+        Debug.Log(owner.MonsterViewModel.MonsterState);
+
         if (owner.MonsterViewModel != null)
             target = owner.MonsterViewModel.TraceTarget;
 
@@ -89,6 +92,7 @@ public class BossMonster_IdleState : BossMonsterStateMachine
     public override void Enter()
     {
         base.Enter();
+        isAttackAble = false;
         owner.Agent.stoppingDistance = 0;
         owner.Agent.speed = owner.MonsterViewModel.MonsterInfo.WalkSpeed;
 
@@ -111,11 +115,13 @@ public class BossMonster_IdleState : BossMonsterStateMachine
         }
 
         Player player = target.GetComponent<Player>();
+
         if (player.ViewModel.playerState == State.Die)
         {
             owner.Agent.SetDestination(SpawnPosition);
             return;
-        }else
+        }
+        else
 
         if (!isAttackAble)
         {
@@ -205,15 +211,18 @@ public class BossMonster_BackDashState : BossMonsterStateMachine
     public BossMonster_BackDashState(Monster owner) : base(owner) { }
 
     private float backDashPower = 10f;
-    private float gravityMultiplier = 15f;
-    private float initJumpSpeed = 15f;
-    private float maxJumpHeight;
-    private float slowDownThreshold = 0.5f; // 속도가 이 값 이하가 되면 느리게
+    private float gravityMultiplier = 2f;
+    private float jumpDuration = 1f;
 
-    private Vector3 jumpDirection;
-    private Transform newtarget;
-    private bool isFalling;
+    private Vector3 startPoint;
+    private Vector3 endPoint;
+    private float elapsedTime;
+    private bool isJumping;
     private bool isGround;
+
+
+    private Transform newtarget;
+    private int walkableAreaMask;
 
     public override void Enter()
     {
@@ -224,18 +233,30 @@ public class BossMonster_BackDashState : BossMonsterStateMachine
         owner.rb.velocity = Vector3.zero;
         owner.rb.isKinematic = false;
 
-        maxJumpHeight = owner.transform.position.y + owner.monsterHeight + 2f;
-
+        startPoint = owner.transform.position;
         newtarget = owner.MonsterViewModel.TraceTarget;
         if (newtarget == null) return;
-        jumpDirection = (owner.transform.position - (newtarget.position - owner.transform.position).normalized * backDashPower);
-        jumpDirection.y = 0f;
-        jumpDirection.Normalize();
 
-        owner.rb.AddForce(jumpDirection * backDashPower + Vector3.up * initJumpSpeed, ForceMode.Impulse);
-        owner.animator.SetTrigger(hashBackJump);
+        walkableAreaMask = NavMesh.GetAreaFromName("Walkable");
 
-        isFalling = false;
+        Vector3 targetDirection = (owner.transform.position - newtarget.position).normalized;
+        Vector3 potentialEndPoint = owner.transform.position + targetDirection * backDashPower;
+
+        NavMeshHit hit;
+        if (NavMesh.SamplePosition(potentialEndPoint, out hit, backDashPower, NavMesh.AllAreas))
+        {
+            endPoint = hit.position;
+        }
+        else
+        {
+            NavMesh.SamplePosition(owner.transform.position, out hit, backDashPower, NavMesh.AllAreas);
+            endPoint = hit.position; // 주변에서 가장 가까운 Walkable 좌표를 찾기
+        }
+
+        owner.animator.SetTrigger("BackJump");
+
+        elapsedTime = 0f;
+        isJumping = true;
         isGround = false;
     }
 
@@ -243,35 +264,28 @@ public class BossMonster_BackDashState : BossMonsterStateMachine
     {
         base.Update();
 
-        if (owner.transform.position.y >= maxJumpHeight && !isFalling)
+        if (isJumping)
         {
-            // 최고점에 도달하면 상승 속도를 거의 멈추게 설정
-            owner.rb.velocity = new Vector3(owner.rb.velocity.x, slowDownThreshold, owner.rb.velocity.z);
-            owner.StartCoroutine(HoverAtPeaak());
-        }
+            elapsedTime += Time.deltaTime;
+            float t = elapsedTime / jumpDuration;
+            if (t > 1f)
+            {
+                t = 1f;
+                isJumping = false;
+            }
 
-        if (isFalling)
-        {
-            // 하강 상태에서는 중력을 강화하여 빠르게 내려오게 함
-            owner.rb.AddForce(Vector3.down * gravityMultiplier, ForceMode.Acceleration);
+            float height = Mathf.Sin(Mathf.PI * t) * backDashPower * 0.5f;
+            Vector3 currentPosition = Vector3.Lerp(startPoint, endPoint, t) + Vector3.up * height;
+            owner.rb.MovePosition(currentPosition);
 
-            if (owner.rb.velocity.y == 0f && !isGround)
+            if (!isJumping && !isGround)
             {
                 isGround = true;
-                owner.animator.SetTrigger(hashNextAction);
+                owner.animator.SetTrigger("NextAction");
                 owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.Attack);
                 return;
             }
         }
-    }
-
-    private IEnumerator HoverAtPeaak()
-    {
-        owner.rb.isKinematic = true;
-        yield return new WaitForSeconds(0.2f); // 0.2초 동안 대기
-        owner.rb.isKinematic = false;
-        owner.rb.velocity = jumpDirection * backDashPower + Vector3.down * initJumpSpeed; // 초기 방향과 속도로 하강
-        isFalling = true;
     }
 
     public override void Exit()
@@ -282,6 +296,15 @@ public class BossMonster_BackDashState : BossMonsterStateMachine
         owner.rb.isKinematic = true;
         owner.animator.applyRootMotion = true;
     }
+
+    //private IEnumerator HoverAtPeaak()
+    //{
+    //    owner.rb.isKinematic = true;
+    //    yield return new WaitForSeconds(0.5f); // 0.2초 동안 대기
+    //    owner.rb.isKinematic = false;
+    //    owner.rb.velocity = jumpDirection * backDashPower + Vector3.down * initJumpSpeed; // 초기 방향과 속도로 하강
+    //    isFalling = true;
+    //}
 }
 
 //공격

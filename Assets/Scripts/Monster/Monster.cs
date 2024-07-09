@@ -528,9 +528,12 @@ public class Monster : MonoBehaviour
     
     public void Parried(Player attacker)
     {
-        float addParriedPower = 50f;
+        float addParriedPower;
 
-        _monsterState.MonsterInfo.Stamina -= attacker.ViewModel.playerInfo.Strength * addParriedPower;
+        if (type != MonsterType.Boss) addParriedPower = attacker.ViewModel.playerInfo.Strength * 3;
+        else addParriedPower = attacker.ViewModel.playerInfo.Strength * 10;
+
+        _monsterState.MonsterInfo.Stamina -= addParriedPower;
 
         _monsterState.RequestStateChanged(monsterId, State.Parried);
     }

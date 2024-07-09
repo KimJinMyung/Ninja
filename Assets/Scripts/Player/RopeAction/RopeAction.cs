@@ -66,7 +66,8 @@ public class RopeAction : MonoBehaviour
     {
         if (context.started)
         {
-            StartGrapple();
+            if(owner.Animator.GetBool(hashIsGrappling)) StopGrapple();
+            else StartGrapple();
         }
     }
 
@@ -99,10 +100,10 @@ public class RopeAction : MonoBehaviour
 
             owner.isGravityAble = false;
         }
-        else
-        {
-            Invoke(nameof(StopGrapple), grappleDelayTime);
-        }
+        //else
+        //{
+        //    Invoke(nameof(StopGrapple), grappleDelayTime);
+        //}
     }
 
     private bool IsGrapplingAblePoint(Vector3 grapplingPoint, float checkAngle)
@@ -246,6 +247,8 @@ public class RopeAction : MonoBehaviour
 
         if (ownerViewZone.ViewModel.LockOnAbleTarget.CompareTag("RopePoint"))
         {
+            if (!ownerViewZone.ViewModel.HitColliders.Contains(ownerViewZone.ViewModel.LockOnAbleTarget)) return Vector3.zero;
+
             targetPos = ownerViewZone.ViewModel.LockOnAbleTarget.position;
         }
 

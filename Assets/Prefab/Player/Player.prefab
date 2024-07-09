@@ -25,7 +25,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1188285950}
   m_LocalRotation: {x: 0.1469141, y: -0.0094646625, z: 0.0021748992, w: 0.98910165}
-  m_LocalPosition: {x: 0.885, y: 1.676, z: -3}
+  m_LocalPosition: {x: 0.8849945, y: 1.6760006, z: -3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -136,7 +136,7 @@ MonoBehaviour:
   CameraDistance: 3
   CameraCollisionFilter:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 65
   IgnoreTag: 
   CameraRadius: 0.2
   DampingIntoCollision: 0
@@ -1692,7 +1692,7 @@ LineRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: cc208742383eebc45bd8f225ebea0ce4, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1851,6 +1851,7 @@ GameObject:
   - component: {fileID: 303397428}
   - component: {fileID: 8621038341519744155}
   - component: {fileID: 303397429}
+  - component: {fileID: 1440087329}
   m_Layer: 13
   m_Name: Player
   m_TagString: Player
@@ -2058,6 +2059,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: f91efd12-853f-4910-b0a7-f32fd9eb87d7
     m_ActionName: Player/Resurrection[/Keyboard/r]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1440087329}
+        m_TargetAssemblyTypeName: Player_Debug_Teleport, Assembly-CSharp
+        m_MethodName: OnDebugWarp
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 6fa8c1e5-c78f-4b2a-975d-3001cab04392
+    m_ActionName: Player/Warp[/Keyboard/t]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
@@ -2216,6 +2233,19 @@ MonoBehaviour:
   LeftHand: {fileID: 1787398572}
   grapplingCd: 1
   grapplingCdTimer: 0
+--- !u!114 &1440087329
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 372432206759774204}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f1950c5340dbd04d80a4f764d70e381, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  WarpPosition: {fileID: 0}
 --- !u!1 &372432206759774432
 GameObject:
   m_ObjectHideFlags: 0
