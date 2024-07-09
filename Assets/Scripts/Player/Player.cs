@@ -65,6 +65,9 @@ public class Player : MonoBehaviour
     private Player_ViewModel _viewModel;
     public Player_ViewModel ViewModel { get { return _viewModel; } }
     #endregion
+
+    private Player_data defaultData;
+
     private StateMachine _stateMachine;
     private EnvironmentScanner _environmentScanner;
 
@@ -171,6 +174,7 @@ public class Player : MonoBehaviour
         var player = DataManager.Instance.GetPlayerData(0);
         if (player == null) return;
 
+        defaultData = player.Clone();
         _viewModel.RequestPlayerDataChanged(player_id, player.Clone());
     }
 
@@ -230,9 +234,9 @@ public class Player : MonoBehaviour
 
     public void ResurrectPlayer()
     {
-        _viewModel.RequestStateChanged(player_id, State.Idle);
-        _viewModel.playerInfo.HP = _viewModel.playerInfo.MaxHP;
-        _viewModel.playerInfo.Stamina = _viewModel.playerInfo.MaxStamina;
+        _viewModel.RequestStateChanged(player_id, State.Idle);        
+
+        _viewModel.RequestPlayerDataChanged(player_id, defaultData);
         isResurrectionAble = false;
     }
 
@@ -445,6 +449,11 @@ public class Player : MonoBehaviour
 
         if (IsDefenceSuccess(attacker.transform.position))
         {
+            if (attacker.Type == MonsterType.Boss)
+            {
+                StartCoroutine(PushBack(attacker.transform.position, 1));
+            }
+
             if (_viewModel.playerState == State.Parry)
             {
                 if (attacker.MonsterViewModel.CurrentAttackMethod.AttackType != "Long")
@@ -458,11 +467,6 @@ public class Player : MonoBehaviour
 
             if (animator.GetBool(hashDefence))
             {
-                if(attacker.Type == MonsterType.Boss && (attacker.BossAttackTypeIndex == 0 || attacker.BossAttackTypeIndex == 2))
-                {
-                    StartCoroutine(PushBack(attacker.transform.position, 3));
-                }
-
                 //방어 성공
                 Player_data StaminaData = _viewModel.playerInfo;
                 StaminaData.Stamina -= attacker.MonsterViewModel.MonsterInfo.Strength;

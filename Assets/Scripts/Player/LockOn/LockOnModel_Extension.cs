@@ -48,6 +48,9 @@ public static class LockOnModel_Extension
             {
                 c.gameObject.layer = MonsterLayer;
             }
+
+            Monster monster = c.GetComponent<Monster>();
+            if (monster == null) continue;
         }
 
         model.HitColliders = newColliders;

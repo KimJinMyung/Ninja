@@ -5,6 +5,7 @@ using UnityEngine;
 public class Monster_Assainated : StateMachineBehaviour
 {
     private Monster owner;
+    private Monster_data data;
 
     protected readonly int hashDead = Animator.StringToHash("Dead");
 
@@ -14,15 +15,16 @@ public class Monster_Assainated : StateMachineBehaviour
         animator.SetLayerWeight(1, 0);
         owner.MonsterViewModel.MonsterInfo.HP = 0;
         animator.SetBool(hashDead, true);
-
-        owner.MonsterViewModel.RequestStateChanged(owner.monsterId, State.Die);
     }
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        if(stateInfo.normalizedTime >= 1f)
+        if (owner.MonsterViewModel.MonsterInfo.Life > 0) return;
+
+        if (stateInfo.normalizedTime >= 1f)
         {
             owner.gameObject.SetActive(false);
+            MonsterManager.instance.DieMonster(owner);
         }
     }
 }

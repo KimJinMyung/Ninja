@@ -71,15 +71,18 @@ public class DataManager : MonoBehaviour
             monster.DataId = int.Parse(data.Attribute(nameof(monster.DataId)).Value);
             monster.Name = data.Attribute(nameof(monster.Name)).Value;
             monster.HP = float.Parse(data.Attribute(nameof(monster.HP)).Value);
+            monster.MaxHP = float.Parse(data.Attribute(nameof(monster.MaxHP)).Value);
             monster.ATK = float.Parse(data.Attribute(nameof(monster.ATK)).Value);
             monster.WalkSpeed = float.Parse(data.Attribute(nameof(monster.WalkSpeed)).Value);
             monster.RunSpeed = float.Parse(data.Attribute(nameof(monster.RunSpeed)).Value);
             monster.Strength = float.Parse(data.Attribute(nameof(monster.Strength)).Value);
             monster.Stamina = float.Parse(data.Attribute(nameof(monster.Stamina)).Value);
+            monster.MaxStamina = float.Parse(data.Attribute(nameof(monster.MaxStamina)).Value);
             monster.Description = data.Attribute(nameof(monster.Description)).Value;
             monster.ViewRange = float.Parse(data.Attribute(nameof(monster.ViewRange)).Value);
             monster.ViewAngel = float.Parse(data.Attribute(nameof(monster.ViewAngel)).Value);
             monster.DefencePer = float.Parse(data.Attribute(nameof(monster.DefencePer)).Value);
+            monster.Life = float.Parse(data.Attribute(nameof(monster.Life)).Value);
 
             string AttackMethodNameString = data.Attribute(nameof(monster.AttackMethodName)).Value;
             if (!string.IsNullOrEmpty(AttackMethodNameString))

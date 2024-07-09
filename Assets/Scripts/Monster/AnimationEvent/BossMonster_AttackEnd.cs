@@ -121,7 +121,7 @@ public class BossMonster_AttackEnd : StateMachineBehaviour
                             (stateInfo.normalizedTime >= 0.51f && stateInfo.normalizedTime <= 0.66f)) animator.SetBool(hashAttackMove, true);
                         else animator.SetBool(hashAttackMove, false);
 
-                        if ((stateInfo.normalizedTime >= 0.05f && stateInfo.normalizedTime <= 0.13f) || (stateInfo.normalizedTime >= 0.2f && stateInfo.normalizedTime <= 0.37f) || 
+                        if ((stateInfo.normalizedTime >= 0.05f && stateInfo.normalizedTime <= 0.16f) || (stateInfo.normalizedTime >= 0.2f && stateInfo.normalizedTime <= 0.37f) || 
                             (stateInfo.normalizedTime >= 0.51f && stateInfo.normalizedTime <= 0.66f)) owner.attackBox.gameObject.SetActive(true);
                         else owner.attackBox.gameObject.SetActive(false);
 

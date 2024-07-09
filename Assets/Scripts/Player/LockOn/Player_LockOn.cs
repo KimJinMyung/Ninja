@@ -148,7 +148,7 @@ public class Player_LockOn : MonoBehaviour
                     if (hit.collider == collider)
                     {
                         if (hit.collider.CompareTag("RopePoint") && !IsGrapplingAblePoint(hit.point)) continue;
-
+                        
                         tempLockOnAbleList.Add(collider.transform);
 
                         if (angleToTarget < closestAngle)

@@ -19,7 +19,7 @@ public static class Player_ViewModel_Extension
         input.playerState = state;
     }
     #endregion
-    #region PlayerHP_UI
+    #region Player_UI
     public static void BindPlayerHPChangedEvent(this Player_ViewModel input, bool isBind)
     {
         PlayerManager.instance.BindHPChanged(input.OnPlayerHPChanged, isBind);

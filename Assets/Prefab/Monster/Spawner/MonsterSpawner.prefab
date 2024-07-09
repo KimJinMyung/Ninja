@@ -49,9 +49,3 @@ MonoBehaviour:
   - monsterType: 0
     spawnPoint: {fileID: 0}
     spawnCount: 1
-  - monsterType: 1
-    spawnPoint: {fileID: 0}
-    spawnCount: 1
-  - monsterType: 2
-    spawnPoint: {fileID: 0}
-    spawnCount: 1

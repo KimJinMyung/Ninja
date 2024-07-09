@@ -2042,6 +2042,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 53aa85a7-8d8f-4f12-8bc4-8023db2e8daa
     m_ActionName: Player/GrapplingAction[/Keyboard/r]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 6727319014848963203}
+        m_TargetAssemblyTypeName: Player, Assembly-CSharp
+        m_MethodName: OnResurrection
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: f91efd12-853f-4910-b0a7-f32fd9eb87d7
+    m_ActionName: Player/Resurrection[/Keyboard/r]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
@@ -2109,6 +2125,7 @@ MonoBehaviour:
   _lookAt: {fileID: 372432206639588553}
   StaminaRecoveryDelayTime: 10
   isDefence: 0
+  isResurrectionAble: 0
 --- !u!143 &6727319014848963206
 CharacterController:
   m_ObjectHideFlags: 0

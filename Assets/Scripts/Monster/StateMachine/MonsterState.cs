@@ -575,25 +575,44 @@ public class Monster_DeadState : MonsterState
     private int _DeadMonsterLayer = LayerMask.NameToLayer("Dead");
     private int _RespawnMonsterLayer = LayerMask.NameToLayer("Monster");
 
+    private float _timer;
+
     public override void Enter()
     {
         base.Enter();
-
+        _timer = 0;
         owner.Agent.speed = 0f;
         owner.Agent.destination = default;
         owner.rb.isKinematic = false;
         owner.animator.SetLayerWeight(1, 0);
-        MonsterManager.instance.DieMonster(owner);
+        owner.MonsterViewModel.MonsterInfo.Life--;
     }
 
     public override void Update()
     {
         base.Update();
 
-        if (owner.gameObject.layer != _DeadMonsterLayer)
+        if(owner.MonsterViewModel.MonsterInfo.Life > 0)
         {
-            owner.gameObject.layer = _DeadMonsterLayer;
+            if(_timer > 5f)
+            {
+                owner.Resurrection();
+                return;
+            }
+            else
+            {
+                _timer += Time.deltaTime;
+            }
         }
+        else
+        {
+            if (owner.gameObject.layer != _DeadMonsterLayer)
+            {
+                owner.gameObject.layer = _DeadMonsterLayer;
+            }
+
+            MonsterManager.instance.DieMonster(owner);
+        }        
     }
 
     public override void Exit()

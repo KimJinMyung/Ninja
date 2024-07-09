@@ -94,9 +94,7 @@ public class Monster : MonoBehaviour
             monster.mesh.SetActive(false);
         }
 
-        _monsterStateMachine = gameObject.AddComponent<StateMachine>();
-
-      
+        _monsterStateMachine = gameObject.AddComponent<StateMachine>();      
     }
 
     public void SetStateOnCreate(MonsterType type)
@@ -117,6 +115,11 @@ public class Monster : MonoBehaviour
             _monsterState.RegisterMonsterInfoChanged(monsterId, true);
             _monsterState.RegisterAttackMethodChanged(monsterId, true);
             _monsterState.RegisterTraceTargetChanged(monsterId, true);
+            _monsterState.BindMonsterHPChangedEvent(true, monsterId);
+            _monsterState.BindMonsterMaxHPChangedEvent(true, monsterId);
+            _monsterState.BindMonsterStaminaChangedEvent(true, monsterId);
+            _monsterState.BindPlayerMaxStaminaChangedEvent(true, monsterId);
+            _monsterState.BindMonsterLifeCountChangedEvent(true, monsterId);
         }
 
         _monsterState.RequestMonsterTypeChanged(monsterId, type);
@@ -183,6 +186,11 @@ public class Monster : MonoBehaviour
     {
         if (_monsterState != null)
         {
+            _monsterState.BindMonsterLifeCountChangedEvent(false, monsterId);
+            _monsterState.BindPlayerMaxStaminaChangedEvent(false, monsterId);
+            _monsterState.BindMonsterStaminaChangedEvent(false, monsterId);
+            _monsterState.BindMonsterMaxHPChangedEvent(false, monsterId);
+            _monsterState.BindMonsterHPChangedEvent(false, monsterId);
             _monsterState.RegisterTraceTargetChanged(monsterId, false);
             _monsterState.RegisterAttackMethodChanged(monsterId, false);
             _monsterState.RegisterMonsterInfoChanged(monsterId, false);
@@ -555,5 +563,16 @@ public class Monster : MonoBehaviour
         {
             BossCurrentAttackIndex--;
         }
+    }
+
+    public void Resurrection()
+    {
+        if (_monsterState.MonsterInfo.Life <= 0) return;
+
+        _monsterState.RequestStateChanged(monsterId, State.Idle);
+        Monster_data data = _monsterState.MonsterInfo;
+        data.HP = data.MaxHP;
+        data.Stamina = data.MaxStamina;
+        _monsterState.RequestMonsterInfoChanged(monsterId, data);
     }
 }

@@ -22,18 +22,78 @@ public static class Monster_Extension
     }
     #endregion
 
+    #region Monster_UI
+    public static void BindMonsterHPChangedEvent(this Monster_Status_ViewModel input, bool isBind, int id)
+    {
+        MonsterManager.instance.RegisterMonsterHPChangedCallback(id, input.OnMonsterHPChanged, isBind);
+    }
+
+    public static void OnMonsterHPChanged(this Monster_Status_ViewModel input, float hp)
+    {
+        input.MonsterInfo.HP = hp;
+        input.OnPropertyChanged(nameof(input.MonsterInfo));
+        input.MonsterInfo = input.MonsterInfo;
+    }
+
+    public static void BindMonsterMaxHPChangedEvent(this Monster_Status_ViewModel input, bool isBind, int id)
+    {
+        MonsterManager.instance.RegisterMonsterMaxHPChangedCallback(id, input.OnMonsterMaxHPChanged, isBind);
+    }
+
+    public static void OnMonsterMaxHPChanged(this Monster_Status_ViewModel input, float maxhp)
+    {
+        input.MonsterInfo.MaxHP = maxhp;
+        input.OnPropertyChanged(nameof(input.MonsterInfo));
+        input.MonsterInfo = input.MonsterInfo;
+    }
+    public static void BindMonsterStaminaChangedEvent(this Monster_Status_ViewModel input, bool isBind, int id)
+    {
+        MonsterManager.instance.RegisterMonsterStaminaChangedCallback(id, input.OnPlayerStaminaChanged, isBind);
+    }
+
+    public static void OnPlayerStaminaChanged(this Monster_Status_ViewModel input, float stamina)
+    {
+        input.MonsterInfo.Stamina = stamina;
+        input.OnPropertyChanged(nameof(input.MonsterInfo));
+        input.MonsterInfo = input.MonsterInfo;
+    }
+    public static void BindPlayerMaxStaminaChangedEvent(this Monster_Status_ViewModel input, bool isBind, int id)
+    {
+        MonsterManager.instance.RegisterMonsterMaxStaminaChangedCallback(id, input.OnPlayerMaxStaminaChanged, isBind);
+    }
+
+    public static void OnPlayerMaxStaminaChanged(this Monster_Status_ViewModel input, float maxStamina)
+    {
+        input.MonsterInfo.MaxStamina = maxStamina;
+        input.OnPropertyChanged(nameof(input.MonsterInfo));
+        input.MonsterInfo = input.MonsterInfo;
+    }
+    public static void BindMonsterLifeCountChangedEvent(this Monster_Status_ViewModel input, bool isBind, int id)
+    {
+        MonsterManager.instance.RegisterMonsterLifeCountChangedCallback(id, input.OnMonsterLifeCountChanged, isBind);
+    }
+
+    public static void OnMonsterLifeCountChanged(this Monster_Status_ViewModel input, float lifeCount)
+    {
+        input.MonsterInfo.Life = lifeCount;
+        input.OnPropertyChanged(nameof(input.MonsterInfo));
+        input.MonsterInfo = input.MonsterInfo;
+    }
+    #endregion
+
     #region Monster_Data
     public static void RegisterMonsterInfoChanged(this Monster_Status_ViewModel monster_A, int acotrId, bool isRegister)
     {
         ActorLogicManager._instance.RegisterInfoChangedCallback(acotrId, monster_A.OnResponseMonsterInfoChangedEvent, isRegister);
     }
-    public static void RequestMonsterInfoChanged(this Monster_Status_ViewModel monster_A, int acotrId, Monster_data info)
+    public static void RequestMonsterInfoChanged(this Monster_Status_ViewModel monster_A, int actorId, Monster_data info)
     {
-        ActorLogicManager._instance.OnInfoChanged(acotrId, info);
+        ActorLogicManager._instance.OnInfoChanged(actorId, info);
     }
-    public static void OnResponseMonsterInfoChangedEvent(this Monster_Status_ViewModel monster_A, Monster_data info)
+    public static void OnResponseMonsterInfoChangedEvent(this Monster_Status_ViewModel monster_A, int actorId, Monster_data info)
     {
         monster_A.MonsterInfo = info;
+        MonsterManager.instance.SetMonster_data(actorId, info);
     }
     #endregion
 
@@ -65,7 +125,7 @@ public static class Monster_Extension
         monster_A.TraceTarget = traceTarget;    
     }
     #endregion
-    #region Target
+    #region ChangedAttackMethod
     public static void RegisterAttackMethodChanged(this Monster_Status_ViewModel monster_A, int actorId, bool isRegister)
     {
         ActorLogicManager._instance.RegisterAttackMethodChangedCallback(monster_A.OnResponseAttackMethodChangedEvent, actorId, isRegister);

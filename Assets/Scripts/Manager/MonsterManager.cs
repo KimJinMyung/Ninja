@@ -1,11 +1,27 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
 
 public class MonsterManager : MonoBehaviour
 {
     public static MonsterManager instance;
+
+    private Dictionary<int, Monster> _monsterLists = new Dictionary<int, Monster>();
+    private List<Transform> _lockOnAbleMonsterList = new List<Transform>();
+    public List<Transform> LockOnAbleMonsterList { get { return _lockOnAbleMonsterList; } }
+
+    private float _attackingTimer;
+
+    Dictionary<int, Action<float>> _hpChangedCallback = new Dictionary<int, Action<float>>();
+    Dictionary<int, Action<float>> _maxHpChangedCallback = new Dictionary<int, Action<float>>();
+    Dictionary<int, Action<float>> _staminaChangedCallback = new Dictionary<int, Action<float>>();
+    Dictionary<int, Action<float>> _maxStaminaChangedCallback = new Dictionary<int, Action<float>>();
+    Dictionary<int, Action<float>> _LifeCountChangedCallback = new Dictionary<int, Action<float>>();
+
+    [SerializeField] MainHUD _mainHud;
 
     private void Awake()
     {
@@ -13,26 +29,63 @@ public class MonsterManager : MonoBehaviour
         else if(instance != this) Destroy(this.gameObject);
 
         DontDestroyOnLoad(gameObject);
+        FindMainHud();
     }
 
-    private Dictionary<int, Monster> _monsterLists = new Dictionary<int, Monster>();
+    private void FindMainHud()
+    {
+        var gObj = GameObject.Find("Player_UI");
+        var mainHud = gObj.GetComponent<MainHUD>();
+        if(mainHud != null)
+        {
+            _mainHud = mainHud;
+        }
+    }
 
-    private List<Transform> _lockOnAbleMonsterList = new List<Transform>();
-    public List<Transform> LockOnAbleMonsterList { get { return _lockOnAbleMonsterList; } }
 
-    private float _attackingTimer;
-
+    #region MonsterList
     public void SpawnMonster(Monster monster)
     {
         if (_monsterLists.ContainsKey(monster.monsterId)) return;
 
         _monsterLists.Add(monster.monsterId, monster);
+
+        if (monster.Type != MonsterType.Boss)
+        {
+            CreateMonsterHUD(monster);
+        }
+        else CreateBossMonsterHUD(monster);
+    }
+
+    public void ShowBossMonsterHUD_OnOff(bool onoff)
+    {
+        if (_mainHud == null) return;
+
+        _mainHud.BossMonsterHud_OnOff(onoff);
+    }
+
+    private void CreateBossMonsterHUD(Monster boss)
+    {
+        if (_mainHud == null) return;
+
+        _mainHud.BindBossMonster(boss);
+        ShowBossMonsterHUD_OnOff(true);
+    }
+
+    private void CreateMonsterHUD(Monster mob)
+    {
+        if (_mainHud == null)
+            return;
+
+        _mainHud.CreateMonsterHUD(mob);
     }
 
     public void DieMonster(Monster monster)
     {
         if(_monsterLists.ContainsKey(monster.monsterId))
         {
+            if (monster.Type == MonsterType.Boss) ShowBossMonsterHUD_OnOff(false);
+            else _mainHud.OffMonsterHUD(monster);
             _monsterLists.Remove(monster.monsterId);
         }
     }
@@ -54,7 +107,7 @@ public class MonsterManager : MonoBehaviour
 
     private void OnEnable()
     {
-        _attackingTimer = Random.Range(2f, 4f);
+        _attackingTimer = UnityEngine.Random.Range(2f, 4f);
     }
 
     private void Update()
@@ -72,7 +125,7 @@ public class MonsterManager : MonoBehaviour
                 if (attackMonster == null) return;
                 if (attackMonster.MonsterViewModel.MonsterState != State.Battle && attackMonster.MonsterViewModel.MonsterState != State.Circling) return;
 
-                _attackingTimer = Random.Range(2f, 4f);
+                _attackingTimer = UnityEngine.Random.Range(2f, 4f);
                 attackMonster.MonsterViewModel.RequestStateChanged(attackMonster.monsterId, State.Attack);                          
             }
         }
@@ -122,5 +175,99 @@ public class MonsterManager : MonoBehaviour
         }
 
         return monsterList.OrderByDescending(e => e.CombatMovementTimer).FirstOrDefault();
+    }
+    #endregion
+
+    public void RegisterMonsterHPChangedCallback(int monsterId, Action<float> monsterHpCallback, bool isRegister)
+    {
+        if(isRegister)
+        {
+            if (!_hpChangedCallback.ContainsKey(monsterId)) _hpChangedCallback[monsterId] = monsterHpCallback;
+            else _hpChangedCallback.Add(monsterId, monsterHpCallback);
+        }
+        else
+        {
+            if (_hpChangedCallback.ContainsKey(monsterId))
+            {
+                _hpChangedCallback[monsterId] -= monsterHpCallback;
+                if (_hpChangedCallback[monsterId] == null) _hpChangedCallback.Remove(monsterId);
+            }
+        }
+    }
+
+    public void RegisterMonsterMaxHPChangedCallback(int monsterId, Action<float> monstermaxHpCallback, bool isRegister)
+    {
+        if (isRegister)
+        {
+            if (!_maxHpChangedCallback.ContainsKey(monsterId)) _maxHpChangedCallback[monsterId] = monstermaxHpCallback;
+            else _maxHpChangedCallback.Add(monsterId, monstermaxHpCallback);
+        }
+        else
+        {
+            if (_maxHpChangedCallback.ContainsKey(monsterId))
+            {
+                _maxHpChangedCallback[monsterId] -= monstermaxHpCallback;
+                if (_maxHpChangedCallback[monsterId] == null) _maxHpChangedCallback.Remove(monsterId);
+            }
+        }
+    }
+
+    public void RegisterMonsterStaminaChangedCallback(int monsterId, Action<float> monsterStaminaCallback, bool isRegister)
+    {
+        if (isRegister)
+        {
+            if (!_staminaChangedCallback.ContainsKey(monsterId)) _staminaChangedCallback[monsterId] = monsterStaminaCallback;
+            else _staminaChangedCallback.Add(monsterId, monsterStaminaCallback);
+        }
+        else
+        {
+            if (_staminaChangedCallback.ContainsKey(monsterId))
+            {
+                _staminaChangedCallback[monsterId] -= monsterStaminaCallback;
+                if (_staminaChangedCallback[monsterId] == null) _staminaChangedCallback.Remove(monsterId);
+            }
+        }
+    }
+    public void RegisterMonsterMaxStaminaChangedCallback(int monsterId, Action<float> monsterMaxStaminaCallback, bool isRegister)
+    {
+        if (isRegister)
+        {
+            if (!_maxStaminaChangedCallback.ContainsKey(monsterId)) _maxStaminaChangedCallback[monsterId] = monsterMaxStaminaCallback;
+            else _maxStaminaChangedCallback.Add(monsterId, monsterMaxStaminaCallback);
+        }
+        else
+        {
+            if (_maxStaminaChangedCallback.ContainsKey(monsterId))
+            {
+                _maxStaminaChangedCallback[monsterId] -= monsterMaxStaminaCallback;
+                if (_maxStaminaChangedCallback[monsterId] == null) _maxStaminaChangedCallback.Remove(monsterId);
+            }
+        }
+    }
+
+    public void RegisterMonsterLifeCountChangedCallback(int monsterId, Action<float> monsterMaxStaminaCallback, bool isRegister)
+    {
+        if (isRegister)
+        {
+            if (!_LifeCountChangedCallback.ContainsKey(monsterId)) _LifeCountChangedCallback[monsterId] = monsterMaxStaminaCallback;
+            else _LifeCountChangedCallback.Add(monsterId, monsterMaxStaminaCallback);
+        }
+        else
+        {
+            if (_LifeCountChangedCallback.ContainsKey(monsterId))
+            {
+                _LifeCountChangedCallback[monsterId] -= monsterMaxStaminaCallback;
+                if (_LifeCountChangedCallback[monsterId] == null) _LifeCountChangedCallback.Remove(monsterId);
+            }
+        }
+    }
+
+    public void SetMonster_data(int monsterId,Monster_data data)
+    {
+        _hpChangedCallback[monsterId]?.Invoke(data.HP);
+        _maxHpChangedCallback[monsterId]?.Invoke(data.MaxHP);
+        _staminaChangedCallback[monsterId]?.Invoke(data.Stamina);
+        _maxStaminaChangedCallback[monsterId]?.Invoke(data.MaxStamina);
+        _LifeCountChangedCallback[monsterId]?.Invoke(data.Life);
     }
 }

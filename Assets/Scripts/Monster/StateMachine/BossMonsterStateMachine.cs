@@ -92,7 +92,7 @@ public class BossMonster_IdleState : BossMonsterStateMachine
         owner.Agent.stoppingDistance = 0;
         owner.Agent.speed = owner.MonsterViewModel.MonsterInfo.WalkSpeed;
 
-        owner.SetAttackMethodIndex(0,0);
+        owner.SetAttackMethodIndex();
 
         _attackDelayTimer = 0f;
         attackDelay = owner.MonsterViewModel.CurrentAttackMethod.AttackSpeed - Random.Range(0f, owner.MonsterViewModel.CurrentAttackMethod.AttackSpeed);
@@ -425,24 +425,47 @@ public class BossMonster_DeadState : BossMonsterStateMachine
     private int _DeadMonsterLayer = LayerMask.NameToLayer("Dead");
     private int _RespawnMonsterLayer = LayerMask.NameToLayer("Monster");
 
+    private float _timer;
+    private Monster_data data;
+
     public override void Enter()
     {
         base.Enter();
-
+        _timer = 0;
         owner.Agent.speed = 0f;
         owner.Agent.destination = default;
         owner.rb.isKinematic = false;
         owner.animator.SetLayerWeight(1, 0);
-        MonsterManager.instance.DieMonster(owner);
+
+        data = owner.MonsterViewModel.MonsterInfo;
+        data.Life--;
+        owner.MonsterViewModel.RequestMonsterInfoChanged(owner.monsterId, data);
     }
 
     public override void Update()
     {
         base.Update();
 
-        if (owner.gameObject.layer != _DeadMonsterLayer)
+        if (owner.MonsterViewModel.MonsterInfo.Life > 0)
         {
-            owner.gameObject.layer = _DeadMonsterLayer;
+            if (_timer > 5f)
+            {
+                owner.Resurrection();
+                return;
+            }
+            else
+            {
+                _timer += Time.deltaTime;
+            }
+        }
+        else
+        {
+            if (owner.gameObject.layer != _DeadMonsterLayer)
+            {
+                owner.gameObject.layer = _DeadMonsterLayer;
+            }
+
+            MonsterManager.instance.DieMonster(owner);
         }
     }
 
