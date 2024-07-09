@@ -63,29 +63,48 @@ public class Slot_MonsterHud : MonoBehaviour
             return;
         }
 
-        Vector3 ScreenPos = Camera.main.WorldToScreenPoint(_monster.transform.position + Vector3.up * _monster.monsterHeight);
-
-        if(ScreenPos.z > 0)
+        if (DetectMonster())
         {
-            Vector2 canvasPosition;
+            Vector3 ScreenPos = Camera.main.WorldToScreenPoint(_monster.transform.position + Vector3.up * _monster.monsterHeight);
 
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                _thisCanvas.transform as RectTransform,
-                ScreenPos,
-                _thisCanvas.worldCamera,
-                out canvasPosition);
+            if (ScreenPos.z > 0)
+            {
+                Vector2 canvasPosition;
 
-            MonsterHud_Panel.anchoredPosition = canvasPosition;
-            OnOffHud(true);
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                    _thisCanvas.transform as RectTransform,
+                    ScreenPos,
+                    _thisCanvas.worldCamera,
+                    out canvasPosition);
+
+                MonsterHud_Panel.anchoredPosition = canvasPosition;
+                OnOffHud(true);
+            }
+            else
+            {
+                OnOffHud(false);
+            }
         }
         else
         {
             OnOffHud(false);
         }
+        
 
         Image_MonsterHP.fillAmount = (_monster.MonsterViewModel.MonsterInfo.HP / _monster.MonsterViewModel.MonsterInfo.MaxHP);
         MonsterStamina.SetCurrentStamina(monster_data.Stamina);
         // _monster.gameObject;
         // Slo 위치 갱신
+    }
+
+    private bool DetectMonster()
+    {
+        if (_monster == null) return false;
+        float distance = Vector3.Distance(_monster.transform.position, Camera.main.transform.position);
+        if (distance <= 15f)
+        {
+            return true;
+        }
+        return false;
     }
 }

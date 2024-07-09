@@ -21,7 +21,7 @@ public class PlayerManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
-    Player_data player_data;
+    public Player_data player_data { get; private set; }
 
     public void BindHPChanged(Action<float> HPChanged, bool isBind)
     {
